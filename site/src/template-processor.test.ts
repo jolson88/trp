@@ -21,4 +21,15 @@ describe('TemplateProcessor', () => {
       inputMarkers: ['NAME'],
     });
   });
+
+  it('should detect multiple template values', () => {
+    const text = 'Hello, ##FIRST_NAME## ##LAST_NAME##';
+
+    const result = templater.process(text);
+
+    expect(result).toEqual({
+      text,
+      inputMarkers: ['FIRST_NAME', 'LAST_NAME'],
+    });
+  });
 });
