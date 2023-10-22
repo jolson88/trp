@@ -1,6 +1,43 @@
 const inputMarkerRegEx = new RegExp(/##(\w+)##/, 'g');
 const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
 
+export type SiteFilePath = string;
+export type SiteFileContent = string;
+export type SiteFile = [SiteFilePath, SiteFileContent];
+
+export function calculateSiteFiles(site: Site): Array<SiteFile> {
+  return [
+    ['index.html', site.about],
+    ['contact.html', site.contact],
+    ['blog.html', site.blog],
+  ];
+}
+
+export interface Site {
+  about: string,
+  blog: string,
+  contact: string,
+}
+
+export interface SiteTemplates {
+  about: string,
+  base: string,
+  blog: string,
+  contact: string,
+}
+
+export function generateContent({ about, base, blog, contact }: SiteTemplates): Site {
+  const aboutResults = processTemplate(base, { content: about });
+  const blogResults = processTemplate(base, { content: blog });
+  const contactResults = processTemplate(base, { content: contact });
+
+  return {
+    about: aboutResults.text,
+    blog: blogResults.text,
+    contact: contactResults.text,
+  }
+}
+
 export interface TemplateProcessingResults {
   text: string,
   inputMarkers: Array<string>,
