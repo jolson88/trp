@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { calculateSiteFiles, generateContent, processTemplate } from "../src/site-generator";
+import { describe, expect, it } from 'vitest';
+import { calculateSiteFiles, generateContent, processTemplate } from '../src/site-generator';
 
 const siteTemplates = {
   base: 'StartBase ##CONTENT## EndBase',
@@ -20,65 +20,65 @@ const siteFiles = [
   ['blog.html', 'StartBase BlogContent EndBase'],
 ];
 
-describe("calculateSiteFiles", () => {
+describe('calculateSiteFiles', () => {
   it('should calculate output files', () => {
     const files = calculateSiteFiles(site);
     expect(files).toEqual(expect.arrayContaining(siteFiles));
   });
 });
 
-describe("generateContent", () => {
-  it("should generate top pages", () => {
+describe('generateContent', () => {
+  it('should generate top pages', () => {
     const result = generateContent(siteTemplates);
     expect(result).toEqual(expect.objectContaining(site));
   });
 });
 
-describe("processTemplate", () => {
-  it("should be case-insensitive for input values", () => {
-    const result = processTemplate("Hello, ##name##");
-    expect(result.inputMarkers).toEqual(["NAME"]);
+describe('processTemplate', () => {
+  it('should be case-insensitive for input values', () => {
+    const result = processTemplate('Hello, ##name##');
+    expect(result.inputMarkers).toEqual(['NAME']);
   });
 
-  it("should detect multiple input values", () => {
-    const text = "Hello, ##FIRST_NAME## ##LAST_NAME##";
+  it('should detect multiple input values', () => {
+    const text = 'Hello, ##FIRST_NAME## ##LAST_NAME##';
 
-    const result = processTemplate("Hello, ##FIRST_NAME## ##LAST_NAME##");
+    const result = processTemplate('Hello, ##FIRST_NAME## ##LAST_NAME##');
 
     expect(result).toEqual(
       expect.objectContaining({
         text,
-        inputMarkers: ["FIRST_NAME", "LAST_NAME"],
+        inputMarkers: ['FIRST_NAME', 'LAST_NAME'],
       })
     );
   });
 
-  it("should substitute different values", () => {
-    const result = processTemplate("##greETing##, ##NAME##", {
-      greeting: "Hello",
-      name: "Jason",
+  it('should substitute different values', () => {
+    const result = processTemplate('##greETing##, ##NAME##', {
+      greeting: 'Hello',
+      name: 'Jason',
     });
 
-    expect(result.text).toBe("Hello, Jason");
+    expect(result.text).toBe('Hello, Jason');
   });
 
-  it("should substitute all values", () => {
-    const result = processTemplate("##NAME## ##NAME## ##NAME##", {
-      name: "Malkovich",
+  it('should substitute all values', () => {
+    const result = processTemplate('##NAME## ##NAME## ##NAME##', {
+      name: 'Malkovich',
     });
 
-    expect(result.text).toBe("Malkovich Malkovich Malkovich");
+    expect(result.text).toBe('Malkovich Malkovich Malkovich');
   });
 
-  it("should detect output values", () => {
-    const result = processTemplate("Hello, World\n##TITLE: Foo##\n##age: 43##");
+  it('should detect output values', () => {
+    const result = processTemplate('Hello, World\n##TITLE: Foo##\n##age: 43##');
 
     expect(result).toEqual(
       expect.objectContaining({
-        text: "Hello, World",
+        text: 'Hello, World',
         outputMarkers: [
-          ["TITLE", "Foo"],
-          ["AGE", "43"],
+          ['TITLE', 'Foo'],
+          ['AGE', '43'],
         ],
       })
     );
