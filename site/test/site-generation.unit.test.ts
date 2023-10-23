@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calculateSiteFiles, generateContent, processTemplate } from '../src/site-generator';
+import { calculateSiteFiles, calculateSiteContent, processTemplate } from '../src/site-generator';
 
 const siteTemplates = {
   base: 'StartBase ##CONTENT## EndBase',
@@ -17,8 +17,9 @@ const site = {
 const siteFiles = [
   ['index.html', 'StartBase AboutContent EndBase'],
   ['contact.html', 'StartBase ContactContent EndBase'],
-  ['blog.html', 'StartBase BlogContent EndBase'],
+  ['blog/index.html', 'StartBase BlogContent EndBase'],
 ];
+
 
 describe('calculateSiteFiles', () => {
   it('should calculate output files', () => {
@@ -27,9 +28,9 @@ describe('calculateSiteFiles', () => {
   });
 });
 
-describe('generateContent', () => {
+describe('calculateSiteContent', () => {
   it('should generate top pages', () => {
-    const result = generateContent(siteTemplates);
+    const result = calculateSiteContent(siteTemplates);
     expect(result).toEqual(expect.objectContaining(site));
   });
 });

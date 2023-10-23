@@ -1,3 +1,6 @@
+import * as fs from 'fs/promises';
+import * as path from 'path';
+
 const inputMarkerRegEx = new RegExp(/##(\w+)##/, 'g');
 const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
 
@@ -5,11 +8,22 @@ export type SiteFilePath = string;
 export type SiteFileContent = string;
 export type SiteFile = [SiteFilePath, SiteFileContent];
 
+export async function readSiteFile(path: SiteFilePath): Promise<SiteFileContent> {
+  return await fs.readFile(path, { encoding: 'utf8' });
+}
+
+export async function writeSiteFile(filePath: SiteFilePath, content: SiteFileContent): Promise<boolean> {
+  const outputDir = path.parse(filePath).dir;
+  await fs.mkdir(outputDir, { recursive: true });
+  await fs.writeFile(filePath, content);
+  return true;
+}
+
 export function calculateSiteFiles(site: Site): Array<SiteFile> {
   return [
     ['index.html', site.about],
     ['contact.html', site.contact],
-    ['blog.html', site.blog],
+    ['blog/index.html', site.blog],
   ];
 }
 
@@ -26,7 +40,7 @@ export interface SiteTemplates {
   contact: string,
 }
 
-export function generateContent({ about, base, blog, contact }: SiteTemplates): Site {
+export function calculateSiteContent({ about, base, blog, contact }: SiteTemplates): Site {
   const aboutResults = processTemplate(base, { content: about });
   const blogResults = processTemplate(base, { content: blog });
   const contactResults = processTemplate(base, { content: contact });
