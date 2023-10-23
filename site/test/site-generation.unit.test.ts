@@ -23,8 +23,8 @@ describe('createSite', () => {
 
     await createSite(givenSite, writeSiteFileMock);
 
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, givenSiteFiles[0][0], givenSiteFiles[0][1]);
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, givenSiteFiles[1][0], givenSiteFiles[1][1]);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, ...givenSiteFiles[0]);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, ...givenSiteFiles[1]);
   });
 });
 
