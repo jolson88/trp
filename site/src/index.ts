@@ -22,7 +22,8 @@ async function main(args: Array<string>): Promise<void> {
 
   console.log('Writing to output directory');
   const files = await createSite(site, outputDir);
-  console.log('Site files', files);
+
+  console.log('Site generation complete');
 }
 
 main(process.argv.slice(2)).catch(console.error);
