@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { calculateSiteFiles, calculateSiteContent, processTemplate } from '../src/site-generator';
+import { describe, expect, it, vi } from 'vitest';
+import { calculateSite, processTemplate, createSite } from '../src/site-generator';
 
 const siteTemplates = {
   base: 'StartBase ##CONTENT## EndBase',
@@ -20,17 +20,22 @@ const siteFiles = [
   ['blog/index.html', 'StartBase BlogContent EndBase'],
 ];
 
+describe('createSite', () => {
+  it('should output site files', async () => {
+    const writeSiteFileMock = vi.fn().mockResolvedValue(true);
 
-describe('calculateSiteFiles', () => {
-  it('should calculate output files', () => {
-    const files = calculateSiteFiles(site);
-    expect(files).toEqual(expect.arrayContaining(siteFiles));
+    await createSite(site, writeSiteFileMock);
+
+    expect(writeSiteFileMock).toHaveBeenCalledTimes(3);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, siteFiles[0][0], siteFiles[0][1]);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, siteFiles[1][0], siteFiles[1][1]);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(3, siteFiles[2][0], siteFiles[2][1]);
   });
 });
 
-describe('calculateSiteContent', () => {
+describe('calculateSite', () => {
   it('should generate top pages', () => {
-    const result = calculateSiteContent(siteTemplates);
+    const result = calculateSite(siteTemplates);
     expect(result).toEqual(expect.objectContaining(site));
   });
 });

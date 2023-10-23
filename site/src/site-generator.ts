@@ -4,6 +4,22 @@ import * as path from 'path';
 const inputMarkerRegEx = new RegExp(/##(\w+)##/, 'g');
 const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
 
+export interface Site {
+  about: string,
+  blog: string,
+  contact: string,
+}
+
+export async function createSite(
+  site: Site,
+  fileWriter: (filePath: SiteFilePath, content: SiteFileContent) => Promise<boolean> = writeSiteFile,
+): Promise<void> {
+  const siteFiles = calculateSiteFiles(site);
+  for (const [filePath, content] of siteFiles) {
+    await fileWriter(filePath, content);
+  }
+}
+
 export type SiteFilePath = string;
 export type SiteFileContent = string;
 export type SiteFile = [SiteFilePath, SiteFileContent];
@@ -19,18 +35,12 @@ export async function writeSiteFile(filePath: SiteFilePath, content: SiteFileCon
   return true;
 }
 
-export function calculateSiteFiles(site: Site): Array<SiteFile> {
+function calculateSiteFiles(site: Site): Array<SiteFile> {
   return [
     ['index.html', site.about],
     ['contact.html', site.contact],
     ['blog/index.html', site.blog],
   ];
-}
-
-export interface Site {
-  about: string,
-  blog: string,
-  contact: string,
 }
 
 export interface SiteTemplates {
@@ -40,7 +50,7 @@ export interface SiteTemplates {
   contact: string,
 }
 
-export function calculateSiteContent({ about, base, blog, contact }: SiteTemplates): Site {
+export function calculateSite({ about, base, blog, contact }: SiteTemplates): Site {
   const aboutResults = processTemplate(base, { content: about });
   const blogResults = processTemplate(base, { content: blog });
   const contactResults = processTemplate(base, { content: contact });
