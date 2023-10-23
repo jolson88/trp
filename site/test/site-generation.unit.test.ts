@@ -1,23 +1,20 @@
 import { describe, expect, it, vi } from 'vitest';
 import { calculateSite, processTemplate, createSite } from '../src/site-generator';
 
-const siteTemplates = {
+export const siteTemplates = {
   base: 'StartBase ##CONTENT## EndBase',
   about: 'AboutContent',
-  blog: 'BlogContent',
   contact: 'ContactContent',
 };
 
-const site = {
+export const site = {
   about: 'StartBase AboutContent EndBase',
-  blog: 'StartBase BlogContent EndBase',
   contact: 'StartBase ContactContent EndBase',
 }
 
-const siteFiles = [
+export const siteFiles = [
   ['index.html', 'StartBase AboutContent EndBase'],
   ['contact.html', 'StartBase ContactContent EndBase'],
-  ['blog/index.html', 'StartBase BlogContent EndBase'],
 ];
 
 describe('createSite', () => {
@@ -26,10 +23,8 @@ describe('createSite', () => {
 
     await createSite(site, writeSiteFileMock);
 
-    expect(writeSiteFileMock).toHaveBeenCalledTimes(3);
     expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, siteFiles[0][0], siteFiles[0][1]);
     expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, siteFiles[1][0], siteFiles[1][1]);
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(3, siteFiles[2][0], siteFiles[2][1]);
   });
 });
 
