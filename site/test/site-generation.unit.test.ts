@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
-import { calculateSite, processTemplate, createSite } from '../src/site-generator';
+import { _calculateSite, _processTemplate, createSite } from '../src/site-generator';
 
-export const siteTemplates = {
+export const givenSiteTemplates = {
   base: 'StartBase ##CONTENT## EndBase',
   about: 'AboutContent',
   contact: 'ContactContent',
 };
 
-export const site = {
+export const givenSite = {
   about: 'StartBase AboutContent EndBase',
   contact: 'StartBase ContactContent EndBase',
 }
 
-export const siteFiles = [
+export const givenSiteFiles =[
   ['index.html', 'StartBase AboutContent EndBase'],
   ['contact.html', 'StartBase ContactContent EndBase'],
 ];
@@ -21,30 +21,30 @@ describe('createSite', () => {
   it('should output site files', async () => {
     const writeSiteFileMock = vi.fn().mockResolvedValue(true);
 
-    await createSite(site, writeSiteFileMock);
+    await createSite(givenSite, writeSiteFileMock);
 
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, siteFiles[0][0], siteFiles[0][1]);
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, siteFiles[1][0], siteFiles[1][1]);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, givenSiteFiles[0][0], givenSiteFiles[0][1]);
+    expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, givenSiteFiles[1][0], givenSiteFiles[1][1]);
   });
 });
 
 describe('calculateSite', () => {
   it('should generate top pages', () => {
-    const result = calculateSite(siteTemplates);
-    expect(result).toEqual(expect.objectContaining(site));
+    const result = _calculateSite(givenSiteTemplates);
+    expect(result).toEqual(expect.objectContaining(givenSite));
   });
 });
 
 describe('processTemplate', () => {
   it('should be case-insensitive for input values', () => {
-    const result = processTemplate('Hello, ##name##');
+    const result = _processTemplate('Hello, ##name##');
     expect(result.inputMarkers).toEqual(['NAME']);
   });
 
   it('should detect multiple input values', () => {
     const text = 'Hello, ##FIRST_NAME## ##LAST_NAME##';
 
-    const result = processTemplate('Hello, ##FIRST_NAME## ##LAST_NAME##');
+    const result = _processTemplate('Hello, ##FIRST_NAME## ##LAST_NAME##');
 
     expect(result).toEqual(
       expect.objectContaining({
@@ -55,7 +55,7 @@ describe('processTemplate', () => {
   });
 
   it('should substitute different values', () => {
-    const result = processTemplate('##greETing##, ##NAME##', {
+    const result = _processTemplate('##greETing##, ##NAME##', {
       greeting: 'Hello',
       name: 'Jason',
     });
@@ -64,7 +64,7 @@ describe('processTemplate', () => {
   });
 
   it('should substitute all values', () => {
-    const result = processTemplate('##NAME## ##NAME## ##NAME##', {
+    const result = _processTemplate('##NAME## ##NAME## ##NAME##', {
       name: 'Malkovich',
     });
 
@@ -72,7 +72,7 @@ describe('processTemplate', () => {
   });
 
   it('should detect output values', () => {
-    const result = processTemplate('Hello, World\n##TITLE: Foo##\n##age: 43##');
+    const result = _processTemplate('Hello, World\n##TITLE: Foo##\n##age: 43##');
 
     expect(result).toEqual(
       expect.objectContaining({

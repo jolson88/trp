@@ -9,36 +9,38 @@ export interface Site {
   contact: string,
 }
 
+export async function loadSite(dir: string, readFile = _readSiteFile): Promise<Site> {
+  return _calculateSite({
+    about: await readFile(path.join(dir, 'about.html')),
+    base: await readFile(path.join(dir, '_base.html')),
+    contact: await readFile(path.join(dir, 'contact.html')),
+  });
+}
+
 export async function createSite(
   site: Site,
-  fileWriter: (filePath: SiteFilePath, content: SiteFileContent) => Promise<boolean> = writeSiteFile,
-): Promise<void> {
-  const siteFiles = calculateSiteFiles(site);
+  writeFile = _writeSiteFile,
+): Promise<Array<SiteFile>> {
+  const siteFiles = _calculateSiteFiles(site);
   for (const [filePath, content] of siteFiles) {
-    await fileWriter(filePath, content);
+    await writeFile(filePath, content);
   }
+  return siteFiles;
 }
 
 export type SiteFilePath = string;
 export type SiteFileContent = string;
 export type SiteFile = [SiteFilePath, SiteFileContent];
 
-export async function readSiteFile(path: SiteFilePath): Promise<SiteFileContent> {
+export async function _readSiteFile(path: SiteFilePath): Promise<SiteFileContent> {
   return await fs.readFile(path, { encoding: 'utf8' });
 }
 
-export async function writeSiteFile(filePath: SiteFilePath, content: SiteFileContent): Promise<boolean> {
+export async function _writeSiteFile(filePath: SiteFilePath, content: SiteFileContent): Promise<boolean> {
   const outputDir = path.parse(filePath).dir;
   await fs.mkdir(outputDir, { recursive: true });
   await fs.writeFile(filePath, content);
   return true;
-}
-
-function calculateSiteFiles(site: Site): Array<SiteFile> {
-  return [
-    ['index.html', site.about],
-    ['contact.html', site.contact],
-  ];
 }
 
 export interface SiteTemplates {
@@ -47,14 +49,21 @@ export interface SiteTemplates {
   contact: string,
 }
 
-export function calculateSite({ about, base, contact }: SiteTemplates): Site {
-  const aboutResults = processTemplate(base, { content: about });
-  const contactResults = processTemplate(base, { content: contact });
+export function _calculateSite({ about, base, contact }: SiteTemplates): Site {
+  const aboutResults = _processTemplate(base, { content: about });
+  const contactResults = _processTemplate(base, { content: contact });
 
   return {
     about: aboutResults.text,
     contact: contactResults.text,
   }
+}
+
+function _calculateSiteFiles(site: Site): Array<SiteFile> {
+  return [
+    ['index.html', site.about],
+    ['contact.html', site.contact],
+  ];
 }
 
 export interface TemplateProcessingResults {
@@ -63,7 +72,7 @@ export interface TemplateProcessingResults {
   outputMarkers: Array<Array<string>>,
 }
 
-export function processTemplate(template: string, context: any = {}): TemplateProcessingResults {
+export function _processTemplate(template: string, context: any = {}): TemplateProcessingResults {
   function buildLookup(context: any): Map<string, any> {
     const lookup = new Map<string, any>();
     for (let [key, value] of Object.entries(context)) {
