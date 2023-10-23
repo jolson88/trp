@@ -20,6 +20,10 @@ async function main(args: Array<string>): Promise<void> {
     await fs.rm(outputDir, { recursive: true, });
   }
 
+  console.log('Copying public files to output directory');
+  const publicDir = path.join(process.cwd(), 'public');
+  await fs.cp(publicDir, outputDir, { recursive: true, force: true });
+
   console.log('Writing to output directory');
   const files = await createSite(site, outputDir);
 
