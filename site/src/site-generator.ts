@@ -9,28 +9,28 @@ export interface Site {
   contact: string,
 }
 
-export async function loadSite(dir: string, readFile = _readSiteFile): Promise<Site> {
-  return _calculateSite({
-    about: await readFile(path.join(dir, 'about.html')),
-    base: await readFile(path.join(dir, '_base.html')),
-    contact: await readFile(path.join(dir, 'contact.html')),
-  });
-}
-
 export async function createSite(
   site: Site,
   writeFile = _writeSiteFile,
 ): Promise<Array<SiteFile>> {
-  const siteFiles = _calculateSiteFiles(site);
+  const siteFiles: Array<SiteFile> = [
+    ['index.html', site.about],
+    ['contact.html', site.contact],
+  ];
   for (const [filePath, content] of siteFiles) {
     await writeFile(filePath, content);
   }
   return siteFiles;
 }
 
-export type SiteFilePath = string;
-export type SiteFileContent = string;
-export type SiteFile = [SiteFilePath, SiteFileContent];
+export async function loadSite(dir: string, readFile = _readSiteFile): Promise<Site> {
+  const templates = await _loadSiteTemplates(dir, readFile);
+  return _calculateSiteFromTemplates(templates);
+}
+
+type SiteFilePath = string;
+type SiteFileContent = string;
+type SiteFile = [SiteFilePath, SiteFileContent];
 
 export async function _readSiteFile(path: SiteFilePath): Promise<SiteFileContent> {
   return await fs.readFile(path, { encoding: 'utf8' });
@@ -43,13 +43,13 @@ export async function _writeSiteFile(filePath: SiteFilePath, content: SiteFileCo
   return true;
 }
 
-export interface SiteTemplates {
+interface SiteTemplates {
   about: string,
   base: string,
   contact: string,
 }
 
-export function _calculateSite({ about, base, contact }: SiteTemplates): Site {
+export function _calculateSiteFromTemplates({ about, base, contact }: SiteTemplates): Site {
   const aboutResults = _processTemplate(base, { content: about });
   const contactResults = _processTemplate(base, { content: contact });
 
@@ -59,14 +59,15 @@ export function _calculateSite({ about, base, contact }: SiteTemplates): Site {
   }
 }
 
-function _calculateSiteFiles(site: Site): Array<SiteFile> {
-  return [
-    ['index.html', site.about],
-    ['contact.html', site.contact],
-  ];
+async function _loadSiteTemplates(dir: string, readFile = _readSiteFile): Promise<SiteTemplates> {
+  return {
+    about: await readFile(path.join(dir, 'about.html')),
+    base: await readFile(path.join(dir, '_base.html')),
+    contact: await readFile(path.join(dir, 'contact.html')),
+  }
 }
 
-export interface TemplateProcessingResults {
+interface TemplateProcessingResults {
   text: string,
   inputMarkers: Array<string>,
   outputMarkers: Array<Array<string>>,

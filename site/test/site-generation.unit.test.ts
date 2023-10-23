@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { _calculateSite, _processTemplate, createSite } from '../src/site-generator';
+import { _calculateSiteFromTemplates, _processTemplate, createSite } from '../src/site-generator';
 
 export const givenSiteTemplates = {
   base: 'StartBase ##CONTENT## EndBase',
@@ -30,7 +30,7 @@ describe('createSite', () => {
 
 describe('calculateSite', () => {
   it('should generate top pages', () => {
-    const result = _calculateSite(givenSiteTemplates);
+    const result = _calculateSiteFromTemplates(givenSiteTemplates);
     expect(result).toEqual(expect.objectContaining(givenSite));
   });
 });
