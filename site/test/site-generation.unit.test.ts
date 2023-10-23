@@ -21,7 +21,7 @@ describe('createSite', () => {
   it('should output site files', async () => {
     const writeSiteFileMock = vi.fn().mockResolvedValue(true);
 
-    await createSite(givenSite, writeSiteFileMock);
+    await createSite(givenSite, '', writeSiteFileMock);
 
     expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, ...givenSiteFiles[0]);
     expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, ...givenSiteFiles[1]);

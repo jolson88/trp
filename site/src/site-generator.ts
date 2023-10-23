@@ -11,6 +11,7 @@ export interface Site {
 
 export async function createSite(
   site: Site,
+  outDir: string,
   writeFile = _writeSiteFile,
 ): Promise<Array<SiteFile>> {
   const siteFiles: Array<SiteFile> = [
@@ -18,7 +19,7 @@ export async function createSite(
     ['contact.html', site.contact],
   ];
   for (const [filePath, content] of siteFiles) {
-    await writeFile(filePath, content);
+    await writeFile(path.join(outDir, filePath), content);
   }
   return siteFiles;
 }
