@@ -68,6 +68,11 @@ export async function loadSite(inputDir: string, context = defaultContext, readF
   }
 }
 
+// TODO: Instead of individual calls to _readSiteFile, make it a _readInputFiles that will return a POJO for input files given an input dir
+// Something akin to { siteTemplate: SiteFile, aboutContent: SiteFile, contactContent: SiteFile }
+// This will also set us up for having a list of blogs in the future (e.g. `blogs: Array<SiteFile>  )
+// This also provides us a foundation to introduce a less anemic file-service we could move to
+// This will also make it easier to test because it can be mocked in one call vs. dynamic lookup based on incoming path
 export async function _readSiteFile(path: string): Promise<string> {
   return await fs.readFile(path, { encoding: 'utf8' });
 }
