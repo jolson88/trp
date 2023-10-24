@@ -1,13 +1,15 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
-const inputMarkerRegEx = new RegExp(/##(\w+)##/, 'g');
-const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
-
 export interface Site {
   about: string,
   blog: string,
   contact: string,
+}
+
+export interface SiteFile {
+  path: string,
+  content: string,
 }
 
 export interface SiteContext {
@@ -25,12 +27,12 @@ export async function createSite(
   outDir: string,
   writeFile = _writeSiteFile,
 ): Promise<Array<SiteFile>> {
-  const siteFiles: Array<SiteFile> = [
-    ['blog.html', site.blog],
-    ['contact.html', site.contact],
-    ['index.html', site.about],
+  const siteFiles = [
+    { path: 'blog.html', content: site.blog },
+    { path: 'contact.html', content: site.contact },
+    { path: 'index.html', content: site.about },
   ];
-  for (const [filePath, content] of siteFiles) {
+  for (const { path: filePath, content } of siteFiles) {
     await writeFile(path.join(outDir, filePath), content);
   }
   return siteFiles;
@@ -53,15 +55,11 @@ export async function loadSite(dir: string, context = defaultContext, readFile =
   }
 }
 
-type SiteFilePath = string;
-type SiteFileContent = string;
-type SiteFile = [SiteFilePath, SiteFileContent];
-
-export async function _readSiteFile(path: SiteFilePath): Promise<SiteFileContent> {
+export async function _readSiteFile(path: string): Promise<string> {
   return await fs.readFile(path, { encoding: 'utf8' });
 }
 
-export async function _writeSiteFile(filePath: SiteFilePath, content: SiteFileContent): Promise<boolean> {
+export async function _writeSiteFile(filePath: string, content: string): Promise<boolean> {
   const outputDir = path.parse(filePath).dir;
   await fs.mkdir(outputDir, { recursive: true });
   await fs.writeFile(filePath, content);
@@ -73,6 +71,9 @@ interface TemplateProcessingResults {
   inputMarkers: Array<string>,
   outputMarkers: Array<Array<string>>,
 }
+
+const inputMarkerRegEx = new RegExp(/##(\w+)##/, 'g');
+const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
 
 export function _processTemplate(template: string, context: any = {}): TemplateProcessingResults {
   function buildLookup(context: any): Map<string, any> {

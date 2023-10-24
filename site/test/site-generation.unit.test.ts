@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, _processTemplate, createSite } from '../src/site-generator';
+import { Site, SiteContext, SiteFile, _processTemplate, createSite } from '../src/site-generator';
 
 export const givenContext: SiteContext = {
   title: 'The Reasonable Programmer',
@@ -12,10 +12,10 @@ export const givenSite: Site = {
   contact: `${givenContext.title} StartBase ContactContent EndBase ${givenContext.year}`,
 }
 
-export const givenSiteFiles = [
-  ['blog.html', givenSite.blog],
-  ['contact.html', givenSite.contact],
-  ['index.html', givenSite.about],
+export const givenSiteFiles: Array<SiteFile> = [
+  { path: 'blog.html', content: givenSite.blog },
+  { path: 'contact.html', content: givenSite.contact },
+  { path: 'index.html', content: givenSite.about },
 ];
 
 describe('createSite', () => {
