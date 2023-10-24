@@ -23,6 +23,8 @@ const defaultContext: SiteContext = {
   title: 'The Reasonable Programmer',
 }
 
+// I think after readFile is changed to read all project files, this will become easier to test/mock.
+// After we do this, we might be able to inline loadSite and writeSite to reduce the # of concepts remaining in this file
 export async function generateSite(
   inputDir: string,
   outputDir: string,
@@ -31,10 +33,10 @@ export async function generateSite(
   writeFile = _writeSiteFile,
 ): Promise<Array<SiteFile>> {
   const site = await loadSite(inputDir, context, readFile);
-  return createSite(site, outputDir, writeFile);
+  return writeSite(site, outputDir, writeFile);
 }
 
-export async function createSite(
+export async function writeSite(
   site: Site,
   outputDir: string,
   writeFile = _writeSiteFile,
