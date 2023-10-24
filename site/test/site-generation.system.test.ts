@@ -3,11 +3,11 @@ import { _readSiteFile, _writeSiteFile, loadSite } from '../src/site-generator';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { givenSite } from './site-generation.unit.test';
+import { givenContext, givenSite } from './site-generation.unit.test';
 
 describe('Loading Site', () => {
   it('should load test site and match unit test givens', async () => {
-    const actualSite = await loadSite(path.join(__dirname, 'data', 'site'));
+    const actualSite = await loadSite(path.join(__dirname, 'data', 'site'), givenContext);
     expect(actualSite).toEqual(givenSite);
   });
 });

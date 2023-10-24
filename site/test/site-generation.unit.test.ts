@@ -1,20 +1,25 @@
 import { describe, expect, it, vi } from 'vitest';
-import { _calculateSiteFromTemplates, _processTemplate, createSite } from '../src/site-generator';
+import { SiteContext, _calculateSiteFromTemplates, _processTemplate, createSite } from '../src/site-generator';
+
+export const givenContext: SiteContext = {
+  title: 'The Reasonable Programmer',
+  year: new Date().getFullYear(),
+}
 
 export const givenSiteTemplates = {
-  base: 'StartBase ##CONTENT## EndBase',
+  base: '##TITLE## StartBase ##CONTENT## EndBase ##YEAR##',
   about: 'AboutContent',
   contact: 'ContactContent',
 };
 
 export const givenSite = {
-  about: 'StartBase AboutContent EndBase',
-  contact: 'StartBase ContactContent EndBase',
+  about: `${givenContext.title} StartBase AboutContent EndBase ${givenContext.year}`,
+  contact: `${givenContext.title} StartBase ContactContent EndBase ${givenContext.year}`,
 }
 
 export const givenSiteFiles =[
-  ['index.html', 'StartBase AboutContent EndBase'],
-  ['contact.html', 'StartBase ContactContent EndBase'],
+  ['index.html', givenSite.about],
+  ['contact.html', givenSite.contact],
 ];
 
 describe('createSite', () => {
@@ -30,7 +35,7 @@ describe('createSite', () => {
 
 describe('calculateSite', () => {
   it('should generate top pages', () => {
-    const result = _calculateSiteFromTemplates(givenSiteTemplates);
+    const result = _calculateSiteFromTemplates(givenSiteTemplates, givenContext);
     expect(result).toEqual(expect.objectContaining(givenSite));
   });
 });
