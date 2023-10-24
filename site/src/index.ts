@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { createSite, generateSite, loadSite } from './site-generator';
+import { generateSite } from './site-generator';
 
 async function main(args: Array<string>): Promise<void> {
   if (args.length < 2) {
