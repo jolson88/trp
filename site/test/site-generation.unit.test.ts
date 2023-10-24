@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, SiteFile, _processTemplate, createSite } from '../src/site-generator';
+import { Site, SiteContext, SiteFile, createSite, loadSite } from '../src/site-generator';
+import * as path from 'path';
 
 export const givenContext: SiteContext = {
   title: 'The Reasonable Programmer',
@@ -18,7 +19,7 @@ export const givenSiteFiles: Array<SiteFile> = [
   { path: 'index.html', content: givenSite.about },
 ];
 
-describe('createSite', () => {
+describe('Site Generation', () => {
   it('should output site files', async () => {
     const writeSiteFileMock = vi.fn().mockResolvedValue(true);
 
@@ -26,55 +27,9 @@ describe('createSite', () => {
 
     expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
   });
-});
 
-describe('processTemplate', () => {
-  it('should be case-insensitive for input values', () => {
-    const result = _processTemplate('Hello, ##name##');
-    expect(result.inputMarkers).toEqual(['NAME']);
-  });
-
-  it('should detect multiple input values', () => {
-    const text = 'Hello, ##FIRST_NAME## ##LAST_NAME##';
-
-    const result = _processTemplate('Hello, ##FIRST_NAME## ##LAST_NAME##');
-
-    expect(result).toEqual(
-      expect.objectContaining({
-        text,
-        inputMarkers: ['FIRST_NAME', 'LAST_NAME'],
-      })
-    );
-  });
-
-  it('should substitute different values', () => {
-    const result = _processTemplate('##greETing##, ##NAME##', {
-      greeting: 'Hello',
-      name: 'Jason',
-    });
-
-    expect(result.text).toBe('Hello, Jason');
-  });
-
-  it('should substitute all values', () => {
-    const result = _processTemplate('##NAME## ##NAME## ##NAME##', {
-      name: 'Malkovich',
-    });
-
-    expect(result.text).toBe('Malkovich Malkovich Malkovich');
-  });
-
-  it('should detect output values', () => {
-    const result = _processTemplate('Hello, World\n##TITLE: Foo##\n##age: 43##');
-
-    expect(result).toEqual(
-      expect.objectContaining({
-        text: 'Hello, World',
-        outputMarkers: [
-          ['TITLE', 'Foo'],
-          ['AGE', '43'],
-        ],
-      })
-    );
+  it('should load test site and match unit test givens', async () => {
+    const actualSite = await loadSite(path.join(__dirname, 'data', 'site'), givenContext);
+    expect(actualSite).toEqual(givenSite);
   });
 });
