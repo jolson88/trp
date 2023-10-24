@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { createSite, loadSite } from './site-generator';
+import { createSite, generateSite, loadSite } from './site-generator';
 
 async function main(args: Array<string>): Promise<void> {
   if (args.length < 2) {
@@ -12,9 +12,6 @@ async function main(args: Array<string>): Promise<void> {
   const inputDir = path.join(process.cwd(), args[0]);
   const outputDir = path.join(process.cwd(), args[1]);
 
-  console.log('Loading site from template directory:', inputDir);
-  const site = await loadSite(inputDir);
-
   console.log('Resetting output directory:', outputDir);
   if (existsSync(outputDir)) {
     await fs.rm(outputDir, { recursive: true, });
@@ -24,10 +21,13 @@ async function main(args: Array<string>): Promise<void> {
   const publicDir = path.join(process.cwd(), 'public');
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
-  console.log('Writing to output directory');
-  const files = await createSite(site, outputDir);
+  console.log('Generating site...\n');
+  const files = await generateSite(inputDir, outputDir);
 
-  console.log('Site generation complete');
+  console.log('Wrote the following files:');
+  for (const { path: filePath } of files) {
+    console.log(`- ${filePath}`);
+  }
 }
 
 main(process.argv.slice(2)).catch(console.error);

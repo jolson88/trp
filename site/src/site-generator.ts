@@ -23,9 +23,20 @@ const defaultContext: SiteContext = {
   title: 'The Reasonable Programmer',
 }
 
+export async function generateSite(
+  inputDir: string,
+  outputDir: string,
+  context: SiteContext = defaultContext,
+  readFile = _readSiteFile,
+  writeFile = _writeSiteFile,
+): Promise<Array<SiteFile>> {
+  const site = await loadSite(inputDir, context, readFile);
+  return createSite(site, outputDir, writeFile);
+}
+
 export async function createSite(
   site: Site,
-  outDir: string,
+  outputDir: string,
   writeFile = _writeSiteFile,
 ): Promise<Array<SiteFile>> {
   const siteFiles = [
@@ -34,17 +45,17 @@ export async function createSite(
     { path: 'index.html', content: site.about },
   ];
   for (const { path: filePath, content } of siteFiles) {
-    await writeFile(path.join(outDir, filePath), content);
+    await writeFile(path.join(outputDir, filePath), content);
   }
   return siteFiles;
 }
 
-export async function loadSite(dir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
-  const siteTemplate = processTemplate(await readFile(path.join(dir, '_site.html')), context);
+export async function loadSite(inputDir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
+  const siteTemplate = processTemplate(await readFile(path.join(inputDir, '_site.html')), context);
 
-  const aboutTemplate = processTemplate(await readFile(path.join(dir, 'about.html')), context);
-  const blogTemplate = processTemplate(await readFile(path.join(dir, 'blog.html')), context);
-  const contactTemplate = processTemplate(await readFile(path.join(dir, 'contact.html')), context);
+  const aboutTemplate = processTemplate(await readFile(path.join(inputDir, 'about.html')), context);
+  const blogTemplate = processTemplate(await readFile(path.join(inputDir, 'blog.html')), context);
+  const contactTemplate = processTemplate(await readFile(path.join(inputDir, 'contact.html')), context);
 
   const aboutResults = processTemplate(siteTemplate.text, { ...context, content: aboutTemplate.text });
   const blogResults = processTemplate(siteTemplate.text, { ...context, content: blogTemplate.text });
