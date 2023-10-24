@@ -5,16 +5,20 @@
   "main": "index.js",
   "private": "true",
   "scripts": {
-    "start": "ts-node src/index.ts _in _out",
+    "start": "ts-node src/index.ts _in _out && live-server _out",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
   },
-  "keywords": ["TypeScript","Node"],
+  "keywords": [
+    "TypeScript",
+    "Node"
+  ],
   "author": "Jason Olson",
   "license": "UNLICENSED",
   "devDependencies": {
     "@vitest/coverage-v8": "^0.34.6",
+    "live-server": "^1.2.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "vite": "^4.5.0",

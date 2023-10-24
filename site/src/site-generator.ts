@@ -6,6 +6,7 @@ const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
 
 export interface Site {
   about: string,
+  blog: string,
   contact: string,
 }
 
@@ -25,8 +26,9 @@ export async function createSite(
   writeFile = _writeSiteFile,
 ): Promise<Array<SiteFile>> {
   const siteFiles: Array<SiteFile> = [
-    ['index.html', site.about],
+    ['blog.html', site.blog],
     ['contact.html', site.contact],
+    ['index.html', site.about],
   ];
   for (const [filePath, content] of siteFiles) {
     await writeFile(path.join(outDir, filePath), content);
@@ -37,13 +39,16 @@ export async function createSite(
 export async function loadSite(dir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
   const baseTemplate = _processTemplate(await readFile(path.join(dir, '_base.html')), context);
   const aboutTemplate = _processTemplate(await readFile(path.join(dir, 'about.html')), context);
+  const blogTemplate = _processTemplate(await readFile(path.join(dir, 'blog.html')), context);
   const contactTemplate = _processTemplate(await readFile(path.join(dir, 'contact.html')), context);
 
   const aboutResults = _processTemplate(baseTemplate.text, { ...context, content: aboutTemplate.text });
+  const blogResults = _processTemplate(baseTemplate.text, { ...context, content: blogTemplate.text });
   const contactResults = _processTemplate(baseTemplate.text, { ...context, content: contactTemplate.text });
 
   return {
     about: aboutResults.text,
+    blog: blogResults.text,
     contact: contactResults.text,
   }
 }

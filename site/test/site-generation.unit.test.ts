@@ -1,35 +1,30 @@
 import { describe, expect, it, vi } from 'vitest';
-import { SiteContext, _processTemplate, createSite } from '../src/site-generator';
+import { Site, SiteContext, _processTemplate, createSite } from '../src/site-generator';
 
 export const givenContext: SiteContext = {
   title: 'The Reasonable Programmer',
   year: new Date().getFullYear(),
 }
 
-export const givenSiteTemplates = {
-  base: '##TITLE## StartBase ##CONTENT## EndBase ##YEAR##',
-  about: '##TITLE##',
-  contact: 'ContactContent',
-};
-
-export const givenSite = {
+export const givenSite: Site = {
   about: `${givenContext.title} StartBase ${givenContext.title} EndBase ${givenContext.year}`,
+  blog: `${givenContext.title} StartBase BlogContent EndBase ${givenContext.year}`,
   contact: `${givenContext.title} StartBase ContactContent EndBase ${givenContext.year}`,
 }
 
-export const givenSiteFiles =[
-  ['index.html', givenSite.about],
+export const givenSiteFiles = [
+  ['blog.html', givenSite.blog],
   ['contact.html', givenSite.contact],
+  ['index.html', givenSite.about],
 ];
 
 describe('createSite', () => {
   it('should output site files', async () => {
     const writeSiteFileMock = vi.fn().mockResolvedValue(true);
 
-    await createSite(givenSite, '', writeSiteFileMock);
+    const actualSiteFiles = await createSite(givenSite, '', writeSiteFileMock);
 
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, ...givenSiteFiles[0]);
-    expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, ...givenSiteFiles[1]);
+    expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
   });
 });
 
