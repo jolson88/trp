@@ -1,11 +1,13 @@
 {
-  "name": "The Reasonable Programmer Website Generator",
+  "name": "jolson88-site-generator",
   "version": "1.0.0",
   "description": "Site generator for The Reasonable Programmer website",
   "main": "index.js",
   "private": "true",
   "scripts": {
-    "start": "ts-node src/index.ts _in _out && live-server _out",
+    "build": "ts-node src/index.ts _in _out",
+    "start": "npm run build && live-server _out",
+    "sync": "npm run build && cp -R _out/ ../../jolson88.github.io",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
