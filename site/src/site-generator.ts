@@ -40,14 +40,15 @@ export async function createSite(
 }
 
 export async function loadSite(dir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
-  const baseTemplate = processTemplate(await readFile(path.join(dir, '_base.html')), context);
+  const siteTemplate = processTemplate(await readFile(path.join(dir, '_site.html')), context);
+
   const aboutTemplate = processTemplate(await readFile(path.join(dir, 'about.html')), context);
   const blogTemplate = processTemplate(await readFile(path.join(dir, 'blog.html')), context);
   const contactTemplate = processTemplate(await readFile(path.join(dir, 'contact.html')), context);
 
-  const aboutResults = processTemplate(baseTemplate.text, { ...context, content: aboutTemplate.text });
-  const blogResults = processTemplate(baseTemplate.text, { ...context, content: blogTemplate.text });
-  const contactResults = processTemplate(baseTemplate.text, { ...context, content: contactTemplate.text });
+  const aboutResults = processTemplate(siteTemplate.text, { ...context, content: aboutTemplate.text });
+  const blogResults = processTemplate(siteTemplate.text, { ...context, content: blogTemplate.text });
+  const contactResults = processTemplate(siteTemplate.text, { ...context, content: contactTemplate.text });
 
   return {
     about: aboutResults.text,
