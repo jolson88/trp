@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { SiteContext, _calculateSiteFromTemplates, _processTemplate, createSite } from '../src/site-generator';
+import { SiteContext, _processTemplate, createSite } from '../src/site-generator';
 
 export const givenContext: SiteContext = {
   title: 'The Reasonable Programmer',
@@ -8,12 +8,12 @@ export const givenContext: SiteContext = {
 
 export const givenSiteTemplates = {
   base: '##TITLE## StartBase ##CONTENT## EndBase ##YEAR##',
-  about: 'AboutContent',
+  about: '##TITLE##',
   contact: 'ContactContent',
 };
 
 export const givenSite = {
-  about: `${givenContext.title} StartBase AboutContent EndBase ${givenContext.year}`,
+  about: `${givenContext.title} StartBase ${givenContext.title} EndBase ${givenContext.year}`,
   contact: `${givenContext.title} StartBase ContactContent EndBase ${givenContext.year}`,
 }
 
@@ -30,13 +30,6 @@ describe('createSite', () => {
 
     expect(writeSiteFileMock).toHaveBeenNthCalledWith(1, ...givenSiteFiles[0]);
     expect(writeSiteFileMock).toHaveBeenNthCalledWith(2, ...givenSiteFiles[1]);
-  });
-});
-
-describe('calculateSite', () => {
-  it('should generate top pages', () => {
-    const result = _calculateSiteFromTemplates(givenSiteTemplates, givenContext);
-    expect(result).toEqual(expect.objectContaining(givenSite));
   });
 });
 

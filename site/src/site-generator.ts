@@ -35,8 +35,17 @@ export async function createSite(
 }
 
 export async function loadSite(dir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
-  const templates = await _loadSiteTemplates(dir, readFile);
-  return _calculateSiteFromTemplates(templates, context);
+  const baseTemplate = _processTemplate(await readFile(path.join(dir, '_base.html')), context);
+  const aboutTemplate = _processTemplate(await readFile(path.join(dir, 'about.html')), context);
+  const contactTemplate = _processTemplate(await readFile(path.join(dir, 'contact.html')), context);
+
+  const aboutResults = _processTemplate(baseTemplate.text, { ...context, content: aboutTemplate.text });
+  const contactResults = _processTemplate(baseTemplate.text, { ...context, content: contactTemplate.text });
+
+  return {
+    about: aboutResults.text,
+    contact: contactResults.text,
+  }
 }
 
 type SiteFilePath = string;
@@ -52,30 +61,6 @@ export async function _writeSiteFile(filePath: SiteFilePath, content: SiteFileCo
   await fs.mkdir(outputDir, { recursive: true });
   await fs.writeFile(filePath, content);
   return true;
-}
-
-interface SiteTemplates {
-  about: string,
-  base: string,
-  contact: string,
-}
-
-export function _calculateSiteFromTemplates({ about, base, contact }: SiteTemplates, context: SiteContext): Site {
-  const aboutResults = _processTemplate(base, { ...context, content: about });
-  const contactResults = _processTemplate(base, { ...context, content: contact });
-
-  return {
-    about: aboutResults.text,
-    contact: contactResults.text,
-  }
-}
-
-async function _loadSiteTemplates(dir: string, readFile = _readSiteFile): Promise<SiteTemplates> {
-  return {
-    about: await readFile(path.join(dir, 'about.html')),
-    base: await readFile(path.join(dir, '_base.html')),
-    contact: await readFile(path.join(dir, 'contact.html')),
-  }
 }
 
 interface TemplateProcessingResults {
