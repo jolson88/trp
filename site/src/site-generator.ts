@@ -14,6 +14,11 @@ export interface SiteContext {
   year: number,
 }
 
+const defaultContext: SiteContext = {
+  year: new Date().getFullYear(),
+  title: 'The Reasonable Programmer',
+}
+
 export async function createSite(
   site: Site,
   outDir: string,
@@ -29,16 +34,9 @@ export async function createSite(
   return siteFiles;
 }
 
-export async function loadSite(dir: string, context = _getDefaultContext(), readFile = _readSiteFile): Promise<Site> {
+export async function loadSite(dir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
   const templates = await _loadSiteTemplates(dir, readFile);
   return _calculateSiteFromTemplates(templates, context);
-}
-
-function _getDefaultContext(): SiteContext {
-  return {
-    year: new Date().getFullYear(),
-    title: 'The Reasonable Programmer',
-  }
 }
 
 type SiteFilePath = string;
