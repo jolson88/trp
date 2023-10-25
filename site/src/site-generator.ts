@@ -1,6 +1,6 @@
 import * as path from "path";
 import { processTemplate } from "./template-processor";
-import { FileService, SiteFile, readSiteFiles } from "./file-service";
+import { FileService, SiteFile } from "./file-service";
 
 export interface Site {
   about: string;
@@ -47,9 +47,9 @@ export async function writeSite(
 export async function loadSite(
   inputDir: string,
   context = defaultContext,
-  readFiles = readSiteFiles
+  fileService: FileService = new FileService()
 ): Promise<Site> {
-  const siteFiles = await readFiles(inputDir);
+  const siteFiles = await fileService.readFiles(inputDir);
   
   const siteTemplate = processTemplate(siteFiles.siteTemplate.content, context);
   const aboutContent = processTemplate(siteFiles.about.content, context);

@@ -40,8 +40,3 @@ export class FileService {
     return true;
   }
 }
-
-export async function readSiteFiles(inputDir: string): Promise<SiteFiles> {
-  const service = new FileService();
-  return service.readFiles(inputDir);
-}
