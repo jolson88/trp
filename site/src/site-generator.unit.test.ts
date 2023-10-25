@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, loadSite, writeSite } from './site-generator';
+import { Site, SiteContext, generateSite, loadSite, writeSite } from './site-generator';
 import * as path from 'path';
 import { FileService, SiteFile } from './file-service';
 import { mock } from './test/mocking';
@@ -22,16 +22,15 @@ export const givenSiteFiles: Array<SiteFile> = [
 ];
 
 describe('Site Generation', () => {
-  it('should output site files', async () => {
-    const actualSiteFiles = await writeSite(givenSite, '', mock<FileService>({
+  it('should complete load and generation of site', async () => {
+    const fileService = new FileService();
+
+    const inputDir = path.join(__dirname, "test", "data", "site");
+    const actualSiteFiles = await generateSite(inputDir, '', givenContext, mock<FileService>({
+      readFiles: vi.fn().mockImplementation((inputDir) => fileService.readFiles(inputDir)),
       writeFile: vi.fn().mockResolvedValue(true),
     }));
 
     expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
-  });
-
-  it('should load test site and match unit test givens', async () => {
-    const actualSite = await loadSite(path.join(__dirname, 'test', 'data', 'site'), givenContext);
-    expect(actualSite).toEqual(givenSite);
   });
 });

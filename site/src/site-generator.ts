@@ -24,8 +24,8 @@ export async function generateSite(
   context: SiteContext = defaultContext,
   fileService: FileService = new FileService()
 ): Promise<Array<SiteFile>> {
-  const site = await loadSite(inputDir, context, fileService.readFiles.bind(fileService));
-  return writeSite(site, outputDir);
+  const site = await loadSite(inputDir, context, fileService);
+  return writeSite(site, outputDir, fileService);
 }
 
 export async function writeSite(
