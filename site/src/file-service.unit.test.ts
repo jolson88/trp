@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
-import { readSiteFile, writeSiteFile } from '../src/site-generator';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
+import { readSiteFile, writeSiteFile } from './file-service';
 
 describe('File Services', () => {
   const testFile = path.join(__dirname, 'foo/bar/baz/output.txt');

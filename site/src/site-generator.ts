@@ -1,6 +1,7 @@
 import * as fs from "fs/promises";
 import * as path from "path";
 import { processTemplate } from "./template-processor";
+import { FileService, SiteFile, readSiteFiles, writeSiteFile } from "./file-service";
 
 export interface Site {
   about: string;
@@ -18,15 +19,24 @@ const defaultContext: SiteContext = {
   title: "The Reasonable Programmer",
 };
 
+export async function generateSiteNew(
+  inputDir: string,
+  outputDir: string,
+  context: SiteContext = defaultContext,
+  fileService: FileService = new FileService()
+): Promise<Array<SiteFile>> {
+  const site = await loadSite(inputDir, context, fileService.readSiteFiles.bind(fileService));
+  return writeSite(site, outputDir, fileService.writeSiteFile.bind(fileService));
+}
+
 export async function generateSite(
   inputDir: string,
   outputDir: string,
   context: SiteContext = defaultContext,
-  readFiles = readSiteFiles,
-  writeFile = writeSiteFile
+  _readFiles = readSiteFiles,
+  _writeFile = writeSiteFile
 ): Promise<Array<SiteFile>> {
-  const site = await loadSite(inputDir, context, readFiles);
-  return writeSite(site, outputDir, writeFile);
+  return generateSiteNew(inputDir, outputDir, context);
 }
 
 export async function writeSite(
@@ -62,42 +72,4 @@ export async function loadSite(
     blog: processTemplate(siteTemplate.text, { ...context, content: blogContent.text }).text,
     contact: processTemplate(siteTemplate.text, { ...context, content: contactContent.text }).text,
   };
-}
-
-export interface SiteFiles {
-  siteTemplate: SiteFile;
-  about: SiteFile;
-  blog: SiteFile;
-  contact: SiteFile;
-}
-
-export interface SiteFile {
-  path: string;
-  content: string;
-}
-
-export async function readSiteFiles(inputDir: string): Promise<SiteFiles> {
-  return {
-    siteTemplate: await readSiteFile(path.join(inputDir, "_site.html")),
-    about: await readSiteFile(path.join(inputDir, "about.html")),
-    blog: await readSiteFile(path.join(inputDir, "blog.html")),
-    contact: await readSiteFile(path.join(inputDir, "contact.html")),
-  };
-}
-
-export async function readSiteFile(path: string): Promise<SiteFile> {
-  return {
-    path,
-    content: await fs.readFile(path, { encoding: "utf8" }),
-  };
-}
-
-export async function writeSiteFile(
-  filePath: string,
-  content: string
-): Promise<boolean> {
-  const outputDir = path.parse(filePath).dir;
-  await fs.mkdir(outputDir, { recursive: true });
-  await fs.writeFile(filePath, content);
-  return true;
 }
