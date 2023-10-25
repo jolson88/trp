@@ -2,7 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { readSiteFile, writeSiteFile } from './file-service';
+import { FileService } from './file-service';
 
 describe('File Services', () => {
   const testFile = path.join(__dirname, 'foo/bar/baz/output.txt');
@@ -20,12 +20,13 @@ describe('File Services', () => {
   });
 
   it('should read and write a file', async () => {
+    const fileService = new FileService();
     const givenContent = 'StartBase ##CONTENT## EndBase';
 
-    const ok = await writeSiteFile(testFile, givenContent);
+    const ok = await fileService.writeFile(testFile, givenContent);
     expect(ok).toBeTruthy();
 
-    const actualContent = await readSiteFile(testFile);
+    const actualContent = await fileService.readFile(testFile);
     expect(actualContent.content).toBe('StartBase ##CONTENT## EndBase');
   });
 });

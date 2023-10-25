@@ -25,14 +25,14 @@ export async function generateSite(
   context: SiteContext = defaultContext,
   fileService: FileService = new FileService()
 ): Promise<Array<SiteFile>> {
-  const site = await loadSite(inputDir, context, fileService.readSiteFiles.bind(fileService));
-  return writeSite(site, outputDir, fileService.writeSiteFile.bind(fileService));
+  const site = await loadSite(inputDir, context, fileService.readFiles.bind(fileService));
+  return writeSite(site, outputDir);
 }
 
 export async function writeSite(
   site: Site,
   outputDir: string,
-  writeFile = writeSiteFile
+  fileService: FileService = new FileService()
 ): Promise<Array<SiteFile>> {
   const siteFiles = [
     { path: "blog.html", content: site.blog },
@@ -40,7 +40,7 @@ export async function writeSite(
     { path: "index.html", content: site.about },
   ];
   for (const { path: filePath, content } of siteFiles) {
-    await writeFile(path.join(outputDir, filePath), content);
+    await fileService.writeFile(path.join(outputDir, filePath), content);
   }
   return siteFiles;
 }

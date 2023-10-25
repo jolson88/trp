@@ -14,23 +14,23 @@ export interface SiteFile {
 }
 
 export class FileService {
-  public async readSiteFiles(inputDir: string): Promise<SiteFiles> {
+  public async readFiles(inputDir: string): Promise<SiteFiles> {
     return {
-      siteTemplate: await this.readSiteFile(path.join(inputDir, "_site.html")),
-      about: await this.readSiteFile(path.join(inputDir, "about.html")),
-      blog: await this.readSiteFile(path.join(inputDir, "blog.html")),
-      contact: await this.readSiteFile(path.join(inputDir, "contact.html")),
+      siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
+      about: await this.readFile(path.join(inputDir, "about.html")),
+      blog: await this.readFile(path.join(inputDir, "blog.html")),
+      contact: await this.readFile(path.join(inputDir, "contact.html")),
     };
   }
 
-  public async readSiteFile(path: string): Promise<SiteFile> {
+  public async readFile(path: string): Promise<SiteFile> {
     return {
       path,
       content: await fs.readFile(path, { encoding: "utf8" }),
     };
   }
 
-  public async writeSiteFile(
+  public async writeFile(
     filePath: string,
     content: string
   ): Promise<boolean> {
@@ -43,15 +43,10 @@ export class FileService {
 
 export async function readSiteFiles(inputDir: string): Promise<SiteFiles> {
   const service = new FileService();
-  return service.readSiteFiles(inputDir);
-}
-
-export async function readSiteFile(path: string): Promise<SiteFile> {
-  const service = new FileService();
-  return service.readSiteFile(path);
+  return service.readFiles(inputDir);
 }
 
 export async function writeSiteFile(filePath: string, content: string): Promise<boolean> {
   const service = new FileService();
-  return service.writeSiteFile(filePath, content);
+  return service.writeFile(filePath, content);
 }
