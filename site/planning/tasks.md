@@ -15,9 +15,6 @@
     - Date is included in the file name. Date is shown as `Last Updated` side note
     - Date is not included in the final url (living blog)
 
-- [ ] Tidying: Introduce `SiteGenerator` class
-- [ ] Tidying: Move running code in index.ts into `generateSite` function and cover with tests
-    - Will involve creating `folderCopy` and `resetDir` functions in `FileService`
 - [ ] `generateSite` returns Site as well as SiteFiles and smoke test verifies it
 - [ ] Site loading loads blog files
 - [ ] SiteFiles have destination blog files included
