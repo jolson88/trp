@@ -19,7 +19,7 @@ const defaultContext: SiteContext = {
   title: "The Reasonable Programmer",
 };
 
-export async function generateSiteNew(
+export async function generateSite(
   inputDir: string,
   outputDir: string,
   context: SiteContext = defaultContext,
@@ -27,16 +27,6 @@ export async function generateSiteNew(
 ): Promise<Array<SiteFile>> {
   const site = await loadSite(inputDir, context, fileService.readSiteFiles.bind(fileService));
   return writeSite(site, outputDir, fileService.writeSiteFile.bind(fileService));
-}
-
-export async function generateSite(
-  inputDir: string,
-  outputDir: string,
-  context: SiteContext = defaultContext,
-  _readFiles = readSiteFiles,
-  _writeFile = writeSiteFile
-): Promise<Array<SiteFile>> {
-  return generateSiteNew(inputDir, outputDir, context);
 }
 
 export async function writeSite(

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { generateSiteNew } from './site-generator';
+import { generateSite } from './site-generator';
 
 async function main(args: Array<string>): Promise<void> {
   if (args.length < 2) {
@@ -22,7 +22,7 @@ async function main(args: Array<string>): Promise<void> {
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
   console.log('Generating site...\n');
-  const files = await generateSiteNew(inputDir, outputDir);
+  const files = await generateSite(inputDir, outputDir);
 
   console.log('Wrote the following files:');
   for (const { path: filePath } of files) {
