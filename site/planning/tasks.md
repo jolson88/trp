@@ -3,8 +3,7 @@
 ## Current Milestone
 
 - ⏲ When I save a blog post, the site is automatically regenerated for instant checking
-    - There is a single "dev" command that I can run that watches _in directory and triggers start command
-    - May need hide the `delete output directory` behind a command flag to avoid conflicts with live-server
+    - Simplest solution is probably to watch from within Node and re-running the `generateSite` command directly (whose output is picked up by live-server)
 - 📄 Wortwhile posts from previous blog are ported to new site
     - https://github.com/jolson88/blog
 - 📖 Users can see the the most recent blog posts in one `latest` landing page
