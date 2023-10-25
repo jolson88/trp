@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, generateSite, loadSite, writeSite } from './site-generator';
+import { Site, SiteContext, generateSite } from './site-generator';
 import * as path from 'path';
 import { FileService, SiteFile } from './file-service';
 import { mock } from './test/mocking';

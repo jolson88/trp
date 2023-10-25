@@ -24,17 +24,20 @@ export async function generateSite(
   context: SiteContext = defaultContext,
   fileService: FileService = new FileService()
 ): Promise<Array<SiteFile>> {
-  const site = await loadSite(inputDir, context, fileService);
-  return writeSite(site, outputDir, fileService);
-}
+  const inputFiles = await fileService.readFiles(inputDir);
+  
+  const siteTemplate = processTemplate(inputFiles.siteTemplate.content, context);
+  const aboutContent = processTemplate(inputFiles.about.content, context);
+  const blogContent = processTemplate(inputFiles.blog.content, context);
+  const contactContent = processTemplate(inputFiles.contact.content, context);
 
-export async function writeSite(
-  site: Site,
-  outputDir: string,
-  fileService: FileService = new FileService()
-): Promise<Array<SiteFile>> {
-  const siteFiles = [
-    { path: "blog.html", content: site.blog },
+  const site: Site = {
+    about: processTemplate(siteTemplate.text, { ...context, content: aboutContent.text }).text,
+    blog: processTemplate(siteTemplate.text, { ...context, content: blogContent.text }).text,
+    contact: processTemplate(siteTemplate.text, { ...context, content: contactContent.text }).text,
+  };
+
+  const siteFiles = [ { path: "blog.html", content: site.blog },
     { path: "contact.html", content: site.contact },
     { path: "index.html", content: site.about },
   ];
@@ -42,23 +45,4 @@ export async function writeSite(
     await fileService.writeFile(path.join(outputDir, filePath), content);
   }
   return siteFiles;
-}
-
-export async function loadSite(
-  inputDir: string,
-  context = defaultContext,
-  fileService: FileService = new FileService()
-): Promise<Site> {
-  const siteFiles = await fileService.readFiles(inputDir);
-  
-  const siteTemplate = processTemplate(siteFiles.siteTemplate.content, context);
-  const aboutContent = processTemplate(siteFiles.about.content, context);
-  const blogContent = processTemplate(siteFiles.blog.content, context);
-  const contactContent = processTemplate(siteFiles.contact.content, context);
-
-  return {
-    about: processTemplate(siteTemplate.text, { ...context, content: aboutContent.text }).text,
-    blog: processTemplate(siteTemplate.text, { ...context, content: blogContent.text }).text,
-    contact: processTemplate(siteTemplate.text, { ...context, content: contactContent.text }).text,
-  };
 }
