@@ -1,50 +1,43 @@
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import { processTemplate } from './template-processor';
+import * as fs from "fs/promises";
+import * as path from "path";
+import { processTemplate } from "./template-processor";
 
 export interface Site {
-  about: string,
-  blog: string,
-  contact: string,
-}
-
-export interface SiteFile {
-  path: string,
-  content: string,
+  about: string;
+  blog: string;
+  contact: string;
 }
 
 export interface SiteContext {
-  title: string,
-  year: number,
+  title: string;
+  year: number;
 }
 
 const defaultContext: SiteContext = {
   year: new Date().getFullYear(),
-  title: 'The Reasonable Programmer',
-}
+  title: "The Reasonable Programmer",
+};
 
-// I think after readFile is changed to read all project files, this will become easier to test/mock.
-// After we do this, we might be able to inline loadSite and writeSite to reduce the # of concepts remaining in this file
 export async function generateSite(
   inputDir: string,
   outputDir: string,
   context: SiteContext = defaultContext,
-  readFile = _readSiteFile,
-  writeFile = _writeSiteFile,
+  readFiles = readSiteFiles,
+  writeFile = writeSiteFile
 ): Promise<Array<SiteFile>> {
-  const site = await loadSite(inputDir, context, readFile);
+  const site = await loadSite(inputDir, context, readFiles);
   return writeSite(site, outputDir, writeFile);
 }
 
 export async function writeSite(
   site: Site,
   outputDir: string,
-  writeFile = _writeSiteFile,
+  writeFile = writeSiteFile
 ): Promise<Array<SiteFile>> {
   const siteFiles = [
-    { path: 'blog.html', content: site.blog },
-    { path: 'contact.html', content: site.contact },
-    { path: 'index.html', content: site.about },
+    { path: "blog.html", content: site.blog },
+    { path: "contact.html", content: site.contact },
+    { path: "index.html", content: site.about },
   ];
   for (const { path: filePath, content } of siteFiles) {
     await writeFile(path.join(outputDir, filePath), content);
@@ -52,34 +45,57 @@ export async function writeSite(
   return siteFiles;
 }
 
-export async function loadSite(inputDir: string, context = defaultContext, readFile = _readSiteFile): Promise<Site> {
-  const siteTemplate = processTemplate(await readFile(path.join(inputDir, '_site.html')), context);
-
-  const aboutTemplate = processTemplate(await readFile(path.join(inputDir, 'about.html')), context);
-  const blogTemplate = processTemplate(await readFile(path.join(inputDir, 'blog.html')), context);
-  const contactTemplate = processTemplate(await readFile(path.join(inputDir, 'contact.html')), context);
-
-  const aboutResults = processTemplate(siteTemplate.text, { ...context, content: aboutTemplate.text });
-  const blogResults = processTemplate(siteTemplate.text, { ...context, content: blogTemplate.text });
-  const contactResults = processTemplate(siteTemplate.text, { ...context, content: contactTemplate.text });
+export async function loadSite(
+  inputDir: string,
+  context = defaultContext,
+  readFiles = readSiteFiles
+): Promise<Site> {
+  const siteFiles = await readFiles(inputDir);
+  
+  const siteTemplate = processTemplate(siteFiles.siteTemplate.content, context);
+  const aboutContent = processTemplate(siteFiles.about.content, context);
+  const blogContent = processTemplate(siteFiles.blog.content, context);
+  const contactContent = processTemplate(siteFiles.contact.content, context);
 
   return {
-    about: aboutResults.text,
-    blog: blogResults.text,
-    contact: contactResults.text,
-  }
+    about: processTemplate(siteTemplate.text, { ...context, content: aboutContent.text }).text,
+    blog: processTemplate(siteTemplate.text, { ...context, content: blogContent.text }).text,
+    contact: processTemplate(siteTemplate.text, { ...context, content: contactContent.text }).text,
+  };
 }
 
-// TODO: Instead of individual calls to _readSiteFile, make it a _readInputFiles that will return a POJO for input files given an input dir
-// Something akin to { siteTemplate: SiteFile, aboutContent: SiteFile, contactContent: SiteFile }
-// This will also set us up for having a list of blogs in the future (e.g. `blogs: Array<SiteFile>  )
-// This also provides us a foundation to introduce a less anemic file-service we could move to
-// This will also make it easier to test because it can be mocked in one call vs. dynamic lookup based on incoming path
-export async function _readSiteFile(path: string): Promise<string> {
-  return await fs.readFile(path, { encoding: 'utf8' });
+export interface SiteFiles {
+  siteTemplate: SiteFile;
+  about: SiteFile;
+  blog: SiteFile;
+  contact: SiteFile;
 }
 
-export async function _writeSiteFile(filePath: string, content: string): Promise<boolean> {
+export interface SiteFile {
+  path: string;
+  content: string;
+}
+
+export async function readSiteFiles(inputDir: string): Promise<SiteFiles> {
+  return {
+    siteTemplate: await readSiteFile(path.join(inputDir, "_site.html")),
+    about: await readSiteFile(path.join(inputDir, "about.html")),
+    blog: await readSiteFile(path.join(inputDir, "blog.html")),
+    contact: await readSiteFile(path.join(inputDir, "contact.html")),
+  };
+}
+
+export async function readSiteFile(path: string): Promise<SiteFile> {
+  return {
+    path,
+    content: await fs.readFile(path, { encoding: "utf8" }),
+  };
+}
+
+export async function writeSiteFile(
+  filePath: string,
+  content: string
+): Promise<boolean> {
   const outputDir = path.parse(filePath).dir;
   await fs.mkdir(outputDir, { recursive: true });
   await fs.writeFile(filePath, content);

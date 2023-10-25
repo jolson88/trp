@@ -1,5 +1,5 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
-import { _readSiteFile, _writeSiteFile } from '../src/site-generator';
+import { readSiteFile, writeSiteFile } from '../src/site-generator';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
@@ -22,10 +22,10 @@ describe('File Services', () => {
   it('should read and write a file', async () => {
     const givenContent = 'StartBase ##CONTENT## EndBase';
 
-    const ok = await _writeSiteFile(testFile, givenContent);
+    const ok = await writeSiteFile(testFile, givenContent);
     expect(ok).toBeTruthy();
 
-    const actualContent = await _readSiteFile(testFile);
-    expect(actualContent).toBe('StartBase ##CONTENT## EndBase');
+    const actualContent = await readSiteFile(testFile);
+    expect(actualContent.content).toBe('StartBase ##CONTENT## EndBase');
   });
 });

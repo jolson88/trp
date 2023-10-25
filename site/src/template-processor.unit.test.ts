@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { processTemplate } from '../src/template-processor';
+import { processTemplate } from './template-processor';
 
 describe('processTemplate', () => {
   it('should be case-insensitive for input values', () => {

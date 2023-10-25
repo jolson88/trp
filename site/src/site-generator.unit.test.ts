@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, SiteFile, writeSite, loadSite } from '../src/site-generator';
+import { Site, SiteContext, SiteFile, writeSite, loadSite } from './site-generator';
 import * as path from 'path';
 
 export const givenContext: SiteContext = {
@@ -29,7 +29,7 @@ describe('Site Generation', () => {
   });
 
   it('should load test site and match unit test givens', async () => {
-    const actualSite = await loadSite(path.join(__dirname, 'data', 'site'), givenContext);
+    const actualSite = await loadSite(path.join(__dirname, 'test', 'data', 'site'), givenContext);
     expect(actualSite).toEqual(givenSite);
   });
 });
