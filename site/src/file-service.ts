@@ -45,8 +45,3 @@ export async function readSiteFiles(inputDir: string): Promise<SiteFiles> {
   const service = new FileService();
   return service.readFiles(inputDir);
 }
-
-export async function writeSiteFile(filePath: string, content: string): Promise<boolean> {
-  const service = new FileService();
-  return service.writeFile(filePath, content);
-}

@@ -1,7 +1,6 @@
-import * as fs from "fs/promises";
 import * as path from "path";
 import { processTemplate } from "./template-processor";
-import { FileService, SiteFile, readSiteFiles, writeSiteFile } from "./file-service";
+import { FileService, SiteFile, readSiteFiles } from "./file-service";
 
 export interface Site {
   about: string;
