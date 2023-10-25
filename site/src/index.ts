@@ -22,12 +22,7 @@ async function main(args: Array<string>): Promise<void> {
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
   console.log('Generating site...\n');
-  const files = await generateSite(inputDir, outputDir);
-
-  console.log('Wrote the following files:');
-  for (const { path: filePath } of files) {
-    console.log(`- ${filePath}`);
-  }
+  await generateSite(inputDir, outputDir);
 }
 
 main(process.argv.slice(2)).catch(console.error);

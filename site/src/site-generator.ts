@@ -37,12 +37,13 @@ export async function generateSite(
     contact: processTemplate(siteTemplate.text, { ...context, content: contactContent.text }).text,
   };
 
-  const siteFiles = [ { path: "blog.html", content: site.blog },
+  const siteFiles = [
+    { path: "blog.html", content: site.blog },
     { path: "contact.html", content: site.contact },
     { path: "index.html", content: site.about },
   ];
-  for (const { path: filePath, content } of siteFiles) {
-    await fileService.writeFile(path.join(outputDir, filePath), content);
+  for (const siteFile of siteFiles) {
+    await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }
   return siteFiles;
 }
