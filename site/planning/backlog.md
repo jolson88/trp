@@ -11,6 +11,7 @@
 - 🛠 I can create new tools (static mini-pages) for my own use on the site
     - Example: A pomodoro timer (with built-in task tracking)
     - Example: A mind-mapping tool (uses local storage and import/export support)
+        - Simple test format would just be one node per line like `Coding.Primers.Growing Software`
 - 🛠 I have a simple Pomodoro Timer that I can use while programming
 - 🗃 Users can easily stay-up-to-date through an RSS feed
 - 💰 Users can support The Reasonable Programmer through crowdfunding
