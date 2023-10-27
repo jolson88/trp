@@ -26,11 +26,12 @@ describe('Site Generation', () => {
     const fileService = new FileService();
 
     const inputDir = path.join(__dirname, "test", "data", "site");
-    const actualSiteFiles = await generateSite(inputDir, '', givenContext, mock<FileService>({
+    const { siteFiles: actualSiteFiles, site: actualSite } = await generateSite(inputDir, '', givenContext, mock<FileService>({
       readFiles: vi.fn().mockImplementation((inputDir) => fileService.readFiles(inputDir)),
       writeFile: vi.fn().mockResolvedValue(true),
     }));
 
+    expect(actualSite).toEqual(givenSite);
     expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
   });
 });

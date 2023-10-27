@@ -23,7 +23,7 @@ export async function generateSite(
   outputDir: string,
   context: SiteContext = defaultContext,
   fileService: FileService = new FileService()
-): Promise<Array<SiteFile>> {
+): Promise<{ site: Site, siteFiles: Array<SiteFile> }> {
   const inputFiles = await fileService.readFiles(inputDir);
   
   const siteTemplate = processTemplate(inputFiles.siteTemplate.content, context);
@@ -45,5 +45,5 @@ export async function generateSite(
   for (const siteFile of siteFiles) {
     await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }
-  return siteFiles;
+  return { site, siteFiles };
 }
