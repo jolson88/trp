@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { Site, SiteContext, generateSite } from "./site-generator";
 import * as path from "path";
 import { FileService, SiteFile } from "./file-service";
-import { mock } from "./test/mocking";
+import { mock, mockPassthrough } from "./test/mocking";
 
 export const givenContext: SiteContext = {
   title: "The Reasonable Programmer",
@@ -28,17 +28,9 @@ export const givenSiteFiles: Array<SiteFile> = [
 
 describe("Site Generation", () => {
   it("should complete load and generation of site", async () => {
-    const fileService = new FileService();
-    const mockFileService = mock<FileService>({
-      parseInfoFromFileName: fileService.parseInfoFromFileName.bind(fileService),
-      readDirectory: vi
-        .fn()
-        .mockImplementation((inputDir) => fileService.readDirectory(inputDir)),
-      readFiles: vi
-        .fn()
-        .mockImplementation((inputDir) => fileService.readFiles(inputDir)),
+    const mockFileService = mockPassthrough<FileService>({
       writeFile: vi.fn().mockResolvedValue(true),
-    });
+    }, new FileService());
 
     const inputDir = path.join(__dirname, "test", "data", "site");
     const siteResults = await generateSite(
