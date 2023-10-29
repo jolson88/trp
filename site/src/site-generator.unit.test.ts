@@ -1,13 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import {
-  Site,
-  SiteContext,
-  generatePageFromTemplates,
-  generateSite,
-} from "./site-generator";
+import { Site, SiteContext, generateSite } from "./site-generator";
 import * as path from "path";
 import { FileService, SiteFile, SiteFiles } from "./file-service";
-import { mock, mockPassthrough } from "./test/mocking";
+import { mockPassthrough } from "./test/mocking";
 
 export const givenContext: SiteContext = {
   title: "The Reasonable Programmer",
@@ -36,7 +31,7 @@ export const givenInputSiteFiles: SiteFiles = {
 
 export const givenSite: Site = {
   about: `${givenContext.title} StartBase AboutMe EndBase ${givenContext.year}`,
-  blog: `${givenContext.title} StartBase Foo Bar Baz EndBase ${givenContext.year}`,
+  blog: `${givenContext.title} StartBase Foo\nBar\nBaz EndBase ${givenContext.year}`,
   blogPosts: [
     {
       fileName: "foo",
@@ -85,15 +80,5 @@ describe("Site Generation", () => {
 
     expect(siteResults.site).toEqual(givenSite);
     expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
-  });
-
-  it("should process page content from templates", async () => {
-    const page = await generatePageFromTemplates(
-      givenInputSiteFiles.siteTemplate.content,
-      givenInputSiteFiles.about.content,
-      givenContext
-    );
-
-    expect(page).toEqual(givenSite.about);
   });
 });

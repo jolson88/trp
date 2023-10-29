@@ -1,11 +1,6 @@
 import * as path from "path";
-import { processTemplate } from "./template-processor";
-import {
-  FileService,
-  SiteFile,
-  SiteFiles,
-  parseInfoFromFileName,
-} from "./file-service";
+import { processPage, processTemplate } from "./template-processor";
+import { FileService, SiteFile, parseInfoFromFileName } from "./file-service";
 
 export interface BlogPost {
   fileName: string;
@@ -30,54 +25,13 @@ const defaultContext: SiteContext = {
   title: "The Reasonable Programmer",
 };
 
-export async function generateSite(
-  inputDir: string,
-  outputDir: string,
-  context: SiteContext = defaultContext,
-  fileService: FileService = new FileService()
-): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
-  const inputFiles = await fileService.readFiles(inputDir);
-
-  const site: Site = await processSiteFromInputSiteFiles(inputFiles, context);
-  return {
-    site,
-    siteFiles: await processOutputSiteFiles(site, fileService, outputDir),
-  };
-}
-
-export function generatePageFromTemplates(
+export function generateBlog(
   siteTemplate: string,
-  contentTemplate: string,
-  context: SiteContext
-): string {
-  const content = processTemplate(contentTemplate, context).text;
-  return processTemplate(siteTemplate, { ...context, content }).text;
-}
-
-export async function generateAboutFromSiteFiles(
-  processedSiteTemplate: string,
-  inputFiles: SiteFiles,
-  context: SiteContext
-): Promise<string> {
-  const initialContent = processTemplate(inputFiles.about.content, context);
-  return processTemplate(processedSiteTemplate, {
-    ...context,
-    content: initialContent.text,
-  }).text;
-}
-
-async function processSiteFromInputSiteFiles(
-  inputFiles: SiteFiles,
-  context: SiteContext
-): Promise<Site> {
-  const siteTemplate = processTemplate(
-    inputFiles.siteTemplate.content,
-    context
-  );
-  const contactContent = processTemplate(inputFiles.contact.content, context);
-
+  inputBlogPosts: Array<SiteFile>,
+  context: SiteContext = defaultContext
+): { blog: string; blogPosts: Array<BlogPost> } {
   const blogPosts: Array<BlogPost> = [];
-  for (const blogPost of inputFiles.blogPosts) {
+  for (const blogPost of inputBlogPosts) {
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
     blogPosts.push({
@@ -87,45 +41,55 @@ async function processSiteFromInputSiteFiles(
     });
   }
 
-  const blog = processTemplate(siteTemplate.text, {
-    ...context,
-    content: blogPosts
-      .map((blogPost) => {
-        return blogPost.content;
-      })
-      .join(" "),
-  }).text;
-  const finalBlogPosts = blogPosts.map((blogPost) => {
-    return {
+  return {
+    blog: processPage(
+      siteTemplate,
+      inputBlogPosts.map((blogPost) => blogPost.content).join("\n"),
+      context
+    ).text,
+    blogPosts: blogPosts.map((blogPost) => ({
       ...blogPost,
-      content: processTemplate(siteTemplate.text, {
-        ...context,
-        content: blogPost.content,
-      }).text,
-    };
-  });
-  const contact = processTemplate(siteTemplate.text, {
-    ...context,
-    content: contactContent.text,
-  }).text;
+      content: processPage(siteTemplate, blogPost.content, context).text,
+    })),
+  };
+}
+
+export async function generateSite(
+  inputDir: string,
+  outputDir: string,
+  context: SiteContext = defaultContext,
+  fileService: FileService = new FileService()
+): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
+  const inputFiles = await fileService.readFiles(inputDir);
 
   const site: Site = {
-    about: generatePageFromTemplates(
+    ...generateBlog(
+      inputFiles.siteTemplate.content,
+      inputFiles.blogPosts,
+      context
+    ),
+    about: processPage(
       inputFiles.siteTemplate.content,
       inputFiles.about.content,
       context
-    ),
-    blog,
-    blogPosts: finalBlogPosts,
-    contact,
+    ).text,
+    contact: processPage(
+      inputFiles.siteTemplate.content,
+      inputFiles.contact.content,
+      context
+    ).text,
   };
-  return site;
+
+  return {
+    site,
+    siteFiles: await processOutputSiteFiles(site, outputDir, fileService),
+  };
 }
 
 async function processOutputSiteFiles(
   site: Site,
-  fileService: FileService,
-  outputDir: string
+  outputDir: string,
+  fileService: FileService
 ): Promise<Array<SiteFile>> {
   const siteFiles = [
     { path: "blog.html", content: site.blog },
