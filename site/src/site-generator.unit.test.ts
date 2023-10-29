@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import {
   Site,
   SiteContext,
-  generateAboutFromSiteFiles,
+  generatePageFromTemplates,
   generateSite,
 } from "./site-generator";
 import * as path from "path";
@@ -17,7 +17,7 @@ export const givenContext: SiteContext = {
 export const givenInputSiteFiles: SiteFiles = {
   about: {
     path: "about.html",
-    content: "##TITLE##",
+    content: "AboutMe",
   },
   blogPosts: [
     { path: "2023-01-01-foo.html", content: "foo" },
@@ -35,7 +35,7 @@ export const givenInputSiteFiles: SiteFiles = {
 };
 
 export const givenSite: Site = {
-  about: `${givenContext.title} StartBase ${givenContext.title} EndBase ${givenContext.year}`,
+  about: `${givenContext.title} StartBase AboutMe EndBase ${givenContext.year}`,
   blog: `${givenContext.title} StartBase Foo Bar Baz EndBase ${givenContext.year}`,
   blogPosts: [
     {
@@ -87,14 +87,13 @@ describe("Site Generation", () => {
     expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
   });
 
-  it("should process about content from site files", async () => {
-    const mockFileService = mock<FileService>({});
-
-    const text = await generateAboutFromSiteFiles(
-      givenInputSiteFiles,
-      mockFileService
+  it("should process page content from templates", async () => {
+    const page = await generatePageFromTemplates(
+      givenInputSiteFiles.siteTemplate.content,
+      givenInputSiteFiles.about.content,
+      givenContext
     );
 
-    expect(text).toEqual(givenSite.about);
+    expect(page).toEqual(givenSite.about);
   });
 });
