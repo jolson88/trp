@@ -1,13 +1,46 @@
 import { describe, it, expect } from "vitest";
 import { processPage, processTemplate } from "./template-processor";
 
-describe("processTemplate", () => {
+describe("processPage", () => {
   it("should generate page given templates and context", () => {
     const page = processPage("SITE ##CONTENT##", "CHILD_CONTENT", {});
 
     expect(page.text).toBe("SITE CHILD_CONTENT");
   });
 
+  it("should return output metadata", () => {
+    const page = processPage("SITE ##CONTENT##", "##TITLE: Foo##", {});
+
+    expect(page.outputMarkers).toEqual([["TITLE", "Foo"]]);
+  });
+
+  it("should contain output metadata from template and child", () => {
+    const page = processPage(
+      "SITE ##TAG: Bar## ##CONTENT##",
+      "##TITLE: Foo##",
+      {}
+    );
+
+    expect(page.outputMarkers.sort()).toEqual(
+      [
+        ["TAG", "Bar"],
+        ["TITLE", "Foo"],
+      ].sort()
+    );
+  });
+
+  it("should prioritize site template metadata over child metadata", () => {
+    const page = processPage(
+      "SITE ##TITLE: Bar## ##CONTENT##",
+      "##TITLE: Foo##",
+      {}
+    );
+
+    expect(page.outputMarkers.sort()).toEqual([["TITLE", "Bar"]].sort());
+  });
+});
+
+describe("processTemplate", () => {
   it("should be case-insensitive for input values", () => {
     const result = processTemplate("Hello, ##name##");
     expect(result.inputMarkers).toEqual(["NAME"]);

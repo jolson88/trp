@@ -4,7 +4,7 @@ const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, "g");
 export interface TemplateProcessingResults {
   text: string;
   inputMarkers: Array<string>;
-  outputMarkers: Array<Array<string>>;
+  outputMarkers: Array<[string, string]>;
 }
 
 export function processPage(
@@ -13,7 +13,18 @@ export function processPage(
   context: any = {}
 ): TemplateProcessingResults {
   const content = processTemplate(contentTemplate, context);
-  return processTemplate(siteTemplate, { ...context, content: content.text });
+  const processedPage = processTemplate(siteTemplate, {
+    ...context,
+    content: content.text,
+  });
+
+  const outputMarkersMap = new Map<string, string>(content.outputMarkers);
+  processedPage.outputMarkers.forEach(([k, v]) => outputMarkersMap.set(k, v));
+
+  return {
+    ...processedPage,
+    outputMarkers: [...outputMarkersMap.entries()],
+  };
 }
 
 export function processTemplate(
