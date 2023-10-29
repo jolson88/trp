@@ -1,10 +1,12 @@
 import * as path from "path";
 import * as fs from "fs/promises";
+import { Dirent } from "fs";
 
 export interface SiteFiles {
   siteTemplate: SiteFile;
   about: SiteFile;
   blog: SiteFile;
+  blogPosts: Array<SiteFile>;
   contact: SiteFile;
 }
 
@@ -15,18 +17,35 @@ export interface SiteFile {
 
 export class FileService {
   public async readFiles(inputDir: string): Promise<SiteFiles> {
+
     return {
       siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
       about: await this.readFile(path.join(inputDir, "about.html")),
       blog: await this.readFile(path.join(inputDir, "blog.html")),
+      blogPosts: [],
       contact: await this.readFile(path.join(inputDir, "contact.html")),
     };
   }
 
-  public async readFile(path: string): Promise<SiteFile> {
+  public async readDirectory(inputDir: string): Promise<Array<SiteFile>> {
+    const files: Array<SiteFile> = [];
+
+    const dir = await fs.opendir(inputDir);
+    let entry = await dir.read();
+    while (entry != null) {
+      if (entry.isFile()) {
+        files.push(await this.readFile(path.join(inputDir, entry.name)));
+      }
+      entry = await dir.read();
+    }
+
+    return files;
+  }
+
+  public async readFile(fullPath: string): Promise<SiteFile> {
     return {
-      path,
-      content: await fs.readFile(path, { encoding: "utf8" }),
+      path: fullPath,
+      content: await fs.readFile(fullPath, { encoding: "utf8" }),
     };
   }
 

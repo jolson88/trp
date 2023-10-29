@@ -2,9 +2,15 @@ import * as path from "path";
 import { processTemplate } from "./template-processor";
 import { FileService, SiteFile } from "./file-service";
 
+export interface BlogPost {
+  fileName: string;
+  content: string;
+}
+
 export interface Site {
   about: string;
   blog: string;
+  blogPosts: Array<BlogPost>;
   contact: string;
 }
 
@@ -31,9 +37,19 @@ export async function generateSite(
   const blogContent = processTemplate(inputFiles.blog.content, context);
   const contactContent = processTemplate(inputFiles.contact.content, context);
 
+  const blogPosts: Array<BlogPost> = [];
+  const blogFiles = await fileService.readDirectory(path.join(inputDir, "posts"));
+
+  for (const blogFile of blogFiles) {
+    blogPosts.push({
+      fileName: path.parse(blogFile.path).name,
+      content: processTemplate(blogFile.content, context).text,
+    })
+  }
   const site: Site = {
     about: processTemplate(siteTemplate.text, { ...context, content: aboutContent.text }).text,
     blog: processTemplate(siteTemplate.text, { ...context, content: blogContent.text }).text,
+    blogPosts,
     contact: processTemplate(siteTemplate.text, { ...context, content: contactContent.text }).text,
   };
 

@@ -6,6 +6,7 @@ import { FileService } from './file-service';
 
 describe('File Services', () => {
   const testFile = path.join(__dirname, 'foo/bar/baz/output.txt');
+  let fileService: FileService;
 
   afterAll(async () => {
     if (existsSync(testFile)) {
@@ -14,13 +15,14 @@ describe('File Services', () => {
   });
 
   beforeEach(async () => {
+    fileService = new FileService();
+
     if (existsSync('foo')) {
       await fs.rm(path.join(__dirname, 'foo'), { recursive: true });
     }
   });
 
   it('should read and write a file', async () => {
-    const fileService = new FileService();
     const givenContent = 'StartBase ##CONTENT## EndBase';
 
     const ok = await fileService.writeFile(testFile, givenContent);
@@ -29,4 +31,17 @@ describe('File Services', () => {
     const actualContent = await fileService.readFile(testFile);
     expect(actualContent.content).toBe('StartBase ##CONTENT## EndBase');
   });
+
+  it('should read a directory non-recursively', async () => {
+    const postDir = 'src/test/data/site/posts';
+
+    const files = await fileService.readDirectory(postDir);
+
+    expect(files).toEqual([
+      { path: path.join(postDir, '2023-01-01-foo.html'), content: 'Foo' },
+      { path: path.join(postDir, '2023-02-02-bar.html'), content: 'Bar' },
+      { path: path.join(postDir, '2023-03-03-baz.html'), content: 'Baz' },
+    ])
+  });
+
 });
