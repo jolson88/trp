@@ -44,12 +44,22 @@ export class FileService {
     return {
       siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
       about: await this.readFile(path.join(inputDir, "about.html")),
-      blogPosts: [],
+      blogPosts: await this.readDirectory(path.join(inputDir, "posts")),
       contact: await this.readFile(path.join(inputDir, "contact.html")),
     };
   }
 
-  public async readDirectory(inputDir: string): Promise<Array<SiteFile>> {
+  public async writeFile(
+    filePath: string,
+    content: string
+  ): Promise<boolean> {
+    const outputDir = path.parse(filePath).dir;
+    await fs.mkdir(outputDir, { recursive: true });
+    await fs.writeFile(filePath, content);
+    return true;
+  }
+
+  async readDirectory(inputDir: string): Promise<Array<SiteFile>> {
     const files: Array<SiteFile> = [];
 
     const dir = await fs.opendir(inputDir);
@@ -64,20 +74,10 @@ export class FileService {
     return files;
   }
 
-  public async readFile(fullPath: string): Promise<SiteFile> {
+  async readFile(fullPath: string): Promise<SiteFile> {
     return {
       path: fullPath,
       content: await fs.readFile(fullPath, { encoding: "utf8" }),
     };
-  }
-
-  public async writeFile(
-    filePath: string,
-    content: string
-  ): Promise<boolean> {
-    const outputDir = path.parse(filePath).dir;
-    await fs.mkdir(outputDir, { recursive: true });
-    await fs.writeFile(filePath, content);
-    return true;
   }
 }

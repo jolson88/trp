@@ -1,6 +1,6 @@
 import * as path from "path";
 import { processTemplate } from "./template-processor";
-import { FileService, SiteFile } from "./file-service";
+import { FileService, SiteFile, SiteFiles } from "./file-service";
 
 export interface BlogPost {
   fileName: string;
@@ -33,50 +33,22 @@ export async function generateSite(
 ): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
   const inputFiles = await fileService.readFiles(inputDir);
 
-  const siteTemplate = processTemplate(
-    inputFiles.siteTemplate.content,
-    context
+  const site: Site = processSiteFromInputSiteFiles(
+    inputFiles,
+    context,
+    fileService
   );
-  const aboutContent = processTemplate(inputFiles.about.content, context);
-  const contactContent = processTemplate(inputFiles.contact.content, context);
-
-  const blogPosts: Array<BlogPost> = [];
-  // TODO: Move readDirectory functionality into it's final home in readFiles()
-  const blogFiles = await fileService.readDirectory(path.join(inputDir, "posts"));
-  for (const blogFile of blogFiles) {
-    const fileName = path.parse(blogFile.path).name;
-    const fileInfo = fileService.parseInfoFromFileName(fileName);
-    blogPosts.push({
-      fileName: fileInfo.fileName,
-      content: processTemplate(blogFile.content, context).text,
-      originalDate: fileInfo.date,
-    });
-  }
-
-  const site: Site = {
-    about: processTemplate(siteTemplate.text, {
-      ...context,
-      content: aboutContent.text,
-    }).text,
-    blog: processTemplate(siteTemplate.text, {
-      ...context,
-      content: blogPosts.map((blogPost) => blogPost.content).join(' '),
-    }).text,
-    blogPosts: blogPosts.map((blogPost) => {
-      return {
-        ...blogPost,
-        content: processTemplate(siteTemplate.text, {
-          ...context,
-          content: blogPost.content,
-        }).text,
-      };
-    }),
-    contact: processTemplate(siteTemplate.text, {
-      ...context,
-      content: contactContent.text,
-    }).text,
+  return {
+    site,
+    siteFiles: await processOutputSiteFiles(site, fileService, outputDir),
   };
+}
 
+async function processOutputSiteFiles(
+  site: Site,
+  fileService: FileService,
+  outputDir: string
+): Promise<Array<SiteFile>> {
   const siteFiles = [
     { path: "blog.html", content: site.blog },
     { path: "contact.html", content: site.contact },
@@ -96,5 +68,63 @@ export async function generateSite(
       siteFile.content
     );
   }
-  return { site, siteFiles };
+  return siteFiles;
+}
+
+function processSiteFromInputSiteFiles(
+  inputFiles: SiteFiles,
+  context: SiteContext,
+  fileService: FileService
+) {
+  const siteTemplate = processTemplate(
+    inputFiles.siteTemplate.content,
+    context
+  );
+  const aboutContent = processTemplate(inputFiles.about.content, context);
+  const contactContent = processTemplate(inputFiles.contact.content, context);
+
+  const blogPosts: Array<BlogPost> = [];
+  for (const blogPost of inputFiles.blogPosts) {
+    const fileName = path.parse(blogPost.path).name;
+    const fileInfo = fileService.parseInfoFromFileName(fileName);
+    blogPosts.push({
+      fileName: fileInfo.fileName,
+      content: processTemplate(blogPost.content, context).text,
+      originalDate: fileInfo.date,
+    });
+  }
+
+  const about = processTemplate(siteTemplate.text, {
+    ...context,
+    content: aboutContent.text,
+  }).text;
+  const blog = processTemplate(siteTemplate.text, {
+    ...context,
+    content: blogPosts
+      .map((blogPost) => {
+        return blogPost.content;
+      })
+      .join(" "),
+  }).text;
+  const finalBlogPosts = blogPosts.map((blogPost) => {
+    return {
+      ...blogPost,
+      content: processTemplate(siteTemplate.text, {
+        ...context,
+        content: blogPost.content,
+      }).text,
+    };
+  });
+  const contact = processTemplate(siteTemplate.text, {
+    ...context,
+    content: contactContent.text,
+  }).text;
+
+  const site: Site = {
+    about,
+    blog,
+    blogPosts: finalBlogPosts,
+    contact,
+  };
+  return site;
 }
