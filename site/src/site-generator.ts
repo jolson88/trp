@@ -5,6 +5,7 @@ import { FileService, SiteFile } from "./file-service";
 export interface BlogPost {
   fileName: string;
   content: string;
+  originalDate: Date;
 }
 
 export interface Site {
@@ -41,9 +42,12 @@ export async function generateSite(
   const blogFiles = await fileService.readDirectory(path.join(inputDir, "posts"));
 
   for (const blogFile of blogFiles) {
+    const fileName = path.parse(blogFile.path).name;
+    const fileInfo = fileService.parseInfoFromFileName(fileName);
     blogPosts.push({
-      fileName: path.parse(blogFile.path).name,
+      fileName: fileInfo.fileName,
       content: processTemplate(blogFile.content, context).text,
+      originalDate: fileInfo.date,
     })
   }
   const site: Site = {

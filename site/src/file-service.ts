@@ -16,8 +16,32 @@ export interface SiteFile {
 }
 
 export class FileService {
-  public async readFiles(inputDir: string): Promise<SiteFiles> {
+  public parseInfoFromFileName(fileName: string): { date: Date, fileName: string } {
+    const today = new Date();
+    const defaultInfo = {
+      date: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+      fileName,
+    };
 
+    const fileParts = fileName.split("-");
+    if (fileParts.length < 4) {
+      return defaultInfo;
+    }
+
+    try {
+      const year = Number.parseInt(fileParts[0]);
+      const month = Number.parseInt(fileParts[1]);
+      const day = Number.parseInt(fileParts[2]);
+      return {
+        date: new Date(year, month, day),
+        fileName: fileParts.slice(3).join('-'),
+      };
+    } catch {
+      return defaultInfo;
+    }
+  }
+
+  public async readFiles(inputDir: string): Promise<SiteFiles> {
     return {
       siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
       about: await this.readFile(path.join(inputDir, "about.html")),
