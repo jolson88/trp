@@ -2,6 +2,10 @@
 
 ## Current Milestone
 
+- 🖼 Website uses new avatar for favicons
+  - [ ] Create new favicon files
+- 💾 Platform-independent way to sync files to blog
+  - [ ] Create `sync.ts` script
 - ⏲ When I save a blog post, the site is automatically regenerated for instant checking
     - Simplest solution is probably to watch from within Node and re-running the `generateSite` command directly (whose output is picked up by live-server)
 - 📄 Wortwhile posts from previous blog are ported to new site
@@ -15,8 +19,9 @@
   - [x] `generateSite` returns Site as well as SiteFiles and smoke test verifies it
   - [x] Site loading loads blog files
   - [x] SiteFiles have destination blog files included
-  - [ ] Date is included in sidenote
+  - [x] Date is included in sidenote
   - [ ] Any Tidying needed?
+
 
 # Shipped
 
