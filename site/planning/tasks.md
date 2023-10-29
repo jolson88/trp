@@ -6,8 +6,6 @@
     - Simplest solution is probably to watch from within Node and re-running the `generateSite` command directly (whose output is picked up by live-server)
 - 📄 Wortwhile posts from previous blog are ported to new site
     - https://github.com/jolson88/blog
-- 📖 Users can see the the most recent blog posts in one `latest` landing page
-- 📖 Users can see all blog posts in one `all` landing page
 
 # WIP
 
@@ -18,6 +16,7 @@
 
 ## Alpha 0.7 - October 23rd, 2023
 
+- 📖 Users can see the the most recent blog posts in one landing page
 - 🖼 Website uses new avatar for favicons
 - 📃 I can create a blog post that is included on the site
 - 🎯 Website uses a custom site generator that gives me full control over site
