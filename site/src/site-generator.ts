@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { processPage, processTemplate } from './template-processor';
 import { FileService, SiteFile, parseInfoFromFileName } from './file-service';
+import { Reporter } from './reporter';
 
 export interface BlogPost {
   fileName: string;
@@ -28,7 +29,8 @@ const defaultContext: SiteContext = {
 export function generateBlog(
   siteTemplate: string,
   inputBlogPosts: Array<SiteFile>,
-  context: SiteContext = defaultContext
+  context: SiteContext = defaultContext,
+  reporter: Reporter = new Reporter()
 ): { blog: string; blogPosts: Array<BlogPost> } {
   const blogPosts: Array<BlogPost> = [];
   for (const blogPost of inputBlogPosts) {

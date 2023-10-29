@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, generateSite } from './site-generator';
+import { Site, SiteContext, generateBlog, generateSite } from './site-generator';
 import * as path from 'path';
 import { FileService, SiteFile, SiteFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
+import { Reporter } from './reporter';
 
 export const givenContext: SiteContext = {
   title: 'The Reasonable Programmer',
@@ -62,18 +63,49 @@ export const givenSiteFiles: Array<SiteFile> = [
 ];
 
 describe('Site Generation', () => {
-  it('should complete load and generation of site', async () => {
-    const mockFileService = mockPassthrough<FileService>(
-      {
-        writeFile: vi.fn().mockResolvedValue(true),
-      },
-      new FileService()
-    );
+  describe('generateSite', () => {
+    it('should complete load and generation of site', async () => {
+      const mockFileService = mockPassthrough<FileService>(
+        {
+          writeFile: vi.fn().mockResolvedValue(true),
+        },
+        new FileService()
+      );
 
-    const inputDir = path.join(__dirname, 'test', 'data', 'site');
-    const siteResults = await generateSite(inputDir, '', givenContext, mockFileService);
+      const inputDir = path.join(__dirname, 'test', 'data', 'site');
+      const siteResults = await generateSite(inputDir, '', givenContext, mockFileService);
 
-    expect(siteResults.site).toEqual(givenSite);
-    expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
+      expect(siteResults.site).toEqual(givenSite);
+      expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
+    });
+  });
+
+  describe('generateBlog', () => {
+    it('should generate blog', () => {
+      const blogResults = generateBlog('Blog Posts:\n##CONTENT##', [
+        { path: 'foo.html', content: 'FOO' },
+        { path: 'bar.html', content: 'BAR' },
+      ]);
+
+      expect(blogResults.blog).toEqual('Blog Posts:\nFOO\nBAR');
+    });
+
+    it('should report missing metadata warnings', () => {
+      const reporter = new Reporter();
+      const reportTracker = reporter.trackReports();
+
+      generateBlog('##CONTENT##', [{ path: 'foo.html', content: 'FOO' }]);
+
+      expect(reportTracker.data).toEqual([
+        {
+          level: 'warning',
+          message: 'foo.html does not have a title. Add "##TITLE: My Title##" to fix',
+        },
+        {
+          level: 'warning',
+          message: 'foo.html does not have an image. Add "##IMG: /img/blog/something.jpg##" to fix',
+        },
+      ]);
+    });
   });
 });
