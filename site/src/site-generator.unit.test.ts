@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { Site, SiteContext, generateSite } from "./site-generator";
 import * as path from "path";
 import { FileService, SiteFile } from "./file-service";
-import { mock, mockPassthrough } from "./test/mocking";
+import { mockPassthrough } from "./test/mocking";
 
 export const givenContext: SiteContext = {
   title: "The Reasonable Programmer",

@@ -2,6 +2,11 @@
 
 ## Current Milestone
 
+- 🐤 Add support for OpenGraph and Twitter Cards for better links
+  - [ ] Add ability for a blog post to have output metadata that is sufficient to build cards
+    - https://stackoverflow.com/questions/19632323/default-website-image-for-social-sharing
+  - [ ] There is an input context variable for the site header that allows child-metadata content
+  - [ ] If a post has output metadata for cards, the generated card is placed in the <head> of the post page
 - ⏲ When I save a blog post, the site is automatically regenerated for instant checking
     - Simplest solution is probably to watch from within Node and re-running the `generateSite` command directly (whose output is picked up by live-server)
 - 📄 Wortwhile posts from previous blog are ported to new site
