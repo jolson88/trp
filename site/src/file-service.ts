@@ -1,5 +1,5 @@
-import * as path from "path";
-import * as fs from "fs/promises";
+import * as path from 'path';
+import * as fs from 'fs/promises';
 
 export interface SiteFiles {
   siteTemplate: SiteFile;
@@ -23,7 +23,7 @@ export function parseInfoFromFileName(fileName: string): {
     fileName,
   };
 
-  const fileParts = fileName.split("-");
+  const fileParts = fileName.split('-');
   if (fileParts.length < 4) {
     return defaultInfo;
   }
@@ -34,7 +34,7 @@ export function parseInfoFromFileName(fileName: string): {
     const day = Number.parseInt(fileParts[2]);
     return {
       date: new Date(year, month, day),
-      fileName: fileParts.slice(3).join("-"),
+      fileName: fileParts.slice(3).join('-'),
     };
   } catch {
     return defaultInfo;
@@ -44,10 +44,10 @@ export function parseInfoFromFileName(fileName: string): {
 export class FileService {
   public async readFiles(inputDir: string): Promise<SiteFiles> {
     return {
-      siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
-      about: await this.readFile(path.join(inputDir, "about.html")),
-      blogPosts: await this.readDirectory(path.join(inputDir, "posts")),
-      contact: await this.readFile(path.join(inputDir, "contact.html")),
+      siteTemplate: await this.readFile(path.join(inputDir, '_site.html')),
+      about: await this.readFile(path.join(inputDir, 'about.html')),
+      blogPosts: await this.readDirectory(path.join(inputDir, 'posts')),
+      contact: await this.readFile(path.join(inputDir, 'contact.html')),
     };
   }
 
@@ -76,7 +76,7 @@ export class FileService {
   async readFile(fullPath: string): Promise<SiteFile> {
     return {
       path: fullPath,
-      content: await fs.readFile(fullPath, { encoding: "utf8" }),
+      content: await fs.readFile(fullPath, { encoding: 'utf8' }),
     };
   }
 }

@@ -41,7 +41,6 @@ describe('File Services', () => {
       { path: path.join(postDir, '2023-01-01-foo.html'), content: 'Foo' },
       { path: path.join(postDir, '2023-02-02-bar.html'), content: 'Bar' },
       { path: path.join(postDir, '2023-03-03-baz.html'), content: 'Baz' },
-    ])
+    ]);
   });
-
 });

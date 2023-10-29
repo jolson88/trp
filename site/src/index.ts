@@ -5,7 +5,9 @@ import { generateSite } from './site-generator';
 
 async function main(args: Array<string>): Promise<void> {
   if (args.length < 2) {
-    console.error('Must specify the relative template directory and output directory to write files into');
+    console.error(
+      'Must specify the relative template directory and output directory to write files into'
+    );
     return process.exit(1);
   }
 
@@ -14,7 +16,7 @@ async function main(args: Array<string>): Promise<void> {
 
   console.log('Resetting output directory:', outputDir);
   if (existsSync(outputDir)) {
-    await fs.rm(outputDir, { recursive: true, });
+    await fs.rm(outputDir, { recursive: true });
   }
 
   console.log('Copying public files to output directory');

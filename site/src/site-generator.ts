@@ -1,6 +1,6 @@
-import * as path from "path";
-import { processPage, processTemplate } from "./template-processor";
-import { FileService, SiteFile, parseInfoFromFileName } from "./file-service";
+import * as path from 'path';
+import { processPage, processTemplate } from './template-processor';
+import { FileService, SiteFile, parseInfoFromFileName } from './file-service';
 
 export interface BlogPost {
   fileName: string;
@@ -22,7 +22,7 @@ export interface SiteContext {
 
 const defaultContext: SiteContext = {
   year: new Date().getFullYear(),
-  title: "The Reasonable Programmer",
+  title: 'The Reasonable Programmer',
 };
 
 export function generateBlog(
@@ -44,7 +44,7 @@ export function generateBlog(
   return {
     blog: processPage(
       siteTemplate,
-      inputBlogPosts.map((blogPost) => blogPost.content).join("\n"),
+      inputBlogPosts.map((blogPost) => blogPost.content).join('\n'),
       context
     ).text,
     blogPosts: blogPosts.map((blogPost) => ({
@@ -63,21 +63,9 @@ export async function generateSite(
   const inputFiles = await fileService.readFiles(inputDir);
 
   const site: Site = {
-    ...generateBlog(
-      inputFiles.siteTemplate.content,
-      inputFiles.blogPosts,
-      context
-    ),
-    about: processPage(
-      inputFiles.siteTemplate.content,
-      inputFiles.about.content,
-      context
-    ).text,
-    contact: processPage(
-      inputFiles.siteTemplate.content,
-      inputFiles.contact.content,
-      context
-    ).text,
+    ...generateBlog(inputFiles.siteTemplate.content, inputFiles.blogPosts, context),
+    about: processPage(inputFiles.siteTemplate.content, inputFiles.about.content, context).text,
+    contact: processPage(inputFiles.siteTemplate.content, inputFiles.contact.content, context).text,
   };
 
   return {
@@ -92,9 +80,9 @@ async function processOutputSiteFiles(
   fileService: FileService
 ): Promise<Array<SiteFile>> {
   const siteFiles = [
-    { path: "blog.html", content: site.blog },
-    { path: "contact.html", content: site.contact },
-    { path: "index.html", content: site.about },
+    { path: 'blog.html', content: site.blog },
+    { path: 'contact.html', content: site.contact },
+    { path: 'index.html', content: site.about },
   ];
   siteFiles.push(
     ...site.blogPosts.map((blogPost) => {
@@ -105,10 +93,7 @@ async function processOutputSiteFiles(
     })
   );
   for (const siteFile of siteFiles) {
-    await fileService.writeFile(
-      path.join(outputDir, siteFile.path),
-      siteFile.content
-    );
+    await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }
   return siteFiles;
 }
