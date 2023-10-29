@@ -12,14 +12,11 @@
 # WIP
 
 - 📃 I can create a blog post that is included on the site
-    - Date is included in the file name. Date is shown as `Last Updated` side note
-    - Date is not included in the final url (living blog)
-
-- [x] `generateSite` returns Site as well as SiteFiles and smoke test verifies it
-- [ ] Site loading loads blog files
-- [ ] SiteFiles have destination blog files included
-- [ ] Date is included in sidenote
-- [ ] Any Tidying needed?
+  - [x] `generateSite` returns Site as well as SiteFiles and smoke test verifies it
+  - [x] Site loading loads blog files
+  - [x] SiteFiles have destination blog files included
+  - [ ] Date is included in sidenote
+  - [ ] Any Tidying needed?
 
 # Shipped
 

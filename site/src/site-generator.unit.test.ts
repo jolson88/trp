@@ -11,11 +11,23 @@ export const givenContext: SiteContext = {
 
 export const givenSite: Site = {
   about: `${givenContext.title} StartBase ${givenContext.title} EndBase ${givenContext.year}`,
-  blog: `${givenContext.title} StartBase BlogContent EndBase ${givenContext.year}`,
+  blog: `${givenContext.title} StartBase Foo Bar Baz EndBase ${givenContext.year}`,
   blogPosts: [
-    { fileName: "foo", content: "Foo", originalDate: new Date(2023, 1, 1) },
-    { fileName: "bar", content: "Bar", originalDate: new Date(2023, 2, 2) },
-    { fileName: "baz", content: "Baz", originalDate: new Date(2023, 3, 3) },
+    {
+      fileName: "foo",
+      content: `${givenContext.title} StartBase Foo EndBase ${givenContext.year}`,
+      originalDate: new Date(2023, 1, 1),
+    },
+    {
+      fileName: "bar",
+      content: `${givenContext.title} StartBase Bar EndBase ${givenContext.year}`,
+      originalDate: new Date(2023, 2, 2),
+    },
+    {
+      fileName: "baz",
+      content: `${givenContext.title} StartBase Baz EndBase ${givenContext.year}`,
+      originalDate: new Date(2023, 3, 3),
+    },
   ],
   contact: `${givenContext.title} StartBase ContactContent EndBase ${givenContext.year}`,
 };
@@ -24,13 +36,19 @@ export const givenSiteFiles: Array<SiteFile> = [
   { path: "blog.html", content: givenSite.blog },
   { path: "contact.html", content: givenSite.contact },
   { path: "index.html", content: givenSite.about },
+  { path: "posts/foo.html", content: givenSite.blogPosts[0].content },
+  { path: "posts/bar.html", content: givenSite.blogPosts[1].content },
+  { path: "posts/baz.html", content: givenSite.blogPosts[2].content },
 ];
 
 describe("Site Generation", () => {
   it("should complete load and generation of site", async () => {
-    const mockFileService = mockPassthrough<FileService>({
-      writeFile: vi.fn().mockResolvedValue(true),
-    }, new FileService());
+    const mockFileService = mockPassthrough<FileService>(
+      {
+        writeFile: vi.fn().mockResolvedValue(true),
+      },
+      new FileService()
+    );
 
     const inputDir = path.join(__dirname, "test", "data", "site");
     const siteResults = await generateSite(

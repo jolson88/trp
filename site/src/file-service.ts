@@ -5,7 +5,6 @@ import { Dirent } from "fs";
 export interface SiteFiles {
   siteTemplate: SiteFile;
   about: SiteFile;
-  blog: SiteFile;
   blogPosts: Array<SiteFile>;
   contact: SiteFile;
 }
@@ -45,7 +44,6 @@ export class FileService {
     return {
       siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
       about: await this.readFile(path.join(inputDir, "about.html")),
-      blog: await this.readFile(path.join(inputDir, "blog.html")),
       blogPosts: [],
       contact: await this.readFile(path.join(inputDir, "contact.html")),
     };
