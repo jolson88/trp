@@ -1,6 +1,5 @@
 import * as path from "path";
 import * as fs from "fs/promises";
-import { Dirent } from "fs";
 
 export interface SiteFiles {
   siteTemplate: SiteFile;
@@ -14,32 +13,35 @@ export interface SiteFile {
   content: string;
 }
 
-export class FileService {
-  public parseInfoFromFileName(fileName: string): { date: Date, fileName: string } {
-    const today = new Date();
-    const defaultInfo = {
-      date: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-      fileName,
-    };
+export function parseInfoFromFileName(fileName: string): {
+  date: Date;
+  fileName: string;
+} {
+  const today = new Date();
+  const defaultInfo = {
+    date: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+    fileName,
+  };
 
-    const fileParts = fileName.split("-");
-    if (fileParts.length < 4) {
-      return defaultInfo;
-    }
-
-    try {
-      const year = Number.parseInt(fileParts[0]);
-      const month = Number.parseInt(fileParts[1]);
-      const day = Number.parseInt(fileParts[2]);
-      return {
-        date: new Date(year, month, day),
-        fileName: fileParts.slice(3).join('-'),
-      };
-    } catch {
-      return defaultInfo;
-    }
+  const fileParts = fileName.split("-");
+  if (fileParts.length < 4) {
+    return defaultInfo;
   }
 
+  try {
+    const year = Number.parseInt(fileParts[0]);
+    const month = Number.parseInt(fileParts[1]);
+    const day = Number.parseInt(fileParts[2]);
+    return {
+      date: new Date(year, month, day),
+      fileName: fileParts.slice(3).join("-"),
+    };
+  } catch {
+    return defaultInfo;
+  }
+}
+
+export class FileService {
   public async readFiles(inputDir: string): Promise<SiteFiles> {
     return {
       siteTemplate: await this.readFile(path.join(inputDir, "_site.html")),
@@ -49,10 +51,7 @@ export class FileService {
     };
   }
 
-  public async writeFile(
-    filePath: string,
-    content: string
-  ): Promise<boolean> {
+  public async writeFile(filePath: string, content: string): Promise<boolean> {
     const outputDir = path.parse(filePath).dir;
     await fs.mkdir(outputDir, { recursive: true });
     await fs.writeFile(filePath, content);

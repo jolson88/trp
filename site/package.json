@@ -8,6 +8,7 @@
     "build": "ts-node src/index.ts _in _out",
     "start": "npm run build && live-server _out",
     "sync": "npm run build && cp -R _out/ ../../jolson88.github.io",
+    "sync:win": "npm run build && @powershell cp -R -Force _out/* ../../jolson88.github.io",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"

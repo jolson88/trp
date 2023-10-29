@@ -1,4 +1,7 @@
 {
   "editor.tabSize": 2,
-  "editor.lineNumbers": "on"
+  "editor.lineNumbers": "on",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

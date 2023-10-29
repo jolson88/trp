@@ -1,12 +1,37 @@
 import { describe, expect, it, vi } from "vitest";
-import { Site, SiteContext, generateSite } from "./site-generator";
+import {
+  Site,
+  SiteContext,
+  generateAboutFromSiteFiles,
+  generateSite,
+} from "./site-generator";
 import * as path from "path";
-import { FileService, SiteFile } from "./file-service";
-import { mockPassthrough } from "./test/mocking";
+import { FileService, SiteFile, SiteFiles } from "./file-service";
+import { mock, mockPassthrough } from "./test/mocking";
 
 export const givenContext: SiteContext = {
   title: "The Reasonable Programmer",
   year: new Date().getFullYear(),
+};
+
+export const givenInputSiteFiles: SiteFiles = {
+  about: {
+    path: "about.html",
+    content: "##TITLE##",
+  },
+  blogPosts: [
+    { path: "2023-01-01-foo.html", content: "foo" },
+    { path: "2023-02-02-bar.html", content: "bar" },
+    { path: "2023-03-03-baz.html", content: "baz" },
+  ],
+  contact: {
+    path: "contact.html",
+    content: "ContactContent",
+  },
+  siteTemplate: {
+    path: "_site.html",
+    content: "##TITLE## StartBase ##CONTENT## EndBase ##YEAR##",
+  },
 };
 
 export const givenSite: Site = {
@@ -60,5 +85,16 @@ describe("Site Generation", () => {
 
     expect(siteResults.site).toEqual(givenSite);
     expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
+  });
+
+  it("should process about content from site files", async () => {
+    const mockFileService = mock<FileService>({});
+
+    const text = await generateAboutFromSiteFiles(
+      givenInputSiteFiles,
+      mockFileService
+    );
+
+    expect(text).toEqual(givenSite.about);
   });
 });

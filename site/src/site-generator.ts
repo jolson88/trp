@@ -1,6 +1,11 @@
 import * as path from "path";
 import { processTemplate } from "./template-processor";
-import { FileService, SiteFile, SiteFiles } from "./file-service";
+import {
+  FileService,
+  SiteFile,
+  SiteFiles,
+  parseInfoFromFileName,
+} from "./file-service";
 
 export interface BlogPost {
   fileName: string;
@@ -33,15 +38,18 @@ export async function generateSite(
 ): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
   const inputFiles = await fileService.readFiles(inputDir);
 
-  const site: Site = processSiteFromInputSiteFiles(
-    inputFiles,
-    context,
-    fileService
-  );
+  const site: Site = processSiteFromInputSiteFiles(inputFiles, context);
   return {
     site,
     siteFiles: await processOutputSiteFiles(site, fileService, outputDir),
   };
+}
+
+export async function generateAboutFromSiteFiles(
+  inputSiteFiles: SiteFiles,
+  fileService: FileService = new FileService()
+): Promise<string> {
+  return "";
 }
 
 async function processOutputSiteFiles(
@@ -73,8 +81,7 @@ async function processOutputSiteFiles(
 
 function processSiteFromInputSiteFiles(
   inputFiles: SiteFiles,
-  context: SiteContext,
-  fileService: FileService
+  context: SiteContext
 ) {
   const siteTemplate = processTemplate(
     inputFiles.siteTemplate.content,
@@ -86,7 +93,7 @@ function processSiteFromInputSiteFiles(
   const blogPosts: Array<BlogPost> = [];
   for (const blogPost of inputFiles.blogPosts) {
     const fileName = path.parse(blogPost.path).name;
-    const fileInfo = fileService.parseInfoFromFileName(fileName);
+    const fileInfo = parseInfoFromFileName(fileName);
     blogPosts.push({
       fileName: fileInfo.fileName,
       content: processTemplate(blogPost.content, context).text,
