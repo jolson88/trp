@@ -103,7 +103,7 @@ describe('Site Generation', () => {
         },
         {
           level: 'warning',
-          message: 'foo.html does not have an image. Add "##IMG: /img/blog/something.jpg##" to fix',
+          message: 'foo.html does not have an image. Add "##IMAGE: /img/blog/something.jpg##" to fix',
         },
       ]);
     });

@@ -40,8 +40,8 @@ export function generateBlog(
     if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'TITLE'; }) === undefined) {
       reporter.report('warning', `${blogPost.path} does not have a title. Add "##TITLE: My Title##" to fix`);
     }
-    if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'IMG'; }) === undefined) {
-      reporter.report('warning', `${blogPost.path} does not have an image. Add "##IMG: /img/blog/something.jpg##" to fix`);
+    if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'IMAGE'; }) === undefined) {
+      reporter.report('warning', `${blogPost.path} does not have an image. Add "##IMAGE: /img/blog/something.jpg##" to fix`);
     }
     blogPosts.push({
       fileName: fileInfo.fileName,

@@ -10,15 +10,18 @@
 # WIP
 
 - 🐤 Add support for OpenGraph and Twitter Cards for better links
-  - [X] Add ability for a blog post to have output metadata that is sufficient to build cards
-  - [X] Add OutputTracker for tracking a service
-  - [X] Add Reporter to blog generator to report warnings if metadata for cards is not present
-  - [] A "social card metadata" section can be generated given the correct input context
+  - [] Tidying: Add common Metadata enum for quick lookups of Title and Image in site-generator.ts
+  - [] Tidying: Change from Array<[string, string]> in Site types to Map<string, string> (since we aren't serializing)
+  - [] A "social card metadata" section that can be generated given the correct input context
     - https://stackoverflow.com/questions/19632323/default-website-image-for-social-sharing
   - [] There is an input context variable for the site header that allows child-metadata content
   - [] If a post has output metadata for cards, the generated card is placed in the <head> of the post page
 
 # Shipped
+
+## Alpha 0.8 - TBD
+
+- ⛔️ Add support for reporting warnings/errors during site generation
 
 ## Alpha 0.7 - October 23rd, 2023
 
