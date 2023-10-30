@@ -11,13 +11,13 @@ describe('processPage', () => {
   it('should return output metadata', () => {
     const page = processPage('SITE ##CONTENT##', '##TITLE: Foo##', {});
 
-    expect(page.outputMarkers).toEqual([['TITLE', 'Foo']]);
+    expect([...page.outputMarkers.entries()]).toEqual([['TITLE', 'Foo']]);
   });
 
   it('should contain output metadata from template and child', () => {
     const page = processPage('SITE ##TAG: Bar## ##CONTENT##', '##TITLE: Foo##', {});
 
-    expect(page.outputMarkers.sort()).toEqual(
+    expect([...page.outputMarkers.entries()].sort()).toEqual(
       [
         ['TAG', 'Bar'],
         ['TITLE', 'Foo'],
@@ -28,27 +28,26 @@ describe('processPage', () => {
   it('should prioritize site template metadata over child metadata', () => {
     const page = processPage('SITE ##TITLE: Bar## ##CONTENT##', '##TITLE: Foo##', {});
 
-    expect(page.outputMarkers.sort()).toEqual([['TITLE', 'Bar']].sort());
+    expect([...page.outputMarkers.entries()]).toEqual([['TITLE', 'Bar']].sort());
   });
 });
 
 describe('processTemplate', () => {
   it('should be case-insensitive for input values', () => {
     const result = processTemplate('Hello, ##name##');
-    expect(result.inputMarkers).toEqual(['NAME']);
+    expect([...result.inputMarkers.keys()]).toEqual(['NAME']);
+  });
+
+  it('should remove unprovided input values', () => {
+    const result = processTemplate('Hello##FOO##');
+    expect(result.text).toEqual('Hello');
   });
 
   it('should detect multiple input values', () => {
-    const text = 'Hello, ##FIRST_NAME## ##LAST_NAME##';
+    const result = processTemplate('Hello, ##FIRST## ##LAST##', { first: 'Hugh', last: 'Grant' });
 
-    const result = processTemplate('Hello, ##FIRST_NAME## ##LAST_NAME##');
-
-    expect(result).toEqual(
-      expect.objectContaining({
-        text,
-        inputMarkers: ['FIRST_NAME', 'LAST_NAME'],
-      })
-    );
+    expect(result.text).toEqual('Hello, Hugh Grant');
+    expect([...result.inputMarkers].sort()).toEqual(['FIRST', 'LAST']);
   });
 
   it('should substitute different values', () => {
@@ -71,14 +70,12 @@ describe('processTemplate', () => {
   it('should detect output values', () => {
     const result = processTemplate('Hello, World\n##TITLE: Foo##\n##age: 43##');
 
-    expect(result).toEqual(
-      expect.objectContaining({
-        text: 'Hello, World',
-        outputMarkers: [
-          ['TITLE', 'Foo'],
-          ['AGE', '43'],
-        ],
-      })
+    expect(result.text).toEqual('Hello, World');
+    expect([...result.outputMarkers.entries()].sort()).toEqual(
+      [
+        ['TITLE', 'Foo'],
+        ['AGE', '43'],
+      ].sort()
     );
   });
 });

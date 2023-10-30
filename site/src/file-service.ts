@@ -17,9 +17,8 @@ export function parseInfoFromFileName(fileName: string): {
   date: Date;
   fileName: string;
 } {
-  const today = new Date();
   const defaultInfo = {
-    date: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+    date: new Date(1970, 1, 1),
     fileName,
   };
 
@@ -28,17 +27,17 @@ export function parseInfoFromFileName(fileName: string): {
     return defaultInfo;
   }
 
-  try {
-    const year = Number.parseInt(fileParts[0]);
-    const month = Number.parseInt(fileParts[1]);
-    const day = Number.parseInt(fileParts[2]);
-    return {
-      date: new Date(year, month, day),
-      fileName: fileParts.slice(3).join('-'),
-    };
-  } catch {
+  const year = Number.parseInt(fileParts[0]);
+  const month = Number.parseInt(fileParts[1]);
+  const day = Number.parseInt(fileParts[2]);
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) {
     return defaultInfo;
   }
+
+  return {
+    date: new Date(year, month, day),
+    fileName: fileParts.slice(3).join('-'),
+  };
 }
 
 export class FileService {

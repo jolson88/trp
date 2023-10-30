@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import { Site, SiteContext, generateBlog, generateSite } from './site-generator';
+import {
+  PageMetadataKeys,
+  Site,
+  SiteContext,
+  generateBlog,
+  generateOpenGraphSlug,
+  generateSite,
+} from './site-generator';
 import * as path from 'path';
 import { FileService, SiteFile, SiteFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
@@ -8,6 +15,7 @@ import { Reporter } from './reporter';
 export const givenContext: SiteContext = {
   title: 'The Reasonable Programmer',
   year: new Date().getFullYear(),
+  url: 'https://www.example.com',
 };
 
 export const givenInputSiteFiles: SiteFiles = {
@@ -63,6 +71,27 @@ export const givenSiteFiles: Array<SiteFile> = [
 ];
 
 describe('Site Generation', () => {
+  describe('generateOpenGraphSlug', () => {
+    it('should generate OpenGraph slug', () => {
+      const metadata = new Map<string, string>();
+      metadata.set(PageMetadataKeys.title, 'Foo');
+      metadata.set(PageMetadataKeys.title, 'Foo');
+
+      const slug = generateOpenGraphSlug(givenContext, metadata);
+
+      expect(slug).toEqual(
+        `
+<meta property="og:image" content="https://www.example.com/image.jpg">
+<meta property="og:image:type" content="image/jpg">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.website.com/posts/foo.html" />
+<meta property="og:title" content="Foo" />`.trim()
+      );
+    });
+  });
+
   describe('generateSite', () => {
     it('should complete load and generation of site', async () => {
       const mockFileService = mockPassthrough<FileService>(
@@ -73,7 +102,9 @@ describe('Site Generation', () => {
       );
 
       const inputDir = path.join(__dirname, 'test', 'data', 'site');
-      const siteResults = await generateSite(inputDir, '', givenContext, { fileService: mockFileService });
+      const siteResults = await generateSite(inputDir, '', givenContext, {
+        fileService: mockFileService,
+      });
 
       expect(siteResults.site).toEqual(givenSite);
       expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
@@ -103,7 +134,8 @@ describe('Site Generation', () => {
         },
         {
           level: 'warning',
-          message: 'foo.html does not have an image. Add "##IMAGE: /img/blog/something.jpg##" to fix',
+          message:
+            'foo.html does not have an image. Add "##IMAGE: /img/blog/something.jpg##" to fix',
         },
       ]);
     });

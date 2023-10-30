@@ -2,7 +2,19 @@ import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { FileService } from './file-service';
+import { FileService, parseInfoFromFileName } from './file-service';
+
+describe('parseInfoFromFileName', () => {
+  it('should use default if no date in file name', () => {
+    const fileInfo = parseInfoFromFileName('foo.html');
+    expect(fileInfo.date).toEqual(new Date(1970, 1, 1));
+  });
+
+  it('should use default if first three parts are not numbers', () => {
+    const fileInfo = parseInfoFromFileName('foo-bar-baz-quux-quuz.html');
+    expect(fileInfo.date).toEqual(new Date(1970, 1, 1));
+  });
+});
 
 describe('File Services', () => {
   const testFile = path.join(__dirname, 'foo/bar/baz/output.txt');

@@ -18,13 +18,27 @@ export interface Site {
 
 export interface SiteContext {
   title: string;
+  url: string;
   year: number;
 }
 
 export const defaultContext: SiteContext = {
   year: new Date().getFullYear(),
   title: 'The Reasonable Programmer',
+  url: 'https://www.jolson88.com/',
 };
+
+export enum PageMetadataKeys {
+  image = 'IMAGE',
+  title = 'TITLE',
+}
+
+export function generateOpenGraphSlug(
+  context: SiteContext,
+  outputMarkers: Map<string, string>
+): string {
+  return '';
+}
 
 export function generateBlog(
   siteTemplate: string,
@@ -37,12 +51,20 @@ export function generateBlog(
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
     const blogContent = processTemplate(blogPost.content, context);
-    if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'TITLE'; }) === undefined) {
-      reporter.report('warning', `${blogPost.path} does not have a title. Add "##TITLE: My Title##" to fix`);
+
+    if (!blogContent.outputMarkers.has(PageMetadataKeys.title)) {
+      reporter.report(
+        'warning',
+        `${blogPost.path} does not have a title. Add "##${PageMetadataKeys.title}: My Title##" to fix`
+      );
     }
-    if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'IMAGE'; }) === undefined) {
-      reporter.report('warning', `${blogPost.path} does not have an image. Add "##IMAGE: /img/blog/something.jpg##" to fix`);
+    if (!blogContent.outputMarkers.has(PageMetadataKeys.image)) {
+      reporter.report(
+        'warning',
+        `${blogPost.path} does not have an image. Add "##${PageMetadataKeys.image}: /img/blog/something.jpg##" to fix`
+      );
     }
+
     blogPosts.push({
       fileName: fileInfo.fileName,
       content: blogContent.text,
@@ -64,15 +86,15 @@ export function generateBlog(
 }
 
 export interface GenerateSiteOptions {
-  fileService: FileService,
-  reporter: Reporter,
+  fileService: FileService;
+  reporter: Reporter;
 }
 
 export async function generateSite(
   inputDir: string,
   outputDir: string,
   context: SiteContext = defaultContext,
-  { reporter = new Reporter(), fileService = new FileService() }: Partial<GenerateSiteOptions> = {},
+  { reporter = new Reporter(), fileService = new FileService() }: Partial<GenerateSiteOptions> = {}
 ): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
   const inputFiles = await fileService.readFiles(inputDir);
 

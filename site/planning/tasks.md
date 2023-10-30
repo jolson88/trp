@@ -10,10 +10,12 @@
 # WIP
 
 - 🐤 Add support for OpenGraph and Twitter Cards for better links
-  - [] Tidying: Add common Metadata enum for quick lookups of Title and Image in site-generator.ts
-  - [] Tidying: Change from Array<[string, string]> in Site types to Map<string, string> (since we aren't serializing)
+  - [x] Tidying: Add common Metadata enum for quick lookups of Title and Image in site-generator.ts
+  - [x] Tidying: Change from Array<[string, string]> in Site types to Map<string, string> (since we aren't serializing)
   - [] A "social card metadata" section that can be generated given the correct input context
     - https://stackoverflow.com/questions/19632323/default-website-image-for-social-sharing
+    - https://ogp.me/#structured
+    - https://ogp.me/#types
   - [] There is an input context variable for the site header that allows child-metadata content
   - [] If a post has output metadata for cards, the generated card is placed in the <head> of the post page
 

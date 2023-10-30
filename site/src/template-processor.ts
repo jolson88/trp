@@ -3,8 +3,8 @@ const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
 
 export interface TemplateProcessingResults {
   text: string;
-  inputMarkers: Array<string>;
-  outputMarkers: Array<[string, string]>;
+  inputMarkers: Set<string>;
+  outputMarkers: Map<string, string>;
 }
 
 export function processPage(
@@ -18,12 +18,12 @@ export function processPage(
     content: content.text,
   });
 
-  const outputMarkersMap = new Map<string, string>(content.outputMarkers);
-  processedPage.outputMarkers.forEach(([k, v]) => outputMarkersMap.set(k, v));
+  const outputMarkers = new Map<string, string>(content.outputMarkers);
+  [...processedPage.outputMarkers.entries()].forEach(([k, v]) => outputMarkers.set(k, v));
 
   return {
     ...processedPage,
-    outputMarkers: [...outputMarkersMap.entries()],
+    outputMarkers,
   };
 }
 
@@ -45,7 +45,7 @@ export function processTemplate(template: string, context: any = {}): TemplatePr
     const originalTag = match[0];
     const inputMarker = match[1].toUpperCase();
     inputMarkers.add(inputMarker);
-    text = text.replace(originalTag, contextLookup.get(inputMarker) ?? originalTag);
+    text = text.replace(originalTag, contextLookup.get(inputMarker) ?? '');
   }
 
   for (const match of text.matchAll(outputMarkerRegEx)) {
@@ -58,7 +58,7 @@ export function processTemplate(template: string, context: any = {}): TemplatePr
 
   return {
     text: text.trim(),
-    inputMarkers: [...inputMarkers],
-    outputMarkers: [...outputMarkers.entries()],
+    inputMarkers,
+    outputMarkers,
   };
 }
