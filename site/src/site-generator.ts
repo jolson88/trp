@@ -30,6 +30,7 @@ export const defaultContext: SiteContext = {
 
 export enum MetadataField {
   image = 'IMAGE',
+  pageUrl = 'URL',
   title = 'TITLE',
 }
 
@@ -38,11 +39,13 @@ export function generateOpenGraphSlug(
   outputMarkers: Map<string, string>
 ): string {
   const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
+  const pageUrl = new URL(outputMarkers.get(MetadataField.pageUrl) ?? '', context.url);
 
   return `
 <meta property="og:image" content="${imageUrl}" />
 <meta property="og:title" content="Foo" />
 <meta property="og:type" content="article" />
+<meta property="og:url" content="${pageUrl}" />
   `.trim();
 }
 

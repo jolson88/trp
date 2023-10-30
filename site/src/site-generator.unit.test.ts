@@ -72,7 +72,24 @@ export const givenSiteFiles: Array<SiteFile> = [
 
 describe('Site Generation', () => {
   describe('generateOpenGraphSlug', () => {
-    it('should generate OpenGraph slug', () => {
+    it('should generate minimal OpenGraph slug', () => {
+      const metadata = new Map<string, string>();
+      metadata.set(MetadataField.image, 'img/blog/foo.jpg');
+      metadata.set(MetadataField.title, 'Foo');
+      metadata.set(MetadataField.pageUrl, 'posts/foo.html');
+
+      const slug = generateOpenGraphSlug(givenContext, metadata);
+
+      expect(slug).toEqual(
+        `
+<meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
+<meta property="og:title" content="Foo" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://www.example.com/posts/foo.html" />`.trim()
+      );
+    });
+
+    it('should generate fully complete OpenGraph slug', () => {
       const metadata = new Map<string, string>();
       metadata.set(MetadataField.image, 'img/blog/foo.jpg');
       metadata.set(MetadataField.title, 'Foo');
