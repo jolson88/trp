@@ -41,6 +41,8 @@ export function generateOpenGraphSlug(
   const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
   const pageUrl = new URL(outputMarkers.get(MetadataField.pageUrl) ?? '', context.url);
 
+  // TODO: Use Reporter to generate warnings around not being able to generate slug if required metadata is missing
+
   return `
 <meta property="og:image" content="${imageUrl}" />
 <meta property="og:title" content="Foo" />
