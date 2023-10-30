@@ -28,7 +28,7 @@ export const defaultContext: SiteContext = {
   url: 'https://www.jolson88.com/',
 };
 
-export enum PageMetadataKeys {
+export enum MetadataField {
   image = 'IMAGE',
   title = 'TITLE',
 }
@@ -37,7 +37,13 @@ export function generateOpenGraphSlug(
   context: SiteContext,
   outputMarkers: Map<string, string>
 ): string {
-  return '';
+  const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
+
+  return `
+<meta property="og:image" content="${imageUrl}" />
+<meta property="og:title" content="Foo" />
+<meta property="og:type" content="article" />
+  `.trim();
 }
 
 export function generateBlog(
@@ -52,16 +58,16 @@ export function generateBlog(
     const fileInfo = parseInfoFromFileName(fileName);
     const blogContent = processTemplate(blogPost.content, context);
 
-    if (!blogContent.outputMarkers.has(PageMetadataKeys.title)) {
+    if (!blogContent.outputMarkers.has(MetadataField.title)) {
       reporter.report(
         'warning',
-        `${blogPost.path} does not have a title. Add "##${PageMetadataKeys.title}: My Title##" to fix`
+        `${blogPost.path} does not have a title. Add "##${MetadataField.title}: My Title##" to fix`
       );
     }
-    if (!blogContent.outputMarkers.has(PageMetadataKeys.image)) {
+    if (!blogContent.outputMarkers.has(MetadataField.image)) {
       reporter.report(
         'warning',
-        `${blogPost.path} does not have an image. Add "##${PageMetadataKeys.image}: /img/blog/something.jpg##" to fix`
+        `${blogPost.path} does not have an image. Add "##${MetadataField.image}: /img/blog/something.jpg##" to fix`
       );
     }
 

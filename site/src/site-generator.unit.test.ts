@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  PageMetadataKeys,
+  MetadataField,
   Site,
   SiteContext,
   generateBlog,
@@ -74,20 +74,20 @@ describe('Site Generation', () => {
   describe('generateOpenGraphSlug', () => {
     it('should generate OpenGraph slug', () => {
       const metadata = new Map<string, string>();
-      metadata.set(PageMetadataKeys.title, 'Foo');
-      metadata.set(PageMetadataKeys.title, 'Foo');
+      metadata.set(MetadataField.image, 'img/blog/foo.jpg');
+      metadata.set(MetadataField.title, 'Foo');
 
       const slug = generateOpenGraphSlug(givenContext, metadata);
 
       expect(slug).toEqual(
         `
-<meta property="og:image" content="https://www.example.com/image.jpg">
-<meta property="og:image:type" content="image/jpg">
-<meta property="og:image:width" content="1024">
-<meta property="og:image:height" content="1024">
+<meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
+<meta property="og:image:type" content="image/jpg" />
+<meta property="og:image:width" content="1024" />
+<meta property="og:image:height" content="1024" />
+<meta property="og:title" content="Foo" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.website.com/posts/foo.html" />
-<meta property="og:title" content="Foo" />`.trim()
+<meta property="og:url" content="https://www.website.com/posts/foo.html" />`.trim()
       );
     });
   });
