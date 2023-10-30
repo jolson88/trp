@@ -2,7 +2,7 @@ import EventEmitter from 'node:events';
 
 export class OutputTracker<T> {
   private trackedData: Array<T>;
-  private trackerFn: (T) => void;
+  private trackerFn: (eventObject: T) => void;
 
   public constructor(
     private emitter: EventEmitter,

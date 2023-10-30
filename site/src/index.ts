@@ -1,7 +1,8 @@
 import * as path from 'path';
 import { existsSync } from 'fs';
 import * as fs from 'fs/promises';
-import { generateSite } from './site-generator';
+import { defaultContext, generateSite } from './site-generator';
+import { Reporter } from './reporter';
 
 async function main(args: Array<string>): Promise<void> {
   if (args.length < 2) {
@@ -11,8 +12,10 @@ async function main(args: Array<string>): Promise<void> {
     return process.exit(1);
   }
 
-  const inputDir = path.join(process.cwd(), args[0]);
-  const outputDir = path.join(process.cwd(), args[1]);
+  //const inputDir = path.join(process.cwd(), args[0]);
+  //const outputDir = path.join(process.cwd(), args[1]);
+  const inputDir = args[0];
+  const outputDir = args[1];
 
   console.log('Resetting output directory:', outputDir);
   if (existsSync(outputDir)) {
@@ -24,7 +27,16 @@ async function main(args: Array<string>): Promise<void> {
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
   console.log('Generating site...\n');
-  await generateSite(inputDir, outputDir);
+  const reporter = new Reporter();
+  const reportTracker = reporter.trackReports();
+  await generateSite(inputDir, outputDir, defaultContext, { reporter });
+
+  const reportCount = reportTracker.data.length;
+  if (reportCount > 0) {
+    console.log(`There were ${reportCount} warning(s) or error(s) reported during generation:`);
+
+    console.log(reportTracker.data.map((report) => `[${report.level}] ${report.message}`).join('\n'));
+  }
 }
 
 main(process.argv.slice(2)).catch(console.error);

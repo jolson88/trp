@@ -70,7 +70,7 @@ export class FileService {
       entry = await dir.read();
     }
 
-    return files;
+    return files.sort((first, second) => first.path.localeCompare(second.path));
   }
 
   async readFile(fullPath: string): Promise<SiteFile> {

@@ -73,7 +73,7 @@ describe('Site Generation', () => {
       );
 
       const inputDir = path.join(__dirname, 'test', 'data', 'site');
-      const siteResults = await generateSite(inputDir, '', givenContext, mockFileService);
+      const siteResults = await generateSite(inputDir, '', givenContext, { fileService: mockFileService });
 
       expect(siteResults.site).toEqual(givenSite);
       expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
@@ -94,7 +94,7 @@ describe('Site Generation', () => {
       const reporter = new Reporter();
       const reportTracker = reporter.trackReports();
 
-      generateBlog('##CONTENT##', [{ path: 'foo.html', content: 'FOO' }]);
+      generateBlog('##CONTENT##', [{ path: 'foo.html', content: 'FOO' }], givenContext, reporter);
 
       expect(reportTracker.data).toEqual([
         {

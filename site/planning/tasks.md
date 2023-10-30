@@ -10,13 +10,13 @@
 # WIP
 
 - 🐤 Add support for OpenGraph and Twitter Cards for better links
-  - [x] Add ability for a blog post to have output metadata that is sufficient to build cards
-  - [x] Add OutputTracker for tracking a service
-  - [ ] Add Reporter to blog generator to report warnings if metadata for cards is not present
-  - [ ] A "social card metadata" section can be generated given the correct input context
+  - [X] Add ability for a blog post to have output metadata that is sufficient to build cards
+  - [X] Add OutputTracker for tracking a service
+  - [X] Add Reporter to blog generator to report warnings if metadata for cards is not present
+  - [] A "social card metadata" section can be generated given the correct input context
     - https://stackoverflow.com/questions/19632323/default-website-image-for-social-sharing
-  - [ ] There is an input context variable for the site header that allows child-metadata content
-  - [ ] If a post has output metadata for cards, the generated card is placed in the <head> of the post page
+  - [] There is an input context variable for the site header that allows child-metadata content
+  - [] If a post has output metadata for cards, the generated card is placed in the <head> of the post page
 
 # Shipped
 

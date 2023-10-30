@@ -21,7 +21,7 @@ export interface SiteContext {
   year: number;
 }
 
-const defaultContext: SiteContext = {
+export const defaultContext: SiteContext = {
   year: new Date().getFullYear(),
   title: 'The Reasonable Programmer',
 };
@@ -36,9 +36,16 @@ export function generateBlog(
   for (const blogPost of inputBlogPosts) {
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
+    const blogContent = processTemplate(blogPost.content, context);
+    if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'TITLE'; }) === undefined) {
+      reporter.report('warning', `${blogPost.path} does not have a title. Add "##TITLE: My Title##" to fix`);
+    }
+    if (blogContent.outputMarkers.find(([k, _]) => { return k.toUpperCase() === 'IMG'; }) === undefined) {
+      reporter.report('warning', `${blogPost.path} does not have an image. Add "##IMG: /img/blog/something.jpg##" to fix`);
+    }
     blogPosts.push({
       fileName: fileInfo.fileName,
-      content: processTemplate(blogPost.content, context).text,
+      content: blogContent.text,
       originalDate: fileInfo.date,
     });
   }
@@ -56,16 +63,21 @@ export function generateBlog(
   };
 }
 
+export interface GenerateSiteOptions {
+  fileService: FileService,
+  reporter: Reporter,
+}
+
 export async function generateSite(
   inputDir: string,
   outputDir: string,
   context: SiteContext = defaultContext,
-  fileService: FileService = new FileService()
+  { reporter = new Reporter(), fileService = new FileService() }: Partial<GenerateSiteOptions> = {},
 ): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
   const inputFiles = await fileService.readFiles(inputDir);
 
   const site: Site = {
-    ...generateBlog(inputFiles.siteTemplate.content, inputFiles.blogPosts, context),
+    ...generateBlog(inputFiles.siteTemplate.content, inputFiles.blogPosts, context, reporter),
     about: processPage(inputFiles.siteTemplate.content, inputFiles.about.content, context).text,
     contact: processPage(inputFiles.siteTemplate.content, inputFiles.contact.content, context).text,
   };

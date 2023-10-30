@@ -15,6 +15,10 @@ export class Reporter {
 
   public constructor() {}
 
+  public report(level: ReportLevel, message: string) {
+    this.emitter.emit(Reporter.ReportEvent, { level, message });
+  }
+
   public trackReports(): OutputTracker<Report> {
     return new OutputTracker(this.emitter, Reporter.ReportEvent);
   }
