@@ -76,7 +76,8 @@ describe('Site Generation', () => {
   describe('OpenGraph Slug', () => {
     it('should generate minimal OpenGraph slug', () => {
       const blogInput = `
-        ##${MetadataField.title}: Foo##      
+        ##${MetadataField.title}: My Blog##      
+        ##${MetadataField.description}: A Grand Description##      
         ##${MetadataField.image}: img/blog/foo-bar.jpg##      
         ##${MetadataField.pageUrl}: posts/foo.html##      
         FooContent
@@ -88,7 +89,8 @@ describe('Site Generation', () => {
 
       expect(blogResults.blogPosts[0].content).toEqual(`
 <meta property="og:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
-<meta property="og:title" content="Foo" />
+<meta property="og:title" content="My Blog" />
+<meta property="og:description" content="A Grand Description" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.example.com/posts/foo.html" />
 FooContent`.trim()
@@ -98,6 +100,7 @@ FooContent`.trim()
     it('should generate fully complete OpenGraph slug', () => {
       const blogInput = `
         ##${MetadataField.title}: Foo##      
+        ##${MetadataField.description}: A Grand Description##      
         ##${MetadataField.image}: img/blog/foo.jpg##      
         ##${MetadataField.pageUrl}: posts/foo.html##      
         ##${MetadataField.imageType}: image/jpg##      
@@ -113,6 +116,7 @@ FooContent`.trim()
       expect(blogResults.blogPosts[0].content).toEqual(`
 <meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
 <meta property="og:title" content="Foo" />
+<meta property="og:description" content="A Grand Description" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.example.com/posts/foo.html" />
 <meta property="og:image:type" content="image/jpg" />
@@ -162,6 +166,10 @@ FooContent
         {
           level: 'warning',
           message: `foo.html does not have a title. Add "##${MetadataField.title}: My Title##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `foo.html does not have a description. Add "##${MetadataField.description}: My Description##" to fix`,
         },
         {
           level: 'warning',

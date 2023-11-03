@@ -30,6 +30,7 @@ export const defaultContext: SiteContext = {
 };
 
 export enum MetadataField {
+  description = 'DESCRIPTION',
   image = 'IMAGE',
   imageType = 'IMAGE-TYPE',
   imageWidth = 'IMAGE-WIDTH',
@@ -54,6 +55,12 @@ export function generateBlog(
       reporter.report(
         'warning',
         `${blogPost.path} does not have a title. Add "##${MetadataField.title}: My Title##" to fix`
+      );
+    }
+    if (!blogContent.outputMarkers.has(MetadataField.description)) {
+      reporter.report(
+        'warning',
+        `${blogPost.path} does not have a description. Add "##${MetadataField.description}: My Description##" to fix`
       );
     }
     if (!blogContent.outputMarkers.has(MetadataField.image)) {
@@ -148,10 +155,13 @@ function generateOpenGraphSlug(
 ): string {
   const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
   const pageUrl = new URL(outputMarkers.get(MetadataField.pageUrl) ?? '', context.url);
+  const title = outputMarkers.get(MetadataField.title) ?? '';
+  const description = outputMarkers.get(MetadataField.description) ?? '';
 
   let slug = `
 <meta property="og:image" content="${imageUrl}" />
-<meta property="og:title" content="Foo" />
+<meta property="og:title" content="${title}" />
+<meta property="og:description" content="${description}" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="${pageUrl}" />
   `.trim();
