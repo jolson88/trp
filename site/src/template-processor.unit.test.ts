@@ -65,11 +65,6 @@ describe('processPage', () => {
     expect([...result.inputs.keys()]).toEqual(['NAME']);
   });
 
-  it('should remove unprovided input values', () => {
-    const result = processPage('Hello##FOO##', '');
-    expect(result.text).toEqual('Hello');
-  });
-
   it('should detect multiple input values', () => {
     const result = processPage('Hello, ##FIRST## ##LAST##', '', { first: 'Hugh', last: 'Grant' });
 

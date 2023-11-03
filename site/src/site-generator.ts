@@ -36,12 +36,12 @@ export const defaultContext: SiteContext = {
 };
 
 export enum ArticlePropertyKey {
+  title = 'TITLE',
   description = 'DESCRIPTION',
   image = 'IMAGE',
   imageType = 'IMAGE-TYPE',
   imageWidth = 'IMAGE-WIDTH',
   imageHeight = 'IMAGE-HEIGHT',
-  title = 'TITLE',
 }
 
 export function generateBlog(

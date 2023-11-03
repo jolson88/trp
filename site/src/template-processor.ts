@@ -42,11 +42,16 @@ function processTemplate(template: string, context: any = {}): ProcessedPage {
     contextLookup[key.toUpperCase()] = value;
   }
 
-  function replaceTag(text: string, originalTag: string, inputName?: string): string {
+  function replaceTag(
+    text: string,
+    originalTag: string,
+    defaultValue: string,
+    inputName?: string
+  ): string {
     const propertyKey = inputName ?? '';
     const contextKey = propertyKey.replace('-', '').replace('_', '');
-    const resolvedValue = contextLookup[contextKey] ?? properties.get(propertyKey) ?? '';
-    return text.replace(originalTag, inputName ? resolvedValue : '');
+    const resolvedValue = contextLookup[contextKey] ?? properties.get(propertyKey) ?? defaultValue;
+    return text.replace(originalTag, inputName ? resolvedValue : defaultValue);
   }
 
   for (const match of text.matchAll(propertyRegEx)) {
@@ -54,14 +59,14 @@ function processTemplate(template: string, context: any = {}): ProcessedPage {
     const key = match[1].toUpperCase();
     const value = match[2];
     properties.set(key, value);
-    text = replaceTag(text, originalTag);
+    text = replaceTag(text, originalTag, '');
   }
 
   for (const match of text.matchAll(inputRegEx)) {
     const originalTag = match[0];
     const inputName = match[1].toUpperCase();
     inputs.add(inputName);
-    text = replaceTag(text, originalTag, inputName);
+    text = replaceTag(text, originalTag, inputName, inputName);
   }
 
   return {

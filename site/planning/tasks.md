@@ -2,7 +2,6 @@
 
 ## Current Milestone
 
-- 💬 There is a disqus form on each blog post for people to leave comments
 - 📄 Wortwhile posts from immediately previous blog are ported to new site
   - https://github.com/jolson88/blog
 - 🔍 Users can search the blog via a simple search box on the site
@@ -10,17 +9,17 @@
 
 # WIP
 
-- 🚧 Tidying - Settle code down from recent features
-  - [x] Support a property value (like `##TITLE: My Title##`) to be usable as input
-  - [x] Rename outputMarkers -> properties and inputMarkers -> inputs
-  - [] Change pageUrl to be an input provided by the engine instead of a property from page
-  - [] Investigate changing `blog`/`blogPost` structure to a generic article structure that's just a simple Array of output Articles
-    - This could turn into `blog` being a type of `article group` of sorts (which `primer`, `lexicon`, etc. in the future would be)
+- 💬 There is a disqus form on each blog post for people to leave comments
+  - [] Update disqus avatar to new headshot/avatar
+  - [] Register new blog for disqus if needed
+  - [] Create `generateDisqusSlug` function
+  - [] Verify disqus slug gets generated
 
 # Shipped
 
 ## Alpha 0.8 - TBD
 
+- 🚧 Tidying - Settle code down from recent features
 - ⏲ When I save a blog post, the site is automatically regenerated for instant checking
 - 🐤 Add support for OpenGraph for better links
 - ⛔️ Add support for reporting warnings/errors during site generation
