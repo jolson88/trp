@@ -2,10 +2,10 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 
 export interface InputFiles {
-  siteTemplate: InputFile;
-  about: InputFile;
-  blogArticles: Array<InputFile>;
-  contact: InputFile;
+  siteTemplateFile: InputFile;
+  aboutFile: InputFile;
+  blogFiles: Array<InputFile>;
+  contactFile: InputFile;
 }
 
 export interface InputFile {
@@ -43,10 +43,10 @@ export function parseInfoFromFileName(fileName: string): {
 export class FileService {
   public async readFiles(inputDir: string): Promise<InputFiles> {
     return {
-      siteTemplate: await this.readFile(path.join(inputDir, '_site.html')),
-      about: await this.readFile(path.join(inputDir, 'about.html')),
-      blogArticles: await this.readDirectory(path.join(inputDir, 'posts')),
-      contact: await this.readFile(path.join(inputDir, 'contact.html')),
+      siteTemplateFile: await this.readFile(path.join(inputDir, '_site.html')),
+      aboutFile: await this.readFile(path.join(inputDir, 'about.html')),
+      blogFiles: await this.readDirectory(path.join(inputDir, 'posts')),
+      contactFile: await this.readFile(path.join(inputDir, 'contact.html')),
     };
   }
 

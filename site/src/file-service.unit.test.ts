@@ -50,9 +50,9 @@ describe('File Services', () => {
     const files = await fileService.readDirectory(postDir);
 
     expect(files).toEqual([
-      { path: path.join(postDir, '2023-01-01-foo.html'), content: 'Foo' },
-      { path: path.join(postDir, '2023-02-02-bar.html'), content: 'Bar' },
-      { path: path.join(postDir, '2023-03-03-baz.html'), content: 'Baz' },
+      { path: path.join(postDir, '2023-01-01-foo.html'), content: 'Foo - ##URL##' },
+      { path: path.join(postDir, '2023-02-02-bar.html'), content: 'Bar - ##URL##' },
+      { path: path.join(postDir, '2023-03-03-baz.html'), content: 'Baz - ##URL##' },
     ]);
   });
 });

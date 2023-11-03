@@ -11,8 +11,9 @@ export interface OutputFile {
 export interface BlogPost {
   fileName: string;
   content: string;
-  metadata: Map<string, string>;
+  properties: Map<string, string>;
   originalDate: Date;
+  url: string;
 }
 
 export interface Site {
@@ -34,13 +35,12 @@ export const defaultContext: SiteContext = {
   siteUrl: 'https://www.jolson88.com/',
 };
 
-export enum MetadataField {
+export enum ArticlePropertyKey {
   description = 'DESCRIPTION',
   image = 'IMAGE',
   imageType = 'IMAGE-TYPE',
   imageWidth = 'IMAGE-WIDTH',
   imageHeight = 'IMAGE-HEIGHT',
-  pageUrl = 'URL',
   title = 'TITLE',
 }
 
@@ -54,46 +54,42 @@ export function generateBlog(
   for (const blogPost of inputBlogPosts) {
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
-    const blogContent = processPage(blogPost.content, '', context);
+    const url = `posts/${fileInfo.fileName}.html`;
+    const blogContent = processPage(blogPost.content, '', { ...context, url });
 
-    if (!blogContent.properties.has(MetadataField.title)) {
+    if (!blogContent.properties.has(ArticlePropertyKey.title)) {
       reporter.report(
         'warning',
-        `${blogPost.path} does not have a title. Add "##${MetadataField.title}: My Title##" to fix`
+        `${blogPost.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
       );
     }
-    if (!blogContent.properties.has(MetadataField.description)) {
+    if (!blogContent.properties.has(ArticlePropertyKey.description)) {
       reporter.report(
         'warning',
-        `${blogPost.path} does not have a description. Add "##${MetadataField.description}: My Description##" to fix`
+        `${blogPost.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
       );
     }
-    if (!blogContent.properties.has(MetadataField.image)) {
+    if (!blogContent.properties.has(ArticlePropertyKey.image)) {
       reporter.report(
         'warning',
-        `${blogPost.path} does not have an image. Add "##${MetadataField.image}: /img/blog/something.jpg##" to fix`
-      );
-    }
-    if (!blogContent.properties.has(MetadataField.pageUrl)) {
-      reporter.report(
-        'warning',
-        `${blogPost.path} does not have a url. Add "##${MetadataField.pageUrl}: /posts/foo.html##" to fix`
+        `${blogPost.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
       );
     }
 
     blogPosts.push({
       fileName: fileInfo.fileName,
       content: blogContent.text,
-      metadata: blogContent.properties,
+      properties: blogContent.properties,
       originalDate: fileInfo.date,
+      url,
     });
   }
 
   return {
     blog: processPage(
       siteTemplate,
-      inputBlogPosts
-        .sort((first, second) => second.path.localeCompare(first.path))
+      blogPosts
+        .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
         .map((blogPost) => blogPost.content)
         .join('\n'),
       context
@@ -102,7 +98,7 @@ export function generateBlog(
       ...blogPost,
       content: processPage(siteTemplate, blogPost.content, {
         ...context,
-        ogCard: generateOpenGraphSlug(context, blogPost.metadata),
+        ogCard: generateOpenGraphSlug(context, blogPost),
       }).text,
     })),
   };
@@ -122,9 +118,14 @@ export async function generateSite(
   const inputFiles = await fileService.readFiles(inputDir);
 
   const site: Site = {
-    ...generateBlog(inputFiles.siteTemplate.content, inputFiles.blogArticles, context, reporter),
-    about: processPage(inputFiles.siteTemplate.content, inputFiles.about.content, context).text,
-    contact: processPage(inputFiles.siteTemplate.content, inputFiles.contact.content, context).text,
+    ...generateBlog(inputFiles.siteTemplateFile.content, inputFiles.blogFiles, context, reporter),
+    about: processPage(inputFiles.siteTemplateFile.content, inputFiles.aboutFile.content, context)
+      .text,
+    contact: processPage(
+      inputFiles.siteTemplateFile.content,
+      inputFiles.contactFile.content,
+      context
+    ).text,
   };
 
   return {
@@ -147,7 +148,7 @@ async function processOutputSiteFiles(
     ...site.blogPosts.map((blogPost) => {
       return {
         content: blogPost.content,
-        path: `posts/${blogPost.fileName}.html`,
+        path: blogPost.url,
       };
     })
   );
@@ -157,11 +158,12 @@ async function processOutputSiteFiles(
   return siteFiles;
 }
 
-function generateOpenGraphSlug(context: SiteContext, properties: Map<string, string>): string {
-  const imageUrl = new URL(properties.get(MetadataField.image) ?? '', context.siteUrl);
-  const pageUrl = new URL(properties.get(MetadataField.pageUrl) ?? '', context.siteUrl);
-  const title = properties.get(MetadataField.title) ?? '';
-  const description = properties.get(MetadataField.description) ?? '';
+function generateOpenGraphSlug(context: SiteContext, blogPost: BlogPost): string {
+  const { properties } = blogPost;
+  const imageUrl = new URL(properties.get(ArticlePropertyKey.image) ?? '', context.siteUrl);
+  const pageUrl = new URL(blogPost.url, context.siteUrl);
+  const title = properties.get(ArticlePropertyKey.title) ?? '';
+  const description = properties.get(ArticlePropertyKey.description) ?? '';
 
   let slug = `
 <meta property="og:image" content="${imageUrl}" />
@@ -175,17 +177,17 @@ function generateOpenGraphSlug(context: SiteContext, properties: Map<string, str
 <meta property="twitter:image" content="${imageUrl}" />
   `.trim();
 
-  const imageType = properties.get(MetadataField.imageType);
+  const imageType = properties.get(ArticlePropertyKey.imageType);
   if (imageType) {
     slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`;
   }
 
-  const imageWidth = properties.get(MetadataField.imageWidth);
+  const imageWidth = properties.get(ArticlePropertyKey.imageWidth);
   if (imageWidth) {
     slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`;
   }
 
-  const imageHeight = properties.get(MetadataField.imageHeight);
+  const imageHeight = properties.get(ArticlePropertyKey.imageHeight);
   if (imageHeight) {
     slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`;
   }

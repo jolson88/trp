@@ -24,7 +24,7 @@ async function main(args: Array<string>): Promise<void> {
 
   const inputDir = args[0];
   const outputDir = args[1];
-  const flag = args[2];
+  const flag = args[2] ?? '';
   const isWatching = flag.toUpperCase() === '--WATCH';
 
   console.log('Resetting output directory:', outputDir);
