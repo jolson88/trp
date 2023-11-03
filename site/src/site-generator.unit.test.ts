@@ -6,9 +6,9 @@ import { mockPassthrough } from './test/mocking';
 import { Reporter } from './reporter';
 
 export const givenContext: SiteContext = {
-  title: 'The Reasonable Programmer',
+  siteTitle: 'The Reasonable Programmer',
+  siteUrl: 'https://www.example.com',
   year: new Date().getFullYear(),
-  url: 'https://www.example.com',
 };
 
 export const givenInputSiteFiles: SiteFiles = {
@@ -32,29 +32,29 @@ export const givenInputSiteFiles: SiteFiles = {
 };
 
 export const givenSite: Site = {
-  about: `${givenContext.title} StartBase AboutMe EndBase ${givenContext.year}`,
-  blog: `${givenContext.title} StartBase Baz\nBar\nFoo EndBase ${givenContext.year}`,
+  about: `${givenContext.siteTitle} StartBase AboutMe EndBase ${givenContext.year}`,
+  blog: `${givenContext.siteTitle} StartBase Baz\nBar\nFoo EndBase ${givenContext.year}`,
   blogPosts: [
     {
       fileName: 'foo',
-      content: `${givenContext.title} StartBase Foo EndBase ${givenContext.year}`,
+      content: `${givenContext.siteTitle} StartBase Foo EndBase ${givenContext.year}`,
       metadata: new Map<string, string>(),
       originalDate: new Date(2023, 1, 1),
     },
     {
       fileName: 'bar',
-      content: `${givenContext.title} StartBase Bar EndBase ${givenContext.year}`,
+      content: `${givenContext.siteTitle} StartBase Bar EndBase ${givenContext.year}`,
       metadata: new Map<string, string>(),
       originalDate: new Date(2023, 2, 2),
     },
     {
       fileName: 'baz',
-      content: `${givenContext.title} StartBase Baz EndBase ${givenContext.year}`,
+      content: `${givenContext.siteTitle} StartBase Baz EndBase ${givenContext.year}`,
       metadata: new Map<string, string>(),
       originalDate: new Date(2023, 3, 3),
     },
   ],
-  contact: `${givenContext.title} StartBase ContactContent EndBase ${givenContext.year}`,
+  contact: `${givenContext.siteTitle} StartBase ContactContent EndBase ${givenContext.year}`,
 };
 
 export const givenSiteFiles: Array<SiteFile> = [

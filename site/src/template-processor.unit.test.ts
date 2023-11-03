@@ -8,16 +8,16 @@ describe('processPage', () => {
     expect(page.text).toBe('SITE CHILD_CONTENT');
   });
 
-  it('should support symbols in input markers in templates', () => {
-    const page = processPage('##INPUT-MARKER##', '', {});
+  it('should support symbols in input names', () => {
+    const page = processPage('##LONG-INPUT##', '', {});
 
-    expect([...page.inputMarkers]).toEqual(['INPUT-MARKER']);
+    expect([...page.inputs]).toEqual(['LONG-INPUT']);
   });
 
   it('should return output metadata', () => {
     const page = processPage('SITE ##CHILD##', '##IMAGE: posts/img/foo-bar.jpg##FooContent', {});
 
-    expect([...page.outputMarkers.entries()]).toEqual([['IMAGE', 'posts/img/foo-bar.jpg']]);
+    expect([...page.properties.entries()]).toEqual([['IMAGE', 'posts/img/foo-bar.jpg']]);
     expect(page.text).toEqual('SITE FooContent');
   });
 
@@ -28,7 +28,7 @@ describe('processPage', () => {
       {}
     );
 
-    expect([...page.outputMarkers.entries()]).toEqual([
+    expect([...page.properties.entries()]).toEqual([
       ['IMAGE_WIDTH', '1024'],
       ['IMAGE-HEIGHT', '1024'],
     ]);
@@ -46,7 +46,7 @@ describe('processPage', () => {
   it('should contain output metadata from template and child', () => {
     const page = processPage('SITE ##TAG: Bar## ##CONTENT##', '##TITLE: Foo##', {});
 
-    expect([...page.outputMarkers.entries()].sort()).toEqual(
+    expect([...page.properties.entries()].sort()).toEqual(
       [
         ['TAG', 'Bar'],
         ['TITLE', 'Foo'],
@@ -57,12 +57,12 @@ describe('processPage', () => {
   it('should prioritize site template metadata over child metadata', () => {
     const page = processPage('SITE ##TITLE: Bar## ##CONTENT##', '##TITLE: Foo##', {});
 
-    expect([...page.outputMarkers.entries()]).toEqual([['TITLE', 'Bar']].sort());
+    expect([...page.properties.entries()]).toEqual([['TITLE', 'Bar']].sort());
   });
 
   it('should be case-insensitive for input values', () => {
     const result = processPage('Hello, ##name##', '');
-    expect([...result.inputMarkers.keys()]).toEqual(['NAME']);
+    expect([...result.inputs.keys()]).toEqual(['NAME']);
   });
 
   it('should remove unprovided input values', () => {
@@ -74,7 +74,7 @@ describe('processPage', () => {
     const result = processPage('Hello, ##FIRST## ##LAST##', '', { first: 'Hugh', last: 'Grant' });
 
     expect(result.text).toEqual('Hello, Hugh Grant');
-    expect([...result.inputMarkers].sort()).toEqual(['FIRST', 'LAST']);
+    expect([...result.inputs].sort()).toEqual(['FIRST', 'LAST']);
   });
 
   it('should substitute different values', () => {
@@ -94,16 +94,16 @@ describe('processPage', () => {
     expect(result.text).toBe('Malkovich Malkovich Malkovich');
   });
 
-  it('should substitute an output marker for matching input markers in same page', () => {
-    const result = processPage('##TITLE: My Post##\n##TITLE##', '', {});
-    expect(result.text).toBe('My Post');
+  it('should substitute a property value for matching input in same page', () => {
+    const result = processPage('##LAST-UPDATED: October 23rd, 2023##\n##LAST-UPDATED##', '', {});
+    expect(result.text).toBe('October 23rd, 2023');
   });
 
-  it('should detect output markers', () => {
+  it('should detect multiple properties', () => {
     const result = processPage('Hello, World\n##TITLE: Foo##\n##age: 43##', '');
 
     expect(result.text).toEqual('Hello, World');
-    expect([...result.outputMarkers.entries()].sort()).toEqual(
+    expect([...result.properties.entries()].sort()).toEqual(
       [
         ['TITLE', 'Foo'],
         ['AGE', '43'],
@@ -111,9 +111,9 @@ describe('processPage', () => {
     );
   });
 
-  it('should parse last-updated output marker', () => {
+  it('should parse commas in property values', () => {
     const result = processPage('##LAST-UPDATED: October 23rd, 2023##', '', {});
 
-    expect([...result.outputMarkers.entries()]).toEqual([['LAST-UPDATED', 'October 23rd, 2023']]);
+    expect([...result.properties.entries()]).toEqual([['LAST-UPDATED', 'October 23rd, 2023']]);
   });
 });
