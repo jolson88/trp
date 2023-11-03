@@ -3,13 +3,19 @@
 ## Current Milestone
 
 - 💬 There is a disqus form on each blog post for people to leave comments
+- 📄 Wortwhile posts from immediately previous blog are ported to new site
+  - https://github.com/jolson88/blog
 - 🔍 Users can search the blog via a simple search box on the site
   - Probably just redirecting to DuckDuckGo?
 
 # WIP
 
-- 📄 Wortwhile posts from immediately previous blog are ported to new site
-  - https://github.com/jolson88/blog
+- 🚧 Tidying - Settle code down from recent features
+  - [] Support an output metadata (like `##TITLE: My Title##` to also be used as input marker)
+  - [] Change pageUrl to be an input provided by the engine instead of from output marker
+  - [] Change title/description/image from reported warnings to full Exceptions
+  - [] Investigate changing `blog`/`blogPost` structure to a generic article structure that's just a simple Array of output Articles
+    - This could turn into `blog` being a type of `article group` of sorts (which `primer`, `lexicon`, etc. in the future would be)
 
 # Shipped
 

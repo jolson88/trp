@@ -2,7 +2,10 @@ const escapedValidKeyCharacters = '\\w\\-\\_';
 const escapedValidValueCharacters = '\\s\\w\\/\\\\\\.\\-\\_';
 const escapedSeparator = '\\s*:\\s*';
 const inputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)##`, 'g');
-const outputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)${escapedSeparator}([${escapedValidValueCharacters}]+)##`, 'g');
+const outputMarkerRegEx = new RegExp(
+  `##([${escapedValidKeyCharacters}]+)${escapedSeparator}([${escapedValidValueCharacters}]+)##`,
+  'g'
+);
 
 export interface TemplateProcessingResults {
   text: string;
@@ -30,7 +33,7 @@ export function processPage(
   };
 }
 
-export function processTemplate(template: string, context: any = {}): TemplateProcessingResults {
+function processTemplate(template: string, context: any = {}): TemplateProcessingResults {
   function replaceTag(text: string, originalTag: string, inputMarker?: string): string {
     const key = (inputMarker ?? '').replace('-', '').replace('_', '');
     const resolvedValue = contextLookup[key] ?? '';

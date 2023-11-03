@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { processPage, processTemplate } from './template-processor';
+import { processPage } from './template-processor';
 
 describe('processPage', () => {
   it('should generate page given templates and context', () => {
@@ -22,15 +22,22 @@ describe('processPage', () => {
   });
 
   it('should format key names in metadata', () => {
-    const page = processPage('SITE ##CHILD##', '##IMAGE_WIDTH: 1024##\n##IMAGE-HEIGHT: 1024##\nFoo', {});
+    const page = processPage(
+      'SITE ##CHILD##',
+      '##IMAGE_WIDTH: 1024##\n##IMAGE-HEIGHT: 1024##\nFoo',
+      {}
+    );
 
-    expect([...page.outputMarkers.entries()]).toEqual([['IMAGE_WIDTH', '1024'], ['IMAGE-HEIGHT', '1024']]);
+    expect([...page.outputMarkers.entries()]).toEqual([
+      ['IMAGE_WIDTH', '1024'],
+      ['IMAGE-HEIGHT', '1024'],
+    ]);
     expect(page.text).toEqual('SITE Foo');
   });
 
   it('should ignore key symbols when looking up into context', () => {
     const page = processPage('SITE ##OG-CARD## ##CHILD##', 'FooContent', {
-      ogCard: 'SLUG'
+      ogCard: 'SLUG',
     });
 
     expect(page.text).toEqual('SITE SLUG FooContent');
@@ -56,24 +63,24 @@ describe('processPage', () => {
 
 describe('processTemplate', () => {
   it('should be case-insensitive for input values', () => {
-    const result = processTemplate('Hello, ##name##');
+    const result = processPage('Hello, ##name##', '');
     expect([...result.inputMarkers.keys()]).toEqual(['NAME']);
   });
 
   it('should remove unprovided input values', () => {
-    const result = processTemplate('Hello##FOO##');
+    const result = processPage('Hello##FOO##', '');
     expect(result.text).toEqual('Hello');
   });
 
   it('should detect multiple input values', () => {
-    const result = processTemplate('Hello, ##FIRST## ##LAST##', { first: 'Hugh', last: 'Grant' });
+    const result = processPage('Hello, ##FIRST## ##LAST##', '', { first: 'Hugh', last: 'Grant' });
 
     expect(result.text).toEqual('Hello, Hugh Grant');
     expect([...result.inputMarkers].sort()).toEqual(['FIRST', 'LAST']);
   });
 
   it('should substitute different values', () => {
-    const result = processTemplate('##greETing##, ##NAME##', {
+    const result = processPage('##greETing##, ##NAME##', '', {
       greeting: 'Hello',
       name: 'Jason',
     });
@@ -82,7 +89,7 @@ describe('processTemplate', () => {
   });
 
   it('should substitute all values', () => {
-    const result = processTemplate('##NAME## ##NAME## ##NAME##', {
+    const result = processPage('##NAME## ##NAME## ##NAME##', '', {
       name: 'Malkovich',
     });
 
@@ -90,7 +97,7 @@ describe('processTemplate', () => {
   });
 
   it('should detect output values', () => {
-    const result = processTemplate('Hello, World\n##TITLE: Foo##\n##age: 43##');
+    const result = processPage('Hello, World\n##TITLE: Foo##\n##age: 43##', '');
 
     expect(result.text).toEqual('Hello, World');
     expect([...result.outputMarkers.entries()].sort()).toEqual(
