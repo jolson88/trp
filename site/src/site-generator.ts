@@ -164,6 +164,10 @@ function generateOpenGraphSlug(
 <meta property="og:description" content="${description}" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="${pageUrl}" />
+<meta property="twitter:card" content="summary" />
+<meta property="twitter:title" content="${title}" />
+<meta property="twitter:description" content="${description}" />
+<meta property="twitter:image" content="${imageUrl}" />
   `.trim();
 
   const imageType = outputMarkers.get(MetadataField.imageType);

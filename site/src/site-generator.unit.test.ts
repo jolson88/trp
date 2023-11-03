@@ -93,13 +93,17 @@ describe('Site Generation', () => {
 <meta property="og:description" content="A Grand Description" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.example.com/posts/foo.html" />
+<meta property="twitter:card" content="summary" />
+<meta property="twitter:title" content="My Blog" />
+<meta property="twitter:description" content="A Grand Description" />
+<meta property="twitter:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
 FooContent`.trim()
       );
     });
 
     it('should generate fully complete OpenGraph slug', () => {
       const blogInput = `
-        ##${MetadataField.title}: Foo##      
+        ##${MetadataField.title}: My Blog##      
         ##${MetadataField.description}: A Grand Description##      
         ##${MetadataField.image}: img/blog/foo.jpg##      
         ##${MetadataField.pageUrl}: posts/foo.html##      
@@ -115,10 +119,14 @@ FooContent`.trim()
 
       expect(blogResults.blogPosts[0].content).toEqual(`
 <meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
-<meta property="og:title" content="Foo" />
+<meta property="og:title" content="My Blog" />
 <meta property="og:description" content="A Grand Description" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.example.com/posts/foo.html" />
+<meta property="twitter:card" content="summary" />
+<meta property="twitter:title" content="My Blog" />
+<meta property="twitter:description" content="A Grand Description" />
+<meta property="twitter:image" content="https://www.example.com/img/blog/foo.jpg" />
 <meta property="og:image:type" content="image/jpg" />
 <meta property="og:image:width" content="1024" />
 <meta property="og:image:height" content="1024" />
