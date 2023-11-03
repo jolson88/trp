@@ -77,7 +77,7 @@ describe('Site Generation', () => {
     it('should generate minimal OpenGraph slug', () => {
       const blogInput = `
         ##${MetadataField.title}: Foo##      
-        ##${MetadataField.image}: img/blog/foo.jpg##      
+        ##${MetadataField.image}: img/blog/foo-bar.jpg##      
         ##${MetadataField.pageUrl}: posts/foo.html##      
         FooContent
       `.trim();
@@ -87,7 +87,7 @@ describe('Site Generation', () => {
       ], givenContext);
 
       expect(blogResults.blogPosts[0].content).toEqual(`
-<meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
+<meta property="og:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
 <meta property="og:title" content="Foo" />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://www.example.com/posts/foo.html" />

@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { processPage, processTemplate } from './template-processor';
+import { processPage } from './template-processor';
 import { FileService, SiteFile, parseInfoFromFileName } from './file-service';
 import { Reporter } from './reporter';
 
@@ -49,7 +49,7 @@ export function generateBlog(
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
     const blogContent = processPage(blogPost.content, '', context);
-
+    
     if (!blogContent.outputMarkers.has(MetadataField.title)) {
       reporter.report(
         'warning',

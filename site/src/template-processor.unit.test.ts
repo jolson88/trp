@@ -15,9 +15,9 @@ describe('processPage', () => {
   });
 
   it('should return output metadata', () => {
-    const page = processPage('SITE ##CHILD##', '##IMAGE: posts/img/foo.jpg##FooContent', {});
+    const page = processPage('SITE ##CHILD##', '##IMAGE: posts/img/foo-bar.jpg##FooContent', {});
 
-    expect([...page.outputMarkers.entries()]).toEqual([['IMAGE', 'posts/img/foo.jpg']]);
+    expect([...page.outputMarkers.entries()]).toEqual([['IMAGE', 'posts/img/foo-bar.jpg']]);
     expect(page.text).toEqual('SITE FooContent');
   });
 

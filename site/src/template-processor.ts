@@ -1,5 +1,5 @@
 const escapedValidKeyCharacters = '\\w\\-\\_';
-const escapedValidValueCharacters = '\\s\\w\\/\\\\\\.';
+const escapedValidValueCharacters = '\\s\\w\\/\\\\\\.\\-\\_';
 const escapedSeparator = '\\s*:\\s*';
 const inputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)##`, 'g');
 const outputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)${escapedSeparator}([${escapedValidValueCharacters}]+)##`, 'g');
@@ -21,7 +21,7 @@ export function processPage(
     child: processedChild.text,
   });
 
-  const outputMarkers = new Map<string, string>(processedChild.outputMarkers);
+  const outputMarkers = new Map<string, string>(processedChild.outputMarkers.entries());
   [...processedPage.outputMarkers.entries()].forEach(([k, v]) => outputMarkers.set(k, v));
 
   return {
