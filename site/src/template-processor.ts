@@ -1,5 +1,5 @@
 const escapedValidKeyCharacters = '\\w\\-\\_';
-const escapedValidValueCharacters = '\\s\\w\\/\\\\\\.\\-\\_';
+const escapedValidValueCharacters = '\\s\\w\\/\\\\\\.\\-\\_\\,';
 const escapedSeparator = '\\s*:\\s*';
 const inputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)##`, 'g');
 const outputMarkerRegEx = new RegExp(
@@ -34,33 +34,33 @@ export function processPage(
 }
 
 function processTemplate(template: string, context: any = {}): TemplateProcessingResults {
-  function replaceTag(text: string, originalTag: string, inputMarker?: string): string {
-    const key = (inputMarker ?? '').replace('-', '').replace('_', '');
-    const resolvedValue = contextLookup[key] ?? '';
-    return text.replace(originalTag, inputMarker ? resolvedValue : '');
-  }
-
   const contextLookup = { ...context };
+  const inputMarkers = new Set<string>();
+  const outputMarkers = new Map<string, string>();
+  let text = template;
   for (let [key, value] of Object.entries(context)) {
     contextLookup[key.toUpperCase()] = value;
   }
 
-  let text = template;
-  const inputMarkers = new Set<string>();
-  for (const match of text.matchAll(inputMarkerRegEx)) {
-    const originalTag = match[0];
-    const inputMarker = match[1].toUpperCase();
-    inputMarkers.add(inputMarker);
-    text = replaceTag(text, originalTag, inputMarker);
+  function replaceTag(text: string, originalTag: string, inputMarker?: string): string {
+    const key = (inputMarker ?? '').replace('-', '').replace('_', '');
+    const resolvedValue = contextLookup[key] ?? outputMarkers.get(key) ?? '';
+    return text.replace(originalTag, inputMarker ? resolvedValue : '');
   }
 
-  const outputMarkers = new Map<string, string>();
   for (const match of text.matchAll(outputMarkerRegEx)) {
     const originalTag = match[0];
     const key = match[1].toUpperCase();
     const value = match[2];
     outputMarkers.set(key, value);
     text = replaceTag(text, originalTag);
+  }
+
+  for (const match of text.matchAll(inputMarkerRegEx)) {
+    const originalTag = match[0];
+    const inputMarker = match[1].toUpperCase();
+    inputMarkers.add(inputMarker);
+    text = replaceTag(text, originalTag, inputMarker);
   }
 
   return {

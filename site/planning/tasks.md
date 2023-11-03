@@ -11,9 +11,9 @@
 # WIP
 
 - 🚧 Tidying - Settle code down from recent features
-  - [] Support an output metadata (like `##TITLE: My Title##` to also be used as input marker)
+  - [x] Support an output metadata (like `##TITLE: My Title##` to also be used as input marker)
+  - [] Rename outputMarkers -> properties and inputMarkers -> inputs
   - [] Change pageUrl to be an input provided by the engine instead of from output marker
-  - [] Change title/description/image from reported warnings to full Exceptions
   - [] Investigate changing `blog`/`blogPost` structure to a generic article structure that's just a simple Array of output Articles
     - This could turn into `blog` being a type of `article group` of sorts (which `primer`, `lexicon`, etc. in the future would be)
 

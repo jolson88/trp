@@ -59,9 +59,7 @@ describe('processPage', () => {
 
     expect([...page.outputMarkers.entries()]).toEqual([['TITLE', 'Bar']].sort());
   });
-});
 
-describe('processTemplate', () => {
   it('should be case-insensitive for input values', () => {
     const result = processPage('Hello, ##name##', '');
     expect([...result.inputMarkers.keys()]).toEqual(['NAME']);
@@ -96,7 +94,12 @@ describe('processTemplate', () => {
     expect(result.text).toBe('Malkovich Malkovich Malkovich');
   });
 
-  it('should detect output values', () => {
+  it('should substitute an output marker for matching input markers in same page', () => {
+    const result = processPage('##TITLE: My Post##\n##TITLE##', '', {});
+    expect(result.text).toBe('My Post');
+  });
+
+  it('should detect output markers', () => {
     const result = processPage('Hello, World\n##TITLE: Foo##\n##age: 43##', '');
 
     expect(result.text).toEqual('Hello, World');
@@ -106,5 +109,11 @@ describe('processTemplate', () => {
         ['AGE', '43'],
       ].sort()
     );
+  });
+
+  it('should parse last-updated output marker', () => {
+    const result = processPage('##LAST-UPDATED: October 23rd, 2023##', '', {});
+
+    expect([...result.outputMarkers.entries()]).toEqual([['LAST-UPDATED', 'October 23rd, 2023']]);
   });
 });
