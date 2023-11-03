@@ -1,7 +1,12 @@
 import * as path from 'path';
 import { processPage } from './template-processor';
-import { FileService, SiteFile, parseInfoFromFileName } from './file-service';
+import { FileService, InputFile, parseInfoFromFileName } from './file-service';
 import { Reporter } from './reporter';
+
+export interface OutputFile {
+  path: string;
+  content: string;
+}
 
 export interface BlogPost {
   fileName: string;
@@ -41,7 +46,7 @@ export enum MetadataField {
 
 export function generateBlog(
   siteTemplate: string,
-  inputBlogPosts: Array<SiteFile>,
+  inputBlogPosts: Array<InputFile>,
   context: SiteContext = defaultContext,
   reporter: Reporter = new Reporter()
 ): { blog: string; blogPosts: Array<BlogPost> } {
@@ -113,11 +118,11 @@ export async function generateSite(
   outputDir: string,
   context: SiteContext = defaultContext,
   { reporter = new Reporter(), fileService = new FileService() }: Partial<GenerateSiteOptions> = {}
-): Promise<{ site: Site; siteFiles: Array<SiteFile> }> {
+): Promise<{ site: Site; siteFiles: Array<OutputFile> }> {
   const inputFiles = await fileService.readFiles(inputDir);
 
   const site: Site = {
-    ...generateBlog(inputFiles.siteTemplate.content, inputFiles.blogPosts, context, reporter),
+    ...generateBlog(inputFiles.siteTemplate.content, inputFiles.blogArticles, context, reporter),
     about: processPage(inputFiles.siteTemplate.content, inputFiles.about.content, context).text,
     contact: processPage(inputFiles.siteTemplate.content, inputFiles.contact.content, context).text,
   };
@@ -132,7 +137,7 @@ async function processOutputSiteFiles(
   site: Site,
   outputDir: string,
   fileService: FileService
-): Promise<Array<SiteFile>> {
+): Promise<Array<OutputFile>> {
   const siteFiles = [
     { path: 'blog.html', content: site.blog },
     { path: 'contact.html', content: site.contact },

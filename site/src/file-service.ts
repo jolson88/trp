@@ -1,14 +1,14 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
-export interface SiteFiles {
-  siteTemplate: SiteFile;
-  about: SiteFile;
-  blogPosts: Array<SiteFile>;
-  contact: SiteFile;
+export interface InputFiles {
+  siteTemplate: InputFile;
+  about: InputFile;
+  blogArticles: Array<InputFile>;
+  contact: InputFile;
 }
 
-export interface SiteFile {
+export interface InputFile {
   path: string;
   content: string;
 }
@@ -41,11 +41,11 @@ export function parseInfoFromFileName(fileName: string): {
 }
 
 export class FileService {
-  public async readFiles(inputDir: string): Promise<SiteFiles> {
+  public async readFiles(inputDir: string): Promise<InputFiles> {
     return {
       siteTemplate: await this.readFile(path.join(inputDir, '_site.html')),
       about: await this.readFile(path.join(inputDir, 'about.html')),
-      blogPosts: await this.readDirectory(path.join(inputDir, 'posts')),
+      blogArticles: await this.readDirectory(path.join(inputDir, 'posts')),
       contact: await this.readFile(path.join(inputDir, 'contact.html')),
     };
   }
@@ -57,8 +57,8 @@ export class FileService {
     return true;
   }
 
-  async readDirectory(inputDir: string): Promise<Array<SiteFile>> {
-    const files: Array<SiteFile> = [];
+  async readDirectory(inputDir: string): Promise<Array<InputFile>> {
+    const files: Array<InputFile> = [];
 
     const dir = await fs.opendir(inputDir);
     let entry = await dir.read();
@@ -72,7 +72,7 @@ export class FileService {
     return files.sort((first, second) => first.path.localeCompare(second.path));
   }
 
-  async readFile(fullPath: string): Promise<SiteFile> {
+  async readFile(fullPath: string): Promise<InputFile> {
     return {
       path: fullPath,
       content: await fs.readFile(fullPath, { encoding: 'utf8' }),

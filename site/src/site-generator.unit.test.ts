@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { MetadataField, Site, SiteContext, generateBlog, generateSite } from './site-generator';
 import * as path from 'path';
-import { FileService, SiteFile, SiteFiles } from './file-service';
+import { FileService, InputFile, InputFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
 import { Reporter } from './reporter';
 
@@ -11,12 +11,12 @@ export const givenContext: SiteContext = {
   year: new Date().getFullYear(),
 };
 
-export const givenInputSiteFiles: SiteFiles = {
+export const givenInputSiteFiles: InputFiles = {
   about: {
     path: 'about.html',
     content: 'AboutMe',
   },
-  blogPosts: [
+  blogArticles: [
     { path: '2023-01-01-foo.html', content: 'foo' },
     { path: '2023-02-02-bar.html', content: 'bar' },
     { path: '2023-03-03-baz.html', content: 'baz' },
@@ -57,7 +57,7 @@ export const givenSite: Site = {
   contact: `${givenContext.siteTitle} StartBase ContactContent EndBase ${givenContext.year}`,
 };
 
-export const givenSiteFiles: Array<SiteFile> = [
+export const givenSiteFiles: Array<InputFile> = [
   { path: 'blog.html', content: givenSite.blog },
   { path: 'contact.html', content: givenSite.contact },
   { path: 'index.html', content: givenSite.about },
