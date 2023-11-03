@@ -6,6 +6,7 @@ import { Reporter } from './reporter';
 export interface BlogPost {
   fileName: string;
   content: string;
+  metadata: Map<string, string>;
   originalDate: Date;
 }
 
@@ -37,40 +38,6 @@ export enum MetadataField {
   title = 'TITLE',
 }
 
-export function generateOpenGraphSlug(
-  context: SiteContext,
-  outputMarkers: Map<string, string>
-): string {
-  const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
-  const pageUrl = new URL(outputMarkers.get(MetadataField.pageUrl) ?? '', context.url);
-
-  // TODO: Use Reporter to generate warnings around not being able to generate slug if required metadata is missing
-
-  let slug = `
-<meta property="og:image" content="${imageUrl}" />
-<meta property="og:title" content="Foo" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="${pageUrl}" />
-  `.trim();
-
-  const imageType = outputMarkers.get(MetadataField.imageType);
-  if (imageType) {
-    slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`
-  }
-
-  const imageWidth = outputMarkers.get(MetadataField.imageWidth);
-  if (imageWidth) {
-    slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`
-  }
-
-  const imageHeight = outputMarkers.get(MetadataField.imageHeight);
-  if (imageHeight) {
-    slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`
-  }
-
-  return slug;
-}
-
 export function generateBlog(
   siteTemplate: string,
   inputBlogPosts: Array<SiteFile>,
@@ -81,7 +48,7 @@ export function generateBlog(
   for (const blogPost of inputBlogPosts) {
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
-    const blogContent = processTemplate(blogPost.content, context);
+    const blogContent = processPage(blogPost.content, '', context);
 
     if (!blogContent.outputMarkers.has(MetadataField.title)) {
       reporter.report(
@@ -95,10 +62,17 @@ export function generateBlog(
         `${blogPost.path} does not have an image. Add "##${MetadataField.image}: /img/blog/something.jpg##" to fix`
       );
     }
+    if (!blogContent.outputMarkers.has(MetadataField.pageUrl)) {
+      reporter.report(
+        'warning',
+        `${blogPost.path} does not have a url. Add "##${MetadataField.pageUrl}: /posts/foo.html##" to fix`
+      );
+    }
 
     blogPosts.push({
       fileName: fileInfo.fileName,
       content: blogContent.text,
+      metadata: blogContent.outputMarkers,
       originalDate: fileInfo.date,
     });
   }
@@ -111,7 +85,10 @@ export function generateBlog(
     ).text,
     blogPosts: blogPosts.map((blogPost) => ({
       ...blogPost,
-      content: processPage(siteTemplate, blogPost.content, context).text,
+      content: processPage(siteTemplate, blogPost.content, {
+        ...context,
+        ogCard: generateOpenGraphSlug(context, blogPost.metadata),
+      }).text,
     })),
   };
 }
@@ -163,4 +140,36 @@ async function processOutputSiteFiles(
     await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }
   return siteFiles;
+}
+
+function generateOpenGraphSlug(
+  context: SiteContext,
+  outputMarkers: Map<string, string>
+): string {
+  const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
+  const pageUrl = new URL(outputMarkers.get(MetadataField.pageUrl) ?? '', context.url);
+
+  let slug = `
+<meta property="og:image" content="${imageUrl}" />
+<meta property="og:title" content="Foo" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="${pageUrl}" />
+  `.trim();
+
+  const imageType = outputMarkers.get(MetadataField.imageType);
+  if (imageType) {
+    slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`
+  }
+
+  const imageWidth = outputMarkers.get(MetadataField.imageWidth);
+  if (imageWidth) {
+    slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`
+  }
+
+  const imageHeight = outputMarkers.get(MetadataField.imageHeight);
+  if (imageHeight) {
+    slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`
+  }
+
+  return slug;
 }

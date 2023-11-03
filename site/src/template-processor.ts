@@ -1,5 +1,8 @@
-const inputMarkerRegEx = new RegExp(/##(\w+)##/, 'g');
-const outputMarkerRegEx = new RegExp(/##(\w+)\s*:\s*([\s\w]+)##/, 'g');
+const escapedValidKeyCharacters = '\\w\\-\\_';
+const escapedValidValueCharacters = '\\s\\w\\/\\\\\\.';
+const escapedSeparator = '\\s*:\\s*';
+const inputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)##`, 'g');
+const outputMarkerRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)${escapedSeparator}([${escapedValidValueCharacters}]+)##`, 'g');
 
 export interface TemplateProcessingResults {
   text: string;
@@ -8,17 +11,17 @@ export interface TemplateProcessingResults {
 }
 
 export function processPage(
-  siteTemplate: string,
-  contentTemplate: string,
+  pageTemplate: string,
+  childTemplate: string,
   context: any = {}
 ): TemplateProcessingResults {
-  const content = processTemplate(contentTemplate, context);
-  const processedPage = processTemplate(siteTemplate, {
+  const processedChild = processTemplate(childTemplate, context);
+  const processedPage = processTemplate(pageTemplate, {
     ...context,
-    content: content.text,
+    child: processedChild.text,
   });
 
-  const outputMarkers = new Map<string, string>(content.outputMarkers);
+  const outputMarkers = new Map<string, string>(processedChild.outputMarkers);
   [...processedPage.outputMarkers.entries()].forEach(([k, v]) => outputMarkers.set(k, v));
 
   return {
@@ -28,32 +31,33 @@ export function processPage(
 }
 
 export function processTemplate(template: string, context: any = {}): TemplateProcessingResults {
-  function buildLookup(context: any): Map<string, any> {
-    const lookup = new Map<string, any>();
-    for (let [key, value] of Object.entries(context)) {
-      lookup.set(key.toUpperCase(), value);
-    }
-    return lookup;
+  function replaceTag(text: string, originalTag: string, inputMarker?: string): string {
+    const key = (inputMarker ?? '').replace('-', '').replace('_', '');
+    const resolvedValue = contextLookup[key] ?? '';
+    return text.replace(originalTag, inputMarker ? resolvedValue : '');
+  }
+
+  const contextLookup = { ...context };
+  for (let [key, value] of Object.entries(context)) {
+    contextLookup[key.toUpperCase()] = value;
   }
 
   let text = template;
-  const contextLookup = buildLookup(context);
   const inputMarkers = new Set<string>();
-  const outputMarkers = new Map<string, string>();
-
   for (const match of text.matchAll(inputMarkerRegEx)) {
     const originalTag = match[0];
     const inputMarker = match[1].toUpperCase();
     inputMarkers.add(inputMarker);
-    text = text.replace(originalTag, contextLookup.get(inputMarker) ?? '');
+    text = replaceTag(text, originalTag, inputMarker);
   }
 
+  const outputMarkers = new Map<string, string>();
   for (const match of text.matchAll(outputMarkerRegEx)) {
     const originalTag = match[0];
     const key = match[1].toUpperCase();
     const value = match[2];
     outputMarkers.set(key, value);
-    text = text.replace(originalTag, '');
+    text = replaceTag(text, originalTag);
   }
 
   return {

@@ -4,7 +4,6 @@ import {
   Site,
   SiteContext,
   generateBlog,
-  generateOpenGraphSlug,
   generateSite,
 } from './site-generator';
 import * as path from 'path';
@@ -34,7 +33,7 @@ export const givenInputSiteFiles: SiteFiles = {
   },
   siteTemplate: {
     path: '_site.html',
-    content: '##TITLE## StartBase ##CONTENT## EndBase ##YEAR##',
+    content: '##TITLE## StartBase ##CHILD## EndBase ##YEAR##',
   },
 };
 
@@ -45,16 +44,19 @@ export const givenSite: Site = {
     {
       fileName: 'foo',
       content: `${givenContext.title} StartBase Foo EndBase ${givenContext.year}`,
+      metadata: new Map<string, string>(),
       originalDate: new Date(2023, 1, 1),
     },
     {
       fileName: 'bar',
       content: `${givenContext.title} StartBase Bar EndBase ${givenContext.year}`,
+      metadata: new Map<string, string>(),
       originalDate: new Date(2023, 2, 2),
     },
     {
       fileName: 'baz',
       content: `${givenContext.title} StartBase Baz EndBase ${givenContext.year}`,
+      metadata: new Map<string, string>(),
       originalDate: new Date(2023, 3, 3),
     },
   ],
@@ -73,35 +75,42 @@ export const givenSiteFiles: Array<SiteFile> = [
 describe('Site Generation', () => {
   describe('OpenGraph Slug', () => {
     it('should generate minimal OpenGraph slug', () => {
-      const metadata = new Map<string, string>();
-      metadata.set(MetadataField.image, 'img/blog/foo.jpg');
-      metadata.set(MetadataField.title, 'Foo');
-      metadata.set(MetadataField.pageUrl, 'posts/foo.html');
+      const blogInput = `
+        ##${MetadataField.title}: Foo##      
+        ##${MetadataField.image}: img/blog/foo.jpg##      
+        ##${MetadataField.pageUrl}: posts/foo.html##      
+        FooContent
+      `.trim();
 
-      const slug = generateOpenGraphSlug(givenContext, metadata);
+      const blogResults = generateBlog('##OG-CARD##\n##CHILD##', [
+        { path: 'foo.html', content: blogInput },
+      ], givenContext);
 
-      expect(slug).toEqual(
-        `
+      expect(blogResults.blogPosts[0].content).toEqual(`
 <meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
 <meta property="og:title" content="Foo" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.example.com/posts/foo.html" />`.trim()
+<meta property="og:url" content="https://www.example.com/posts/foo.html" />
+FooContent`.trim()
       );
     });
 
     it('should generate fully complete OpenGraph slug', () => {
-      const metadata = new Map<string, string>();
-      metadata.set(MetadataField.image, 'img/blog/foo.jpg');
-      metadata.set(MetadataField.title, 'Foo');
-      metadata.set(MetadataField.pageUrl, 'posts/foo.html');
-      metadata.set(MetadataField.imageType, 'image/jpg');
-      metadata.set(MetadataField.imageWidth, '1024');
-      metadata.set(MetadataField.imageHeight, '1024');
+      const blogInput = `
+        ##${MetadataField.title}: Foo##      
+        ##${MetadataField.image}: img/blog/foo.jpg##      
+        ##${MetadataField.pageUrl}: posts/foo.html##      
+        ##${MetadataField.imageType}: image/jpg##      
+        ##${MetadataField.imageWidth}: 1024##      
+        ##${MetadataField.imageHeight}: 1024##      
+        FooContent
+      `.trim();
 
-      const slug = generateOpenGraphSlug(givenContext, metadata);
+      const blogResults = generateBlog('##OG-CARD##\n##CHILD##', [
+        { path: 'foo.html', content: blogInput },
+      ], givenContext);
 
-      expect(slug).toEqual(
-        `
+      expect(blogResults.blogPosts[0].content).toEqual(`
 <meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
 <meta property="og:title" content="Foo" />
 <meta property="og:type" content="article" />
@@ -109,6 +118,7 @@ describe('Site Generation', () => {
 <meta property="og:image:type" content="image/jpg" />
 <meta property="og:image:width" content="1024" />
 <meta property="og:image:height" content="1024" />
+FooContent
 `.trim());
     });
   });
@@ -134,7 +144,7 @@ describe('Site Generation', () => {
 
   describe('generateBlog', () => {
     it('should generate blog', () => {
-      const blogResults = generateBlog('Blog Posts:\n##CONTENT##', [
+      const blogResults = generateBlog('Blog Posts:\n##CHILD##', [
         { path: 'foo.html', content: 'FOO' },
         { path: 'bar.html', content: 'BAR' },
       ]);
@@ -151,12 +161,17 @@ describe('Site Generation', () => {
       expect(reportTracker.data).toEqual([
         {
           level: 'warning',
-          message: 'foo.html does not have a title. Add "##TITLE: My Title##" to fix',
+          message: `foo.html does not have a title. Add "##${MetadataField.title}: My Title##" to fix`,
         },
         {
           level: 'warning',
           message:
-            'foo.html does not have an image. Add "##IMAGE: /img/blog/something.jpg##" to fix',
+            `foo.html does not have an image. Add "##${MetadataField.image}: /img/blog/something.jpg##" to fix`,
+        },
+        {
+          level: 'warning',
+          message:
+            `foo.html does not have a url. Add "##${MetadataField.pageUrl}: /posts/foo.html##" to fix`,
         },
       ]);
     });

@@ -16,9 +16,9 @@
     - https://stackoverflow.com/questions/19632323/default-website-image-for-social-sharing
     - https://ogp.me/#structured
     - https://ogp.me/#types
+  - [x] If a blog post doesn't have required fields for og card, output a warning to the console
   - [] There is an input context variable for the site header that allows child-metadata content
   - [] If a post has output metadata for cards, the generated card is placed in the <head> of the post page
-  - [] If a blog post doesn't have required fields for og card, output a warning to the console
 
 # Shipped
 

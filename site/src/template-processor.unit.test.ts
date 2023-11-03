@@ -3,15 +3,37 @@ import { processPage, processTemplate } from './template-processor';
 
 describe('processPage', () => {
   it('should generate page given templates and context', () => {
-    const page = processPage('SITE ##CONTENT##', 'CHILD_CONTENT', {});
+    const page = processPage('SITE ##CHILD##', 'CHILD_CONTENT', {});
 
     expect(page.text).toBe('SITE CHILD_CONTENT');
   });
 
-  it('should return output metadata', () => {
-    const page = processPage('SITE ##CONTENT##', '##TITLE: Foo##', {});
+  it('should support symbols in input markers in templates', () => {
+    const page = processPage('##INPUT-MARKER##', '', {});
 
-    expect([...page.outputMarkers.entries()]).toEqual([['TITLE', 'Foo']]);
+    expect([...page.inputMarkers]).toEqual(['INPUT-MARKER']);
+  });
+
+  it('should return output metadata', () => {
+    const page = processPage('SITE ##CHILD##', '##IMAGE: posts/img/foo.jpg##FooContent', {});
+
+    expect([...page.outputMarkers.entries()]).toEqual([['IMAGE', 'posts/img/foo.jpg']]);
+    expect(page.text).toEqual('SITE FooContent');
+  });
+
+  it('should format key names in metadata', () => {
+    const page = processPage('SITE ##CHILD##', '##IMAGE_WIDTH: 1024##\n##IMAGE-HEIGHT: 1024##\nFoo', {});
+
+    expect([...page.outputMarkers.entries()]).toEqual([['IMAGE_WIDTH', '1024'], ['IMAGE-HEIGHT', '1024']]);
+    expect(page.text).toEqual('SITE Foo');
+  });
+
+  it('should ignore key symbols when looking up into context', () => {
+    const page = processPage('SITE ##OG-CARD## ##CHILD##', 'FooContent', {
+      ogCard: 'SLUG'
+    });
+
+    expect(page.text).toEqual('SITE SLUG FooContent');
   });
 
   it('should contain output metadata from template and child', () => {
