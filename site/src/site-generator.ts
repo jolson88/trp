@@ -50,7 +50,7 @@ export function generateBlog(
     const fileName = path.parse(blogPost.path).name;
     const fileInfo = parseInfoFromFileName(fileName);
     const blogContent = processPage(blogPost.content, '', context);
-    
+
     if (!blogContent.outputMarkers.has(MetadataField.title)) {
       reporter.report(
         'warning',
@@ -87,7 +87,10 @@ export function generateBlog(
   return {
     blog: processPage(
       siteTemplate,
-      inputBlogPosts.map((blogPost) => blogPost.content).join('\n'),
+      inputBlogPosts
+        .sort((first, second) => second.path.localeCompare(first.path))
+        .map((blogPost) => blogPost.content)
+        .join('\n'),
       context
     ).text,
     blogPosts: blogPosts.map((blogPost) => ({
@@ -149,10 +152,7 @@ async function processOutputSiteFiles(
   return siteFiles;
 }
 
-function generateOpenGraphSlug(
-  context: SiteContext,
-  outputMarkers: Map<string, string>
-): string {
+function generateOpenGraphSlug(context: SiteContext, outputMarkers: Map<string, string>): string {
   const imageUrl = new URL(outputMarkers.get(MetadataField.image) ?? '', context.url);
   const pageUrl = new URL(outputMarkers.get(MetadataField.pageUrl) ?? '', context.url);
   const title = outputMarkers.get(MetadataField.title) ?? '';
@@ -172,17 +172,17 @@ function generateOpenGraphSlug(
 
   const imageType = outputMarkers.get(MetadataField.imageType);
   if (imageType) {
-    slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`
+    slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`;
   }
 
   const imageWidth = outputMarkers.get(MetadataField.imageWidth);
   if (imageWidth) {
-    slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`
+    slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`;
   }
 
   const imageHeight = outputMarkers.get(MetadataField.imageHeight);
   if (imageHeight) {
-    slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`
+    slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`;
   }
 
   return slug;

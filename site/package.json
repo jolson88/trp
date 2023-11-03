@@ -6,7 +6,7 @@
   "private": "true",
   "scripts": {
     "build": "ts-node src/index.ts _in _out",
-    "start": "npm run build && live-server _out",
+    "start": "ts-node src/index.ts _in _out --watch",
     "sync": "npm run build && cp -R _out/ ../../jolson88.github.io",
     "sync:win": "npm run build && @powershell cp -R -Force _out/* ../../jolson88.github.io",
     "test": "vitest run",
@@ -20,6 +20,7 @@
   "author": "Jason Olson",
   "license": "UNLICENSED",
   "devDependencies": {
+    "@types/live-server": "^1.2.2",
     "@vitest/coverage-v8": "^0.34.6",
     "live-server": "^1.2.2",
     "prettier": "^3.0.3",

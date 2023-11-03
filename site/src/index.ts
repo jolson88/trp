@@ -1,8 +1,18 @@
 import * as path from 'path';
 import { existsSync } from 'fs';
+import liveServer from 'live-server';
 import * as fs from 'fs/promises';
-import { defaultContext, generateSite } from './site-generator';
+import { SiteContext, defaultContext, generateSite } from './site-generator';
 import { Reporter } from './reporter';
+
+const serverParams: liveServer.LiveServerParams = {
+  port: 8080,
+  host: '127.0.0.1',
+  file: 'index.html',
+  open: true,
+  wait: 300,
+  logLevel: 2,
+};
 
 async function main(args: Array<string>): Promise<void> {
   if (args.length < 2) {
@@ -12,10 +22,10 @@ async function main(args: Array<string>): Promise<void> {
     return process.exit(1);
   }
 
-  //const inputDir = path.join(process.cwd(), args[0]);
-  //const outputDir = path.join(process.cwd(), args[1]);
   const inputDir = args[0];
   const outputDir = args[1];
+  const flag = args[2];
+  const isWatching = flag.toUpperCase() === '--WATCH';
 
   console.log('Resetting output directory:', outputDir);
   if (existsSync(outputDir)) {
@@ -26,16 +36,43 @@ async function main(args: Array<string>): Promise<void> {
   const publicDir = path.join(process.cwd(), 'public');
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
+  await outputSite(inputDir, outputDir, defaultContext);
+  if (!isWatching) {
+    return;
+  }
+
+  console.log('Running live server');
+  liveServer.start({
+    ...serverParams,
+    root: outputDir,
+  });
+
+  const watcher = fs.watch(inputDir, { recursive: true });
+  for await (const _ of watcher) {
+    console.log(`[${new Date()}] Changes detected in input files. Regenerating site.`);
+    await outputSite(inputDir, outputDir, defaultContext);
+  }
+
+  console.log('Shutting down live server');
+  liveServer.shutdown();
+}
+
+async function outputSite(
+  inputDir: string,
+  outputDir: string,
+  context: SiteContext
+): Promise<void> {
   console.log('Generating site...\n');
   const reporter = new Reporter();
   const reportTracker = reporter.trackReports();
-  await generateSite(inputDir, outputDir, defaultContext, { reporter });
+  await generateSite(inputDir, outputDir, context, { reporter });
 
   const reportCount = reportTracker.data.length;
   if (reportCount > 0) {
     console.log(`There were ${reportCount} warning(s) or error(s) reported during generation:`);
-
-    console.log(reportTracker.data.map((report) => `[${report.level}] ${report.message}`).join('\n'));
+    console.log(
+      reportTracker.data.map((report) => `[${report.level}] ${report.message}`).join('\n')
+    );
   }
 }
 

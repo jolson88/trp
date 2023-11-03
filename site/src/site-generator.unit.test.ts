@@ -1,11 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  MetadataField,
-  Site,
-  SiteContext,
-  generateBlog,
-  generateSite,
-} from './site-generator';
+import { MetadataField, Site, SiteContext, generateBlog, generateSite } from './site-generator';
 import * as path from 'path';
 import { FileService, SiteFile, SiteFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
@@ -39,7 +33,7 @@ export const givenInputSiteFiles: SiteFiles = {
 
 export const givenSite: Site = {
   about: `${givenContext.title} StartBase AboutMe EndBase ${givenContext.year}`,
-  blog: `${givenContext.title} StartBase Foo\nBar\nBaz EndBase ${givenContext.year}`,
+  blog: `${givenContext.title} StartBase Baz\nBar\nFoo EndBase ${givenContext.year}`,
   blogPosts: [
     {
       fileName: 'foo',
@@ -83,11 +77,14 @@ describe('Site Generation', () => {
         FooContent
       `.trim();
 
-      const blogResults = generateBlog('##OG-CARD##\n##CHILD##', [
-        { path: 'foo.html', content: blogInput },
-      ], givenContext);
+      const blogResults = generateBlog(
+        '##OG-CARD##\n##CHILD##',
+        [{ path: 'foo.html', content: blogInput }],
+        givenContext
+      );
 
-      expect(blogResults.blogPosts[0].content).toEqual(`
+      expect(blogResults.blogPosts[0].content).toEqual(
+        `
 <meta property="og:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
 <meta property="og:title" content="My Blog" />
 <meta property="og:description" content="A Grand Description" />
@@ -113,11 +110,14 @@ FooContent`.trim()
         FooContent
       `.trim();
 
-      const blogResults = generateBlog('##OG-CARD##\n##CHILD##', [
-        { path: 'foo.html', content: blogInput },
-      ], givenContext);
+      const blogResults = generateBlog(
+        '##OG-CARD##\n##CHILD##',
+        [{ path: 'foo.html', content: blogInput }],
+        givenContext
+      );
 
-      expect(blogResults.blogPosts[0].content).toEqual(`
+      expect(blogResults.blogPosts[0].content).toEqual(
+        `
 <meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
 <meta property="og:title" content="My Blog" />
 <meta property="og:description" content="A Grand Description" />
@@ -131,7 +131,8 @@ FooContent`.trim()
 <meta property="og:image:width" content="1024" />
 <meta property="og:image:height" content="1024" />
 FooContent
-`.trim());
+`.trim()
+      );
     });
   });
 
@@ -181,13 +182,11 @@ FooContent
         },
         {
           level: 'warning',
-          message:
-            `foo.html does not have an image. Add "##${MetadataField.image}: /img/blog/something.jpg##" to fix`,
+          message: `foo.html does not have an image. Add "##${MetadataField.image}: /img/blog/something.jpg##" to fix`,
         },
         {
           level: 'warning',
-          message:
-            `foo.html does not have a url. Add "##${MetadataField.pageUrl}: /posts/foo.html##" to fix`,
+          message: `foo.html does not have a url. Add "##${MetadataField.pageUrl}: /posts/foo.html##" to fix`,
         },
       ]);
     });
