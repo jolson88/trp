@@ -2,7 +2,7 @@ import * as path from 'path';
 import { existsSync } from 'fs';
 import liveServer from 'live-server';
 import * as fs from 'fs/promises';
-import { SiteContext, defaultContext, generateSite } from './site-generator';
+import { SiteContext, SiteGenerator, defaultContext } from './site-generator';
 import { Reporter } from './reporter';
 
 const serverParams: liveServer.LiveServerParams = {
@@ -65,7 +65,8 @@ async function outputSite(
   console.log('Generating site...\n');
   const reporter = new Reporter();
   const reportTracker = reporter.trackReports();
-  await generateSite(inputDir, outputDir, context, { reporter });
+  const generator = new SiteGenerator({ reporter });
+  await generator.generateSite(inputDir, outputDir, context);
 
   const reportCount = reportTracker.data.length;
   if (reportCount > 0) {

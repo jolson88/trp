@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ArticlePropertyKey, SiteContext, generateBlog, generateSite } from './site-generator';
+import { ArticlePropertyKey, SiteContext, SiteGenerator, generateBlog } from './site-generator';
 import * as path from 'path';
 import { FileService, InputFile, InputFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
@@ -134,11 +134,10 @@ FooContent
         },
         new FileService()
       );
-
       const inputDir = path.join(__dirname, 'test', 'data', 'site');
-      const actualSiteFiles = await generateSite(inputDir, '', givenContext, {
-        fileService: mockFileService,
-      });
+
+      const generator = new SiteGenerator({ fileService: mockFileService });
+      const actualSiteFiles = await generator.generateSite(inputDir, '', givenContext);
 
       expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
     });

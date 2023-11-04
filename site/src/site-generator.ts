@@ -2,6 +2,7 @@ import * as path from 'path';
 import { processPage } from './template-processor';
 import { FileService, InputFile, parseInfoFromFileName } from './file-service';
 import { Reporter } from './reporter';
+import { generateOpenGraphSlug } from './social-slugger';
 
 export interface OutputFile {
   path: string;
@@ -42,44 +43,61 @@ export interface GenerateSiteOptions {
   reporter: Reporter;
 }
 
-export async function generateSite(
-  inputDir: string,
-  outputDir: string,
-  context: SiteContext = defaultContext,
-  { reporter = new Reporter(), fileService = new FileService() }: Partial<GenerateSiteOptions> = {}
-): Promise<Array<OutputFile>> {
-  const inputFiles = await fileService.readFiles(inputDir);
+export interface SiteGeneratorOptions {
+  fileService: FileService;
+  reporter: Reporter;
+}
 
-  const { blog, blogPosts } = generateBlog(
-    inputFiles.siteTemplateFile.content,
-    inputFiles.blogFiles,
-    context,
-    reporter
-  );
-  const about = processPage(
-    inputFiles.siteTemplateFile.content,
-    inputFiles.aboutFile.content,
-    context,
-    { removeUnusedInputs: true }
-  ).text;
-  const contact = processPage(
-    inputFiles.siteTemplateFile.content,
-    inputFiles.contactFile.content,
-    context,
-    { removeUnusedInputs: true }
-  ).text;
+export class SiteGenerator {
+  private fileService: FileService;
+  private reporter: Reporter;
 
-  const siteFiles = [
-    { path: 'blog.html', content: blog },
-    { path: 'contact.html', content: contact },
-    { path: 'index.html', content: about },
-  ];
-
-  siteFiles.push(...blogPosts.map((post) => ({ content: post.content, path: post.url })));
-  for (const siteFile of siteFiles) {
-    await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
+  public constructor({
+    fileService = new FileService(),
+    reporter = new Reporter(),
+  }: Partial<SiteGeneratorOptions> = {}) {
+    this.fileService = fileService;
+    this.reporter = reporter;
   }
-  return siteFiles;
+
+  public async generateSite(
+    inputDir: string,
+    outputDir: string,
+    context: SiteContext = defaultContext
+  ): Promise<Array<OutputFile>> {
+    const inputFiles = await this.fileService.readFiles(inputDir);
+
+    const { blog, blogPosts } = generateBlog(
+      inputFiles.siteTemplateFile.content,
+      inputFiles.blogFiles,
+      context,
+      this.reporter
+    );
+    const about = processPage(
+      inputFiles.siteTemplateFile.content,
+      inputFiles.aboutFile.content,
+      context,
+      { removeUnusedInputs: true }
+    ).text;
+    const contact = processPage(
+      inputFiles.siteTemplateFile.content,
+      inputFiles.contactFile.content,
+      context,
+      { removeUnusedInputs: true }
+    ).text;
+
+    const siteFiles = [
+      { path: 'blog.html', content: blog },
+      { path: 'contact.html', content: contact },
+      { path: 'index.html', content: about },
+    ];
+
+    siteFiles.push(...blogPosts.map((post) => ({ content: post.content, path: post.url })));
+    for (const siteFile of siteFiles) {
+      await this.fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
+    }
+    return siteFiles;
+  }
 }
 
 export function generateBlog(
@@ -138,41 +156,4 @@ export function generateBlog(
       }).text,
     })),
   };
-}
-
-function generateOpenGraphSlug(context: SiteContext, post: BlogPost): string {
-  const { properties } = post;
-  const imageUrl = new URL(properties.get(ArticlePropertyKey.image) ?? '', context.siteUrl);
-  const pageUrl = new URL(post.url, context.siteUrl);
-  const title = properties.get(ArticlePropertyKey.title) ?? '';
-  const description = properties.get(ArticlePropertyKey.description) ?? '';
-
-  let slug = `
-<meta property="og:image" content="${imageUrl}" />
-<meta property="og:title" content="${title}" />
-<meta property="og:description" content="${description}" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="${pageUrl}" />
-<meta property="twitter:card" content="summary" />
-<meta property="twitter:title" content="${title}" />
-<meta property="twitter:description" content="${description}" />
-<meta property="twitter:image" content="${imageUrl}" />
-  `.trim();
-
-  const imageType = properties.get(ArticlePropertyKey.imageType);
-  if (imageType) {
-    slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`;
-  }
-
-  const imageWidth = properties.get(ArticlePropertyKey.imageWidth);
-  if (imageWidth) {
-    slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`;
-  }
-
-  const imageHeight = properties.get(ArticlePropertyKey.imageHeight);
-  if (imageHeight) {
-    slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`;
-  }
-
-  return slug;
 }
