@@ -67,11 +67,6 @@ export class SiteGenerator {
   ): Promise<Array<OutputFile>> {
     const inputFiles = await this.fileService.readFiles(inputDir);
 
-    const { blog, blogPosts } = this.generateBlog(
-      inputFiles.siteTemplateFile.content,
-      inputFiles.blogFiles,
-      context
-    );
     const about = processPage(
       inputFiles.siteTemplateFile.content,
       inputFiles.aboutFile.content,
@@ -84,6 +79,11 @@ export class SiteGenerator {
       context,
       { removeUnusedInputs: true }
     ).text;
+    const { blog, blogPosts } = this.generateBlog(
+      inputFiles.siteTemplateFile.content,
+      inputFiles.blogFiles,
+      context
+    );
 
     const siteFiles = [
       { path: 'blog.html', content: blog },
