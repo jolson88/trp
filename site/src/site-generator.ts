@@ -37,67 +37,6 @@ export enum ArticlePropertyKey {
   imageHeight = 'IMAGE-HEIGHT',
 }
 
-export function generateBlog(
-  siteTemplate: string,
-  inputBlogPosts: Array<InputFile>,
-  context: SiteContext = defaultContext,
-  reporter: Reporter = new Reporter()
-): { blog: string; blogPosts: Array<BlogPost> } {
-  const blogPosts: Array<BlogPost> = [];
-  for (const blogPost of inputBlogPosts) {
-    const fileName = path.parse(blogPost.path).name;
-    const fileInfo = parseInfoFromFileName(fileName);
-    const url = `posts/${fileInfo.fileName}.html`;
-    const blogContent = processPage(blogPost.content, '', { ...context, url });
-
-    if (!blogContent.properties.has(ArticlePropertyKey.title)) {
-      reporter.report(
-        'warning',
-        `${blogPost.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
-      );
-    }
-    if (!blogContent.properties.has(ArticlePropertyKey.description)) {
-      reporter.report(
-        'warning',
-        `${blogPost.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
-      );
-    }
-    if (!blogContent.properties.has(ArticlePropertyKey.image)) {
-      reporter.report(
-        'warning',
-        `${blogPost.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
-      );
-    }
-
-    blogPosts.push({
-      fileName: fileInfo.fileName,
-      content: blogContent.text,
-      properties: blogContent.properties,
-      originalDate: fileInfo.date,
-      url,
-    });
-  }
-
-  return {
-    blog: processPage(
-      siteTemplate,
-      blogPosts
-        .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
-        .map((blogPost) => blogPost.content)
-        .join('\n'),
-      context,
-      { removeUnusedInputs: true }
-    ).text,
-    blogPosts: blogPosts.map((blogPost) => ({
-      ...blogPost,
-      content: processPage(siteTemplate, blogPost.content, {
-        ...context,
-        ogCard: generateOpenGraphSlug(context, blogPost),
-      }).text,
-    })),
-  };
-}
-
 export interface GenerateSiteOptions {
   fileService: FileService;
   reporter: Reporter;
@@ -141,6 +80,64 @@ export async function generateSite(
     await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }
   return siteFiles;
+}
+
+export function generateBlog(
+  siteTemplate: string,
+  inputPostFiles: Array<InputFile>,
+  context: SiteContext = defaultContext,
+  reporter: Reporter = new Reporter()
+): { blog: string; blogPosts: Array<BlogPost> } {
+  const posts: Array<BlogPost> = [];
+  for (const post of inputPostFiles) {
+    const fileName = path.parse(post.path).name;
+    const fileInfo = parseInfoFromFileName(fileName);
+    const url = `posts/${fileInfo.fileName}.html`;
+    const processedPage = processPage(post.content, '', { ...context, url });
+
+    if (!processedPage.properties.has(ArticlePropertyKey.title)) {
+      reporter.report(
+        'warning',
+        `${post.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
+      );
+    }
+    if (!processedPage.properties.has(ArticlePropertyKey.description)) {
+      reporter.report(
+        'warning',
+        `${post.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
+      );
+    }
+    if (!processedPage.properties.has(ArticlePropertyKey.image)) {
+      reporter.report(
+        'warning',
+        `${post.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
+      );
+    }
+
+    posts.push({
+      fileName: fileInfo.fileName,
+      content: processedPage.text,
+      properties: processedPage.properties,
+      originalDate: fileInfo.date,
+      url,
+    });
+  }
+
+  const processedPosts = posts
+    .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
+    .map((blogPost) => blogPost.content)
+    .join('\n');
+
+  return {
+    blog: processPage(siteTemplate, processedPosts, context, { removeUnusedInputs: true }).text,
+    blogPosts: posts.map((blogPost) => ({
+      ...blogPost,
+      content: processPage(siteTemplate, blogPost.content, {
+        ...context,
+        ogCard: generateOpenGraphSlug(context, blogPost),
+      }).text,
+    })),
+  };
 }
 
 function generateOpenGraphSlug(context: SiteContext, blogPost: BlogPost): string {
