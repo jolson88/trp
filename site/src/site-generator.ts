@@ -67,11 +67,10 @@ export class SiteGenerator {
   ): Promise<Array<OutputFile>> {
     const inputFiles = await this.fileService.readFiles(inputDir);
 
-    const { blog, blogPosts } = generateBlog(
+    const { blog, blogPosts } = this.generateBlog(
       inputFiles.siteTemplateFile.content,
       inputFiles.blogFiles,
-      context,
-      this.reporter
+      context
     );
     const about = processPage(
       inputFiles.siteTemplateFile.content,
@@ -98,62 +97,61 @@ export class SiteGenerator {
     }
     return siteFiles;
   }
-}
 
-export function generateBlog(
-  siteTemplate: string,
-  inputPostFiles: Array<InputFile>,
-  context: SiteContext = defaultContext,
-  reporter: Reporter = new Reporter()
-): { blog: string; blogPosts: Array<BlogPost> } {
-  const posts: Array<BlogPost> = [];
-  for (const post of inputPostFiles) {
-    const fileName = path.parse(post.path).name;
-    const fileInfo = parseInfoFromFileName(fileName);
-    const url = `posts/${fileInfo.fileName}.html`;
-    const processedPage = processPage(post.content, '', { ...context, url });
+  public generateBlog(
+    siteTemplate: string,
+    inputPostFiles: Array<InputFile>,
+    context: SiteContext = defaultContext
+  ): { blog: string; blogPosts: Array<BlogPost> } {
+    const posts: Array<BlogPost> = [];
+    for (const post of inputPostFiles) {
+      const fileName = path.parse(post.path).name;
+      const fileInfo = parseInfoFromFileName(fileName);
+      const url = `posts/${fileInfo.fileName}.html`;
+      const processedPage = processPage(post.content, '', { ...context, url });
 
-    if (!processedPage.properties.has(ArticlePropertyKey.title)) {
-      reporter.report(
-        'warning',
-        `${post.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
-      );
-    }
-    if (!processedPage.properties.has(ArticlePropertyKey.description)) {
-      reporter.report(
-        'warning',
-        `${post.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
-      );
-    }
-    if (!processedPage.properties.has(ArticlePropertyKey.image)) {
-      reporter.report(
-        'warning',
-        `${post.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
-      );
+      if (!processedPage.properties.has(ArticlePropertyKey.title)) {
+        this.reporter.report(
+          'warning',
+          `${post.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
+        );
+      }
+      if (!processedPage.properties.has(ArticlePropertyKey.description)) {
+        this.reporter.report(
+          'warning',
+          `${post.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
+        );
+      }
+      if (!processedPage.properties.has(ArticlePropertyKey.image)) {
+        this.reporter.report(
+          'warning',
+          `${post.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
+        );
+      }
+
+      posts.push({
+        fileName: fileInfo.fileName,
+        content: processedPage.text,
+        properties: processedPage.properties,
+        originalDate: fileInfo.date,
+        url,
+      });
     }
 
-    posts.push({
-      fileName: fileInfo.fileName,
-      content: processedPage.text,
-      properties: processedPage.properties,
-      originalDate: fileInfo.date,
-      url,
-    });
+    const processedPosts = posts
+      .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
+      .map((blogPost) => blogPost.content)
+      .join('\n');
+
+    return {
+      blog: processPage(siteTemplate, processedPosts, context, { removeUnusedInputs: true }).text,
+      blogPosts: posts.map((blogPost) => ({
+        ...blogPost,
+        content: processPage(siteTemplate, blogPost.content, {
+          ...context,
+          ogCard: generateOpenGraphSlug(context, blogPost),
+        }).text,
+      })),
+    };
   }
-
-  const processedPosts = posts
-    .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
-    .map((blogPost) => blogPost.content)
-    .join('\n');
-
-  return {
-    blog: processPage(siteTemplate, processedPosts, context, { removeUnusedInputs: true }).text,
-    blogPosts: posts.map((blogPost) => ({
-      ...blogPost,
-      content: processPage(siteTemplate, blogPost.content, {
-        ...context,
-        ogCard: generateOpenGraphSlug(context, blogPost),
-      }).text,
-    })),
-  };
 }

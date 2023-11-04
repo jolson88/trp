@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ArticlePropertyKey, SiteContext, SiteGenerator, generateBlog } from './site-generator';
+import { ArticlePropertyKey, SiteContext, SiteGenerator } from './site-generator';
 import * as path from 'path';
 import { FileService, InputFile, InputFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
@@ -68,7 +68,8 @@ describe('Site Generation', () => {
         FooContent
       `.trim();
 
-      const blogResults = generateBlog(
+      const generator = new SiteGenerator();
+      const blogResults = generator.generateBlog(
         '##OG-CARD##\n##CHILD##',
         [{ path: 'foo.html', content: blogInput }],
         givenContext
@@ -100,7 +101,8 @@ FooContent`.trim()
         FooContent
       `.trim();
 
-      const blogResults = generateBlog(
+      const generator = new SiteGenerator();
+      const blogResults = generator.generateBlog(
         '##OG-CARD##\n##CHILD##',
         [{ path: 'foo.html', content: blogInput }],
         givenContext
@@ -145,7 +147,8 @@ FooContent
 
   describe('generateBlog', () => {
     it('should generate blog', () => {
-      const blogResults = generateBlog('Blog Posts:\n##CHILD##', [
+      const generator = new SiteGenerator();
+      const blogResults = generator.generateBlog('Blog Posts:\n##CHILD##', [
         { path: 'foo.html', content: 'FOO' },
         { path: 'bar.html', content: 'BAR' },
       ]);
@@ -157,7 +160,8 @@ FooContent
       const reporter = new Reporter();
       const reportTracker = reporter.trackReports();
 
-      generateBlog('##CONTENT##', [{ path: 'foo.html', content: 'FOO' }], givenContext, reporter);
+      const generator = new SiteGenerator({ reporter });
+      generator.generateBlog('##CONTENT##', [{ path: 'foo.html', content: 'FOO' }], givenContext);
 
       expect(reportTracker.data).toEqual([
         {
