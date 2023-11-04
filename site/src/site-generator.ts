@@ -16,13 +16,6 @@ export interface BlogPost {
   url: string;
 }
 
-export interface Site {
-  about: string;
-  blog: string;
-  blogPosts: Array<BlogPost>;
-  contact: string;
-}
-
 export interface SiteContext {
   siteTitle: string;
   siteUrl: string;
@@ -30,9 +23,9 @@ export interface SiteContext {
 }
 
 export const defaultContext: SiteContext = {
-  year: new Date().getFullYear(),
   siteTitle: 'The Reasonable Programmer',
   siteUrl: 'https://www.jolson88.com/',
+  year: new Date().getFullYear(),
 };
 
 export enum ArticlePropertyKey {
@@ -92,7 +85,7 @@ export function generateBlog(
         .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
         .map((blogPost) => blogPost.content)
         .join('\n'),
-      context
+      { ...context, ogCard: '' }
     ).text,
     blogPosts: blogPosts.map((blogPost) => ({
       ...blogPost,
@@ -114,44 +107,31 @@ export async function generateSite(
   outputDir: string,
   context: SiteContext = defaultContext,
   { reporter = new Reporter(), fileService = new FileService() }: Partial<GenerateSiteOptions> = {}
-): Promise<{ site: Site; siteFiles: Array<OutputFile> }> {
+): Promise<Array<OutputFile>> {
   const inputFiles = await fileService.readFiles(inputDir);
 
-  const site: Site = {
-    ...generateBlog(inputFiles.siteTemplateFile.content, inputFiles.blogFiles, context, reporter),
-    about: processPage(inputFiles.siteTemplateFile.content, inputFiles.aboutFile.content, context)
-      .text,
-    contact: processPage(
-      inputFiles.siteTemplateFile.content,
-      inputFiles.contactFile.content,
-      context
-    ).text,
-  };
-
-  return {
-    site,
-    siteFiles: await processOutputSiteFiles(site, outputDir, fileService),
-  };
-}
-
-async function processOutputSiteFiles(
-  site: Site,
-  outputDir: string,
-  fileService: FileService
-): Promise<Array<OutputFile>> {
-  const siteFiles = [
-    { path: 'blog.html', content: site.blog },
-    { path: 'contact.html', content: site.contact },
-    { path: 'index.html', content: site.about },
-  ];
-  siteFiles.push(
-    ...site.blogPosts.map((blogPost) => {
-      return {
-        content: blogPost.content,
-        path: blogPost.url,
-      };
-    })
+  const { blog, blogPosts } = generateBlog(
+    inputFiles.siteTemplateFile.content,
+    inputFiles.blogFiles,
+    context,
+    reporter
   );
+  const about = processPage(inputFiles.siteTemplateFile.content, inputFiles.aboutFile.content, {
+    ...context,
+    ogCard: '',
+  }).text;
+  const contact = processPage(inputFiles.siteTemplateFile.content, inputFiles.contactFile.content, {
+    ...context,
+    ogCard: '',
+  }).text;
+
+  const siteFiles = [
+    { path: 'blog.html', content: blog },
+    { path: 'contact.html', content: contact },
+    { path: 'index.html', content: about },
+  ];
+
+  siteFiles.push(...blogPosts.map((post) => ({ content: post.content, path: post.url })));
   for (const siteFile of siteFiles) {
     await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }

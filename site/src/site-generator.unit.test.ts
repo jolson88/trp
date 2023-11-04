@@ -1,11 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import {
-  ArticlePropertyKey,
-  Site,
-  SiteContext,
-  generateBlog,
-  generateSite,
-} from './site-generator';
+import { ArticlePropertyKey, SiteContext, generateBlog, generateSite } from './site-generator';
 import * as path from 'path';
 import { FileService, InputFile, InputFiles } from './file-service';
 import { mockPassthrough } from './test/mocking';
@@ -37,42 +31,31 @@ export const givenInputSiteFiles: InputFiles = {
   },
 };
 
-export const givenSite: Site = {
-  about: `${givenContext.siteTitle} StartBase AboutMe EndBase ${givenContext.year}`,
-  blog: `${givenContext.siteTitle} StartBase Baz - posts/baz.html\nBar - posts/bar.html\nFoo - posts/foo.html EndBase ${givenContext.year}`,
-  blogPosts: [
-    {
-      fileName: 'baz',
-      content: `${givenContext.siteTitle} StartBase Baz - posts/baz.html EndBase ${givenContext.year}`,
-      properties: new Map<string, string>(),
-      originalDate: new Date(2023, 3, 3),
-      url: 'posts/baz.html',
-    },
-    {
-      fileName: 'bar',
-      content: `${givenContext.siteTitle} StartBase Bar - posts/bar.html EndBase ${givenContext.year}`,
-      properties: new Map<string, string>(),
-      originalDate: new Date(2023, 2, 2),
-      url: 'posts/bar.html',
-    },
-    {
-      fileName: 'foo',
-      content: `${givenContext.siteTitle} StartBase Foo - posts/foo.html EndBase ${givenContext.year}`,
-      properties: new Map<string, string>(),
-      originalDate: new Date(2023, 1, 1),
-      url: 'posts/foo.html',
-    },
-  ],
-  contact: `${givenContext.siteTitle} StartBase ContactContent EndBase ${givenContext.year}`,
-};
-
 export const givenSiteFiles: Array<InputFile> = [
-  { path: 'blog.html', content: givenSite.blog },
-  { path: 'contact.html', content: givenSite.contact },
-  { path: 'index.html', content: givenSite.about },
-  { path: 'posts/baz.html', content: givenSite.blogPosts[0].content },
-  { path: 'posts/bar.html', content: givenSite.blogPosts[1].content },
-  { path: 'posts/foo.html', content: givenSite.blogPosts[2].content },
+  {
+    path: 'blog.html',
+    content: `${givenContext.siteTitle} StartBase Baz - posts/baz.html\nBar - posts/bar.html\nFoo - posts/foo.html EndBase ${givenContext.year}`,
+  },
+  {
+    path: 'contact.html',
+    content: `${givenContext.siteTitle} StartBase ContactContent EndBase ${givenContext.year}`,
+  },
+  {
+    path: 'index.html',
+    content: `${givenContext.siteTitle} StartBase AboutMe EndBase ${givenContext.year}`,
+  },
+  {
+    path: 'posts/baz.html',
+    content: `${givenContext.siteTitle} StartBase Baz - posts/baz.html EndBase ${givenContext.year}`,
+  },
+  {
+    path: 'posts/bar.html',
+    content: `${givenContext.siteTitle} StartBase Bar - posts/bar.html EndBase ${givenContext.year}`,
+  },
+  {
+    path: 'posts/foo.html',
+    content: `${givenContext.siteTitle} StartBase Foo - posts/foo.html EndBase ${givenContext.year}`,
+  },
 ];
 
 describe('Site Generation', () => {
@@ -153,12 +136,11 @@ FooContent
       );
 
       const inputDir = path.join(__dirname, 'test', 'data', 'site');
-      const siteResults = await generateSite(inputDir, '', givenContext, {
+      const actualSiteFiles = await generateSite(inputDir, '', givenContext, {
         fileService: mockFileService,
       });
 
-      expect(siteResults.site).toEqual(givenSite);
-      expect(siteResults.siteFiles.sort()).toEqual(givenSiteFiles.sort());
+      expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
     });
   });
 
