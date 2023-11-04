@@ -85,7 +85,8 @@ export function generateBlog(
         .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
         .map((blogPost) => blogPost.content)
         .join('\n'),
-      { ...context, ogCard: '' }
+      context,
+      { removeUnusedInputs: true }
     ).text,
     blogPosts: blogPosts.map((blogPost) => ({
       ...blogPost,
@@ -116,14 +117,18 @@ export async function generateSite(
     context,
     reporter
   );
-  const about = processPage(inputFiles.siteTemplateFile.content, inputFiles.aboutFile.content, {
-    ...context,
-    ogCard: '',
-  }).text;
-  const contact = processPage(inputFiles.siteTemplateFile.content, inputFiles.contactFile.content, {
-    ...context,
-    ogCard: '',
-  }).text;
+  const about = processPage(
+    inputFiles.siteTemplateFile.content,
+    inputFiles.aboutFile.content,
+    context,
+    { removeUnusedInputs: true }
+  ).text;
+  const contact = processPage(
+    inputFiles.siteTemplateFile.content,
+    inputFiles.contactFile.content,
+    context,
+    { removeUnusedInputs: true }
+  ).text;
 
   const siteFiles = [
     { path: 'blog.html', content: blog },

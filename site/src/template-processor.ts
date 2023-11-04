@@ -13,16 +13,25 @@ export interface ProcessedPage {
   properties: Map<string, string>;
 }
 
+export interface ProcessOptions {
+  removeUnusedInputs: boolean;
+}
+
 export function processPage(
   pageTemplate: string,
   childTemplate: string,
-  context: any = {}
+  context: any = {},
+  { removeUnusedInputs = false }: Partial<ProcessOptions> = {}
 ): ProcessedPage {
-  const processedChild = processTemplate(childTemplate, context);
-  const processedPage = processTemplate(pageTemplate, {
-    ...context,
-    child: processedChild.text,
-  });
+  const processedChild = processTemplate(childTemplate, context, removeUnusedInputs);
+  const processedPage = processTemplate(
+    pageTemplate,
+    {
+      ...context,
+      child: processedChild.text,
+    },
+    removeUnusedInputs
+  );
 
   const properties = new Map<string, string>(processedChild.properties.entries());
   [...processedPage.properties.entries()].forEach(([k, v]) => properties.set(k, v));
@@ -33,7 +42,11 @@ export function processPage(
   };
 }
 
-function processTemplate(template: string, context: any = {}): ProcessedPage {
+function processTemplate(
+  template: string,
+  context: any = {},
+  removeUnusedInputs: boolean
+): ProcessedPage {
   const contextLookup = { ...context };
   const inputs = new Set<string>();
   const properties = new Map<string, string>();
@@ -66,7 +79,7 @@ function processTemplate(template: string, context: any = {}): ProcessedPage {
     const originalTag = match[0];
     const inputName = match[1].toUpperCase();
     inputs.add(inputName);
-    text = replaceTag(text, originalTag, inputName, inputName);
+    text = replaceTag(text, originalTag, removeUnusedInputs ? '' : inputName, inputName);
   }
 
   return {
