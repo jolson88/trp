@@ -2,6 +2,7 @@
 
 ## Current Milestone
 
+- 📝 There is a way to preview draft posts that don't get published
 - 📄 Wortwhile posts from immediately previous blog are ported to new site
   - https://github.com/jolson88/blog
 - 🔍 Users can search the blog via a simple search box on the site

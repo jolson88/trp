@@ -140,10 +140,10 @@ export function generateBlog(
   };
 }
 
-function generateOpenGraphSlug(context: SiteContext, blogPost: BlogPost): string {
-  const { properties } = blogPost;
+function generateOpenGraphSlug(context: SiteContext, post: BlogPost): string {
+  const { properties } = post;
   const imageUrl = new URL(properties.get(ArticlePropertyKey.image) ?? '', context.siteUrl);
-  const pageUrl = new URL(blogPost.url, context.siteUrl);
+  const pageUrl = new URL(post.url, context.siteUrl);
   const title = properties.get(ArticlePropertyKey.title) ?? '';
   const description = properties.get(ArticlePropertyKey.description) ?? '';
 
