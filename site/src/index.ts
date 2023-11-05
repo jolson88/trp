@@ -65,8 +65,8 @@ async function outputSite(
   console.log('Generating site...\n');
   const reporter = new Reporter();
   const reportTracker = reporter.trackReports();
-  const generator = new SiteGenerator({ reporter });
-  await generator.generateSite(inputDir, outputDir, context);
+  const generator = new SiteGenerator({ inputDir, reporter });
+  await generator.generateSite(outputDir, context);
 
   const reportCount = reportTracker.data.length;
   if (reportCount > 0) {

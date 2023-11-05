@@ -38,29 +38,32 @@ export enum ArticlePropertyKey {
   imageHeight = 'IMAGE-HEIGHT',
 }
 
-export interface SiteGeneratorOptions {
-  fileService: FileService;
-  reporter: Reporter;
+export interface SiteGeneratorParams {
+  inputDir?: string;
+  fileService?: FileService;
+  reporter?: Reporter;
 }
 
 export class SiteGenerator {
+  private inputDir: string;
   private fileService: FileService;
   private reporter: Reporter;
 
   public constructor({
+    inputDir = '',
     fileService = new FileService(),
     reporter = new Reporter(),
-  }: Partial<SiteGeneratorOptions> = {}) {
+  }: SiteGeneratorParams = {}) {
+    this.inputDir = inputDir;
     this.fileService = fileService;
     this.reporter = reporter;
   }
 
   public async generateSite(
-    inputDir: string,
     outputDir: string,
     context: SiteContext = defaultContext
   ): Promise<Array<OutputFile>> {
-    const inputFiles = await this.fileService.readFiles(inputDir);
+    const inputFiles = await this.fileService.readFiles(this.inputDir);
 
     const about = processPage(
       inputFiles.siteTemplateFile.content,
@@ -74,9 +77,8 @@ export class SiteGenerator {
       context,
       { removeUnusedInputs: true }
     ).text;
-    const { blog, blogPosts } = this.generateBlog(
+    const { blog, blogPosts } = await this.generateBlog(
       inputFiles.siteTemplateFile.content,
-      inputFiles.blogFiles,
       context
     );
 
@@ -93,11 +95,12 @@ export class SiteGenerator {
     return siteFiles;
   }
 
-  public generateBlog(
+  public async generateBlog(
     siteTemplate: string,
-    inputPostFiles: Array<InputFile>,
     context: SiteContext = defaultContext
-  ): { blog: string; blogPosts: Array<Article> } {
+  ): Promise<{ blog: string; blogPosts: Array<Article> }> {
+    const inputPostFiles = await this.fileService.readDirectory(path.join(this.inputDir, 'blog'));
+
     const posts: Array<Article> = [];
     for (const post of inputPostFiles) {
       const fileName = path.parse(post.path).name;

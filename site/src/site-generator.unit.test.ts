@@ -1,8 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ArticlePropertyKey, SiteContext, SiteGenerator } from './site-generator';
 import * as path from 'path';
 import { FileService, InputFile, InputFiles } from './file-service';
-import { mockPassthrough } from './test/mocking';
+import { mock, mockPassthrough } from './test/mocking';
 import { Reporter } from './reporter';
 
 export const givenContext: SiteContext = {
@@ -60,7 +60,7 @@ export const givenSiteFiles: Array<InputFile> = [
 
 describe('Site Generation', () => {
   describe('OpenGraph Slug', () => {
-    it('should generate minimal OpenGraph slug', () => {
+    it('should generate minimal OpenGraph slug', async () => {
       const blogInput = `
         ##${ArticlePropertyKey.title}: My Blog##      
         ##${ArticlePropertyKey.description}: A Grand Description##      
@@ -68,12 +68,12 @@ describe('Site Generation', () => {
         FooContent
       `.trim();
 
-      const generator = new SiteGenerator();
-      const blogResults = generator.generateBlog(
-        '##OG-SLUG##\n##CHILD##',
-        [{ path: 'foo.html', content: blogInput }],
-        givenContext
-      );
+      const generator = new SiteGenerator({
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: blogInput }]),
+        }),
+      });
+      const blogResults = await generator.generateBlog('##OG-SLUG##\n##CHILD##', givenContext);
 
       expect(blogResults.blogPosts[0].content).toEqual(
         `
@@ -90,7 +90,7 @@ FooContent`.trim()
       );
     });
 
-    it('should generate fully complete OpenGraph slug', () => {
+    it('should generate fully complete OpenGraph slug', async () => {
       const blogInput = `
         ##${ArticlePropertyKey.title}: My Blog##      
         ##${ArticlePropertyKey.description}: A Grand Description##      
@@ -101,12 +101,12 @@ FooContent`.trim()
         FooContent
       `.trim();
 
-      const generator = new SiteGenerator();
-      const blogResults = generator.generateBlog(
-        '##OG-SLUG##\n##CHILD##',
-        [{ path: 'foo.html', content: blogInput }],
-        givenContext
-      );
+      const generator = new SiteGenerator({
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: blogInput }]),
+        }),
+      });
+      const blogResults = await generator.generateBlog('##OG-SLUG##\n##CHILD##', givenContext);
 
       expect(blogResults.blogPosts[0].content).toEqual(
         `
@@ -138,31 +138,31 @@ FooContent
       );
       const inputDir = path.join(__dirname, 'test', 'data', 'site');
 
-      const generator = new SiteGenerator({ fileService: mockFileService });
-      const actualSiteFiles = await generator.generateSite(inputDir, '', givenContext);
+      const generator = new SiteGenerator({ inputDir, fileService: mockFileService });
+      const actualSiteFiles = await generator.generateSite('', givenContext);
 
       expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
     });
   });
 
   describe('generateBlog', () => {
-    it('should generate blog', () => {
-      const generator = new SiteGenerator();
-      const blogResults = generator.generateBlog('Articles:\n##CHILD##', [
-        { path: 'foo.html', content: 'FOO' },
-        { path: 'bar.html', content: 'BAR' },
-      ]);
-
-      expect(blogResults.blog).toEqual('Articles:\nFOO\nBAR');
-    });
-
-    it('should report missing metadata warnings', () => {
+    it('should generate blog', async () => {
       const reporter = new Reporter();
       const reportTracker = reporter.trackReports();
 
-      const generator = new SiteGenerator({ reporter });
-      generator.generateBlog('##CONTENT##', [{ path: 'foo.html', content: 'FOO' }], givenContext);
+      const generator = new SiteGenerator({
+        reporter,
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue([
+            { path: 'foo.html', content: 'FOO' },
+            { path: 'bar.html', content: 'BAR' },
+          ]),
+        }),
+      });
 
+      const blogResults = await generator.generateBlog('Articles:\n##CHILD##');
+
+      expect(blogResults.blog).toEqual('Articles:\nFOO\nBAR');
       expect(reportTracker.data).toEqual([
         {
           level: 'warning',
@@ -175,6 +175,18 @@ FooContent
         {
           level: 'warning',
           message: `foo.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `bar.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `bar.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `bar.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
         },
       ]);
     });
