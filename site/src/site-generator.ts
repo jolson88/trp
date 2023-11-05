@@ -38,11 +38,6 @@ export enum ArticlePropertyKey {
   imageHeight = 'IMAGE-HEIGHT',
 }
 
-export interface GenerateSiteOptions {
-  fileService: FileService;
-  reporter: Reporter;
-}
-
 export interface SiteGeneratorOptions {
   fileService: FileService;
   reporter: Reporter;
