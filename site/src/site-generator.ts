@@ -63,23 +63,21 @@ export class SiteGenerator {
     outputDir: string,
     context: SiteContext = defaultContext
   ): Promise<Array<OutputFile>> {
-    const inputFiles = await this.fileService.readFiles(this.inputDir);
+    const siteTemplateFile = await this.fileService.readFile(
+      path.join(this.inputDir, '_site.html')
+    );
+    const aboutFile = await this.fileService.readFile(path.join(this.inputDir, 'about.html'));
+    const contactFile = await this.fileService.readFile(path.join(this.inputDir, 'contact.html'));
 
-    const about = processPage(
-      inputFiles.siteTemplateFile.content,
-      inputFiles.aboutFile.content,
-      context,
-      { removeUnusedInputs: true }
-    ).text;
-    const contact = processPage(
-      inputFiles.siteTemplateFile.content,
-      inputFiles.contactFile.content,
-      context,
-      { removeUnusedInputs: true }
-    ).text;
+    const about = processPage(siteTemplateFile.content, aboutFile.content, context, {
+      removeUnusedInputs: true,
+    }).text;
+    const contact = processPage(siteTemplateFile.content, contactFile.content, context, {
+      removeUnusedInputs: true,
+    }).text;
     const { summary: blog, articles: blogPosts } = await this.generateSection(
       'blog',
-      inputFiles.siteTemplateFile.content,
+      siteTemplateFile.content,
       context
     );
 

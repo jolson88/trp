@@ -41,15 +41,6 @@ export function parseInfoFromFileName(fileName: string): {
 }
 
 export class FileService {
-  public async readFiles(inputDir: string): Promise<InputFiles> {
-    return {
-      siteTemplateFile: await this.readFile(path.join(inputDir, '_site.html')),
-      aboutFile: await this.readFile(path.join(inputDir, 'about.html')),
-      blogFiles: await this.readDirectory(path.join(inputDir, 'blog')),
-      contactFile: await this.readFile(path.join(inputDir, 'contact.html')),
-    };
-  }
-
   public async writeFile(filePath: string, content: string): Promise<boolean> {
     const outputDir = path.parse(filePath).dir;
     await fs.mkdir(outputDir, { recursive: true });
