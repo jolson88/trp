@@ -1,6 +1,6 @@
 import * as path from 'path';
 import { processPage } from './template-processor';
-import { FileService, InputFile, parseInfoFromFileName } from './file-service';
+import { FileService, parseInfoFromFileName } from './file-service';
 import { Reporter } from './reporter';
 import { generateOpenGraphSlug } from './social-slugger';
 

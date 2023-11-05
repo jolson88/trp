@@ -45,14 +45,14 @@ describe('File Services', () => {
   });
 
   it('should read a directory non-recursively', async () => {
-    const postDir = 'src/test/data/site/blog';
+    const postDir = 'src/test/data';
 
     const files = await fileService.readDirectory(postDir);
 
     expect(files).toEqual([
-      { path: path.join(postDir, '2023-01-01-foo.html'), content: 'Foo' },
-      { path: path.join(postDir, '2023-02-02-bar.html'), content: 'Bar' },
-      { path: path.join(postDir, '2023-03-03-baz.html'), content: 'Baz' },
+      { path: path.join(postDir, 'test-1.html'), content: 'Foo' },
+      { path: path.join(postDir, 'test-2.html'), content: 'Bar' },
+      { path: path.join(postDir, 'test-3.html'), content: 'Baz' },
     ]);
   });
 });

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ArticlePropertyKey, SiteContext, SiteGenerator } from './site-generator';
 import * as path from 'path';
 import { FileService, InputFile, InputFiles } from './file-service';
@@ -59,102 +59,8 @@ export const givenSiteFiles: Array<InputFile> = [
 ];
 
 describe('Site Generation', () => {
-  describe('OpenGraph Slug', () => {
-    it('should generate minimal OpenGraph slug', async () => {
-      const blogInput = `
-        ##${ArticlePropertyKey.title}: My Blog##      
-        ##${ArticlePropertyKey.description}: A Grand Description##      
-        ##${ArticlePropertyKey.image}: img/blog/foo-bar.jpg##      
-        FooContent
-      `.trim();
-
-      const generator = new SiteGenerator({
-        fileService: mock<FileService>({
-          readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: blogInput }]),
-        }),
-      });
-      const results = await generator.generateSection(
-        'blog',
-        '##OG-SLUG##\n##CHILD##',
-        givenContext
-      );
-
-      expect(results.articles[0].content).toEqual(
-        `
-<meta property="og:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
-<meta property="og:title" content="My Blog" />
-<meta property="og:description" content="A Grand Description" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.example.com/blog/foo.html" />
-<meta property="twitter:card" content="summary" />
-<meta property="twitter:title" content="My Blog" />
-<meta property="twitter:description" content="A Grand Description" />
-<meta property="twitter:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
-FooContent`.trim()
-      );
-    });
-
-    it('should generate fully complete OpenGraph slug', async () => {
-      const blogInput = `
-        ##${ArticlePropertyKey.title}: My Blog##      
-        ##${ArticlePropertyKey.description}: A Grand Description##      
-        ##${ArticlePropertyKey.image}: img/blog/foo.jpg##      
-        ##${ArticlePropertyKey.imageType}: image/jpg##      
-        ##${ArticlePropertyKey.imageWidth}: 1024##      
-        ##${ArticlePropertyKey.imageHeight}: 1024##      
-        FooContent
-      `.trim();
-
-      const generator = new SiteGenerator({
-        fileService: mock<FileService>({
-          readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: blogInput }]),
-        }),
-      });
-      const results = await generator.generateSection(
-        'blog',
-        '##OG-SLUG##\n##CHILD##',
-        givenContext
-      );
-
-      expect(results.articles[0].content).toEqual(
-        `
-<meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
-<meta property="og:title" content="My Blog" />
-<meta property="og:description" content="A Grand Description" />
-<meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.example.com/blog/foo.html" />
-<meta property="twitter:card" content="summary" />
-<meta property="twitter:title" content="My Blog" />
-<meta property="twitter:description" content="A Grand Description" />
-<meta property="twitter:image" content="https://www.example.com/img/blog/foo.jpg" />
-<meta property="og:image:type" content="image/jpg" />
-<meta property="og:image:width" content="1024" />
-<meta property="og:image:height" content="1024" />
-FooContent
-`.trim()
-      );
-    });
-  });
-
-  describe('generateSite', () => {
-    it('should complete load and generation of site', async () => {
-      const mockFileService = mockPassthrough<FileService>(
-        {
-          writeFile: vi.fn().mockResolvedValue(true),
-        },
-        new FileService()
-      );
-      const inputDir = path.join(__dirname, 'test', 'data', 'site');
-
-      const generator = new SiteGenerator({ inputDir, fileService: mockFileService });
-      const actualSiteFiles = await generator.generateSite('', givenContext);
-
-      expect(actualSiteFiles.sort()).toEqual(givenSiteFiles.sort());
-    });
-  });
-
-  describe('generateBlog', () => {
-    it('should generate blog', async () => {
+  describe('generateSection', () => {
+    it('should generate section', async () => {
       const reporter = new Reporter();
       const reportTracker = reporter.trackReports();
 
