@@ -77,7 +77,8 @@ export class SiteGenerator {
       context,
       { removeUnusedInputs: true }
     ).text;
-    const { blog, blogPosts } = await this.generateBlog(
+    const { summary: blog, articles: blogPosts } = await this.generateSection(
+      'blog',
       inputFiles.siteTemplateFile.content,
       context
     );
@@ -95,39 +96,42 @@ export class SiteGenerator {
     return siteFiles;
   }
 
-  public async generateBlog(
+  public async generateSection(
+    section: string,
     siteTemplate: string,
     context: SiteContext = defaultContext
-  ): Promise<{ blog: string; blogPosts: Array<Article> }> {
-    const inputPostFiles = await this.fileService.readDirectory(path.join(this.inputDir, 'blog'));
+  ): Promise<{ summary: string; articles: Array<Article> }> {
+    const inputArticleFiles = await this.fileService.readDirectory(
+      path.join(this.inputDir, section)
+    );
 
-    const posts: Array<Article> = [];
-    for (const post of inputPostFiles) {
-      const fileName = path.parse(post.path).name;
+    const articles: Array<Article> = [];
+    for (const articleFile of inputArticleFiles) {
+      const fileName = path.parse(articleFile.path).name;
       const fileInfo = parseInfoFromFileName(fileName);
-      const url = `blog/${fileInfo.fileName}.html`;
-      const processedPage = processPage(post.content, '', { ...context, url });
+      const url = `${section}/${fileInfo.fileName}.html`;
+      const processedPage = processPage(articleFile.content, '', { ...context, url });
 
       if (!processedPage.properties.has(ArticlePropertyKey.title)) {
         this.reporter.report(
           'warning',
-          `${post.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
+          `${articleFile.path} does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`
         );
       }
       if (!processedPage.properties.has(ArticlePropertyKey.description)) {
         this.reporter.report(
           'warning',
-          `${post.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
+          `${articleFile.path} does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`
         );
       }
       if (!processedPage.properties.has(ArticlePropertyKey.image)) {
         this.reporter.report(
           'warning',
-          `${post.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
+          `${articleFile.path} does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`
         );
       }
 
-      posts.push({
+      articles.push({
         fileName: fileInfo.fileName,
         content: processedPage.text,
         properties: processedPage.properties,
@@ -136,18 +140,20 @@ export class SiteGenerator {
       });
     }
 
-    const processedPosts = posts
+    const summarizedArticles = articles
       .sort((first, second) => second.originalDate.getTime() - first.originalDate.getTime())
+      .slice(0, 5)
       .map((blogPost) => blogPost.content)
       .join('\n');
 
     return {
-      blog: processPage(siteTemplate, processedPosts, context, { removeUnusedInputs: true }).text,
-      blogPosts: posts.map((blogPost) => ({
-        ...blogPost,
-        content: processPage(siteTemplate, blogPost.content, {
+      summary: processPage(siteTemplate, summarizedArticles, context, { removeUnusedInputs: true })
+        .text,
+      articles: articles.map((article) => ({
+        ...article,
+        content: processPage(siteTemplate, article.content, {
           ...context,
-          ogSlug: generateOpenGraphSlug(context, blogPost),
+          ogSlug: generateOpenGraphSlug(context, article),
         }).text,
       })),
     };

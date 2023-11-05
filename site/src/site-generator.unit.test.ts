@@ -73,9 +73,13 @@ describe('Site Generation', () => {
           readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: blogInput }]),
         }),
       });
-      const blogResults = await generator.generateBlog('##OG-SLUG##\n##CHILD##', givenContext);
+      const results = await generator.generateSection(
+        'blog',
+        '##OG-SLUG##\n##CHILD##',
+        givenContext
+      );
 
-      expect(blogResults.blogPosts[0].content).toEqual(
+      expect(results.articles[0].content).toEqual(
         `
 <meta property="og:image" content="https://www.example.com/img/blog/foo-bar.jpg" />
 <meta property="og:title" content="My Blog" />
@@ -106,9 +110,13 @@ FooContent`.trim()
           readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: blogInput }]),
         }),
       });
-      const blogResults = await generator.generateBlog('##OG-SLUG##\n##CHILD##', givenContext);
+      const results = await generator.generateSection(
+        'blog',
+        '##OG-SLUG##\n##CHILD##',
+        givenContext
+      );
 
-      expect(blogResults.blogPosts[0].content).toEqual(
+      expect(results.articles[0].content).toEqual(
         `
 <meta property="og:image" content="https://www.example.com/img/blog/foo.jpg" />
 <meta property="og:title" content="My Blog" />
@@ -154,39 +162,39 @@ FooContent
         reporter,
         fileService: mock<FileService>({
           readDirectory: vi.fn().mockResolvedValue([
-            { path: 'foo.html', content: 'FOO' },
-            { path: 'bar.html', content: 'BAR' },
+            { path: '2023-01-01-foo.html', content: 'FOO' },
+            { path: '2023-02-02-bar.html', content: 'BAR' },
           ]),
         }),
       });
 
-      const blogResults = await generator.generateBlog('Articles:\n##CHILD##');
+      const results = await generator.generateSection('blog', 'Articles:\n##CHILD##');
 
-      expect(blogResults.blog).toEqual('Articles:\nFOO\nBAR');
+      expect(results.summary).toEqual('Articles:\nBAR\nFOO');
       expect(reportTracker.data).toEqual([
         {
           level: 'warning',
-          message: `foo.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
+          message: `2023-01-01-foo.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
         },
         {
           level: 'warning',
-          message: `foo.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
+          message: `2023-01-01-foo.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
         },
         {
           level: 'warning',
-          message: `foo.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
+          message: `2023-01-01-foo.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
         },
         {
           level: 'warning',
-          message: `bar.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
+          message: `2023-02-02-bar.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
         },
         {
           level: 'warning',
-          message: `bar.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
+          message: `2023-02-02-bar.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
         },
         {
           level: 'warning',
-          message: `bar.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
+          message: `2023-02-02-bar.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
         },
       ]);
     });
