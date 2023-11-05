@@ -88,9 +88,6 @@ export class SiteGenerator {
     ];
 
     siteFiles.push(...blogPosts.map((post) => ({ content: post.content, path: post.url })));
-    for (const siteFile of siteFiles) {
-      await this.fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
-    }
     return siteFiles;
   }
 

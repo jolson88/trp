@@ -4,6 +4,7 @@ import liveServer from 'live-server';
 import * as fs from 'fs/promises';
 import { SiteContext, SiteGenerator, defaultContext } from './site-generator';
 import { Reporter } from './reporter';
+import { FileService } from './file-service';
 
 const serverParams: liveServer.LiveServerParams = {
   port: 8080,
@@ -65,8 +66,9 @@ async function outputSite(
   console.log('Generating site...\n');
   const reporter = new Reporter();
   const reportTracker = reporter.trackReports();
-  const generator = new SiteGenerator({ inputDir, reporter });
-  await generator.generateSite(outputDir, context);
+  const fileService = new FileService();
+  const generator = new SiteGenerator({ inputDir, fileService, reporter });
+  const siteFiles = await generator.generateSite(outputDir, context);
 
   const reportCount = reportTracker.data.length;
   if (reportCount > 0) {
@@ -74,6 +76,10 @@ async function outputSite(
     console.log(
       reportTracker.data.map((report) => `[${report.level}] ${report.message}`).join('\n')
     );
+  }
+
+  for (const siteFile of siteFiles) {
+    await fileService.writeFile(path.join(outputDir, siteFile.path), siteFile.content);
   }
 }
 
