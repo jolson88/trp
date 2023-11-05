@@ -9,7 +9,7 @@ export interface OutputFile {
   content: string;
 }
 
-export interface BlogPost {
+export interface Article {
   fileName: string;
   content: string;
   properties: Map<string, string>;
@@ -102,12 +102,12 @@ export class SiteGenerator {
     siteTemplate: string,
     inputPostFiles: Array<InputFile>,
     context: SiteContext = defaultContext
-  ): { blog: string; blogPosts: Array<BlogPost> } {
-    const posts: Array<BlogPost> = [];
+  ): { blog: string; blogPosts: Array<Article> } {
+    const posts: Array<Article> = [];
     for (const post of inputPostFiles) {
       const fileName = path.parse(post.path).name;
       const fileInfo = parseInfoFromFileName(fileName);
-      const url = `posts/${fileInfo.fileName}.html`;
+      const url = `blog/${fileInfo.fileName}.html`;
       const processedPage = processPage(post.content, '', { ...context, url });
 
       if (!processedPage.properties.has(ArticlePropertyKey.title)) {
@@ -149,7 +149,7 @@ export class SiteGenerator {
         ...blogPost,
         content: processPage(siteTemplate, blogPost.content, {
           ...context,
-          ogCard: generateOpenGraphSlug(context, blogPost),
+          ogSlug: generateOpenGraphSlug(context, blogPost),
         }).text,
       })),
     };

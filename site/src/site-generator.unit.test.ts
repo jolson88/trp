@@ -17,9 +17,9 @@ export const givenInputSiteFiles: InputFiles = {
     content: 'AboutMe',
   },
   blogFiles: [
-    { path: '2023-01-01-foo.html', content: 'Foo - ##URL##' },
-    { path: '2023-02-02-bar.html', content: 'Bar - ##URL##' },
-    { path: '2023-03-03-baz.html', content: 'Baz - ##URL##' },
+    { path: '2023-01-01-foo.html', content: 'Foo' },
+    { path: '2023-02-02-bar.html', content: 'Bar' },
+    { path: '2023-03-03-baz.html', content: 'Baz' },
   ],
   contactFile: {
     path: 'contact.html',
@@ -34,7 +34,7 @@ export const givenInputSiteFiles: InputFiles = {
 export const givenSiteFiles: Array<InputFile> = [
   {
     path: 'blog.html',
-    content: `${givenContext.siteTitle} StartBase Baz - posts/baz.html\nBar - posts/bar.html\nFoo - posts/foo.html EndBase ${givenContext.year}`,
+    content: `${givenContext.siteTitle} StartBase Baz\nBar\nFoo EndBase ${givenContext.year}`,
   },
   {
     path: 'contact.html',
@@ -45,16 +45,16 @@ export const givenSiteFiles: Array<InputFile> = [
     content: `${givenContext.siteTitle} StartBase AboutMe EndBase ${givenContext.year}`,
   },
   {
-    path: 'posts/baz.html',
-    content: `${givenContext.siteTitle} StartBase Baz - posts/baz.html EndBase ${givenContext.year}`,
+    path: 'blog/baz.html',
+    content: `${givenContext.siteTitle} StartBase Baz EndBase ${givenContext.year}`,
   },
   {
-    path: 'posts/bar.html',
-    content: `${givenContext.siteTitle} StartBase Bar - posts/bar.html EndBase ${givenContext.year}`,
+    path: 'blog/bar.html',
+    content: `${givenContext.siteTitle} StartBase Bar EndBase ${givenContext.year}`,
   },
   {
-    path: 'posts/foo.html',
-    content: `${givenContext.siteTitle} StartBase Foo - posts/foo.html EndBase ${givenContext.year}`,
+    path: 'blog/foo.html',
+    content: `${givenContext.siteTitle} StartBase Foo EndBase ${givenContext.year}`,
   },
 ];
 
@@ -70,7 +70,7 @@ describe('Site Generation', () => {
 
       const generator = new SiteGenerator();
       const blogResults = generator.generateBlog(
-        '##OG-CARD##\n##CHILD##',
+        '##OG-SLUG##\n##CHILD##',
         [{ path: 'foo.html', content: blogInput }],
         givenContext
       );
@@ -81,7 +81,7 @@ describe('Site Generation', () => {
 <meta property="og:title" content="My Blog" />
 <meta property="og:description" content="A Grand Description" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.example.com/posts/foo.html" />
+<meta property="og:url" content="https://www.example.com/blog/foo.html" />
 <meta property="twitter:card" content="summary" />
 <meta property="twitter:title" content="My Blog" />
 <meta property="twitter:description" content="A Grand Description" />
@@ -103,7 +103,7 @@ FooContent`.trim()
 
       const generator = new SiteGenerator();
       const blogResults = generator.generateBlog(
-        '##OG-CARD##\n##CHILD##',
+        '##OG-SLUG##\n##CHILD##',
         [{ path: 'foo.html', content: blogInput }],
         givenContext
       );
@@ -114,7 +114,7 @@ FooContent`.trim()
 <meta property="og:title" content="My Blog" />
 <meta property="og:description" content="A Grand Description" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://www.example.com/posts/foo.html" />
+<meta property="og:url" content="https://www.example.com/blog/foo.html" />
 <meta property="twitter:card" content="summary" />
 <meta property="twitter:title" content="My Blog" />
 <meta property="twitter:description" content="A Grand Description" />
@@ -148,12 +148,12 @@ FooContent
   describe('generateBlog', () => {
     it('should generate blog', () => {
       const generator = new SiteGenerator();
-      const blogResults = generator.generateBlog('Blog Posts:\n##CHILD##', [
+      const blogResults = generator.generateBlog('Articles:\n##CHILD##', [
         { path: 'foo.html', content: 'FOO' },
         { path: 'bar.html', content: 'BAR' },
       ]);
 
-      expect(blogResults.blog).toEqual('Blog Posts:\nFOO\nBAR');
+      expect(blogResults.blog).toEqual('Articles:\nFOO\nBAR');
     });
 
     it('should report missing metadata warnings', () => {

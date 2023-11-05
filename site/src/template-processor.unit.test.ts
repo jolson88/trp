@@ -15,9 +15,9 @@ describe('processPage', () => {
   });
 
   it('should return output metadata', () => {
-    const page = processPage('SITE ##CHILD##', '##IMAGE: posts/img/foo-bar.jpg##FooContent', {});
+    const page = processPage('SITE ##CHILD##', '##IMAGE: foo/bar-baz.jpg##FooContent', {});
 
-    expect([...page.properties.entries()]).toEqual([['IMAGE', 'posts/img/foo-bar.jpg']]);
+    expect([...page.properties.entries()]).toEqual([['IMAGE', 'foo/bar-baz.jpg']]);
     expect(page.text).toEqual('SITE FooContent');
   });
 
@@ -36,8 +36,8 @@ describe('processPage', () => {
   });
 
   it('should ignore key symbols when looking up into context', () => {
-    const page = processPage('SITE ##OG-CARD## ##CHILD##', 'FooContent', {
-      ogCard: 'SLUG',
+    const page = processPage('SITE ##OG-SLUG## ##CHILD##', 'FooContent', {
+      ogSlug: 'SLUG',
     });
 
     expect(page.text).toEqual('SITE SLUG FooContent');

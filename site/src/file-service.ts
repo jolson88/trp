@@ -45,7 +45,7 @@ export class FileService {
     return {
       siteTemplateFile: await this.readFile(path.join(inputDir, '_site.html')),
       aboutFile: await this.readFile(path.join(inputDir, 'about.html')),
-      blogFiles: await this.readDirectory(path.join(inputDir, 'posts')),
+      blogFiles: await this.readDirectory(path.join(inputDir, 'blog')),
       contactFile: await this.readFile(path.join(inputDir, 'contact.html')),
     };
   }

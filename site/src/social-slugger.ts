@@ -1,6 +1,6 @@
-import { ArticlePropertyKey, BlogPost, SiteContext } from './site-generator';
+import { ArticlePropertyKey, Article, SiteContext } from './site-generator';
 
-export function generateOpenGraphSlug(context: SiteContext, post: BlogPost): string {
+export function generateOpenGraphSlug(context: SiteContext, post: Article): string {
   const { properties } = post;
   const imageUrl = new URL(properties.get(ArticlePropertyKey.image) ?? '', context.siteUrl);
   const pageUrl = new URL(post.url, context.siteUrl);
