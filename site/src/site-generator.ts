@@ -23,9 +23,9 @@ export interface SiteContext {
   year: number;
 }
 
-export const defaultContext: SiteContext = {
-  siteTitle: 'The Reasonable Programmer',
-  siteUrl: 'https://www.jolson88.com/',
+const defaultContext: SiteContext = {
+  siteTitle: 'THIS BLOG IS NOT SET',
+  siteUrl: 'https://www.SETTHISUP.com/',
   year: new Date().getFullYear(),
 };
 
@@ -59,10 +59,7 @@ export class SiteGenerator {
     this.reporter = reporter;
   }
 
-  public async generateSite(
-    outputDir: string,
-    context: SiteContext = defaultContext
-  ): Promise<Array<OutputFile>> {
+  public async generateSite(context: SiteContext = defaultContext): Promise<Array<OutputFile>> {
     const siteTemplateFile = await this.fileService.readFile(
       path.join(this.inputDir, '_site.html')
     );

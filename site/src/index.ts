@@ -2,7 +2,7 @@ import * as path from 'path';
 import { existsSync } from 'fs';
 import liveServer from 'live-server';
 import * as fs from 'fs/promises';
-import { SiteContext, SiteGenerator, defaultContext } from './site-generator';
+import { SiteContext, SiteGenerator } from './site-generator';
 import { Reporter } from './reporter';
 import { FileService } from './file-service';
 
@@ -13,6 +13,12 @@ const serverParams: liveServer.LiveServerParams = {
   open: true,
   wait: 300,
   logLevel: 2,
+};
+
+const siteContext: SiteContext = {
+  siteTitle: 'The Reasonable Programmer',
+  siteUrl: 'https://www.jolson88.com/',
+  year: new Date().getFullYear(),
 };
 
 async function main(args: Array<string>): Promise<void> {
@@ -37,7 +43,7 @@ async function main(args: Array<string>): Promise<void> {
   const publicDir = path.join(process.cwd(), 'public');
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
-  await outputSite(inputDir, outputDir, defaultContext);
+  await outputSite(inputDir, outputDir);
   if (!isWatching) {
     return;
   }
@@ -51,24 +57,20 @@ async function main(args: Array<string>): Promise<void> {
   const watcher = fs.watch(inputDir, { recursive: true });
   for await (const _ of watcher) {
     console.log(`[${new Date()}] Changes detected in input files. Regenerating site.`);
-    await outputSite(inputDir, outputDir, defaultContext);
+    await outputSite(inputDir, outputDir);
   }
 
   console.log('Shutting down live server');
   liveServer.shutdown();
 }
 
-async function outputSite(
-  inputDir: string,
-  outputDir: string,
-  context: SiteContext
-): Promise<void> {
+async function outputSite(inputDir: string, outputDir: string): Promise<void> {
   console.log('Generating site...\n');
   const reporter = new Reporter();
   const reportTracker = reporter.trackReports();
   const fileService = new FileService();
   const generator = new SiteGenerator({ inputDir, fileService, reporter });
-  const siteFiles = await generator.generateSite(outputDir, context);
+  const siteFiles = await generator.generateSite(siteContext);
 
   const reportCount = reportTracker.data.length;
   if (reportCount > 0) {

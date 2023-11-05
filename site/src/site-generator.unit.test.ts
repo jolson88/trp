@@ -1,62 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { ArticlePropertyKey, SiteContext, SiteGenerator } from './site-generator';
-import * as path from 'path';
-import { FileService, InputFile, InputFiles } from './file-service';
-import { mock, mockPassthrough } from './test/mocking';
+import { FileService } from './file-service';
+import { mock } from './test/mocking';
 import { Reporter } from './reporter';
 
 export const givenContext: SiteContext = {
-  siteTitle: 'The Reasonable Programmer',
-  siteUrl: 'https://www.example.com',
+  siteTitle: 'My Website',
+  siteUrl: 'https://www.foo.com',
   year: new Date().getFullYear(),
 };
-
-export const givenInputSiteFiles: InputFiles = {
-  aboutFile: {
-    path: 'about.html',
-    content: 'AboutMe',
-  },
-  blogFiles: [
-    { path: '2023-01-01-foo.html', content: 'Foo' },
-    { path: '2023-02-02-bar.html', content: 'Bar' },
-    { path: '2023-03-03-baz.html', content: 'Baz' },
-  ],
-  contactFile: {
-    path: 'contact.html',
-    content: 'ContactContent',
-  },
-  siteTemplateFile: {
-    path: '_site.html',
-    content: '##TITLE## StartBase ##CHILD## EndBase ##YEAR##',
-  },
-};
-
-export const givenSiteFiles: Array<InputFile> = [
-  {
-    path: 'blog.html',
-    content: `${givenContext.siteTitle} StartBase Baz\nBar\nFoo EndBase ${givenContext.year}`,
-  },
-  {
-    path: 'contact.html',
-    content: `${givenContext.siteTitle} StartBase ContactContent EndBase ${givenContext.year}`,
-  },
-  {
-    path: 'index.html',
-    content: `${givenContext.siteTitle} StartBase AboutMe EndBase ${givenContext.year}`,
-  },
-  {
-    path: 'blog/baz.html',
-    content: `${givenContext.siteTitle} StartBase Baz EndBase ${givenContext.year}`,
-  },
-  {
-    path: 'blog/bar.html',
-    content: `${givenContext.siteTitle} StartBase Bar EndBase ${givenContext.year}`,
-  },
-  {
-    path: 'blog/foo.html',
-    content: `${givenContext.siteTitle} StartBase Foo EndBase ${givenContext.year}`,
-  },
-];
 
 describe('Site Generation', () => {
   describe('generateSection', () => {
@@ -74,9 +26,9 @@ describe('Site Generation', () => {
         }),
       });
 
-      const results = await generator.generateSection('blog', 'Articles:\n##CHILD##');
+      const results = await generator.generateSection('blog', '##CHILD##');
 
-      expect(results.summary).toEqual('Articles:\nBAR\nFOO');
+      expect(results.summary).toEqual('BAR\nFOO');
       expect(reportTracker.data).toEqual([
         {
           level: 'warning',
