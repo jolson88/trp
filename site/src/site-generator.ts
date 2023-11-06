@@ -23,12 +23,6 @@ export interface SiteContext {
   year: number;
 }
 
-const defaultContext: SiteContext = {
-  siteTitle: 'THIS BLOG IS NOT SET',
-  siteUrl: 'https://www.SETTHISUP.com/',
-  year: new Date().getFullYear(),
-};
-
 export enum ArticlePropertyKey {
   title = 'TITLE',
   description = 'DESCRIPTION',
@@ -59,7 +53,7 @@ export class SiteGenerator {
     this.reporter = reporter;
   }
 
-  public async generateSite(context: SiteContext = defaultContext): Promise<Array<OutputFile>> {
+  public async generateSite(context: SiteContext): Promise<Array<OutputFile>> {
     const siteTemplateFile = await this.fileService.readFile(
       path.join(this.inputDir, '_site.html')
     );
@@ -91,7 +85,7 @@ export class SiteGenerator {
   public async generateSection(
     section: string,
     siteTemplate: string,
-    context: SiteContext = defaultContext
+    context: SiteContext
   ): Promise<{ summary: string; articles: Array<Article> }> {
     const inputArticleFiles = await this.fileService.readDirectory(
       path.join(this.inputDir, section)

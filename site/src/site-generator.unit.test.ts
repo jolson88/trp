@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ArticlePropertyKey, OutputFile, SiteContext, SiteGenerator } from './site-generator';
+import { ArticlePropertyKey, SiteContext, SiteGenerator } from './site-generator';
 import { FileService, InputFile } from './file-service';
 import { mock } from './test/mocking';
 import { Reporter } from './reporter';
@@ -23,7 +23,10 @@ describe('Site Generation', () => {
         { path: '2023-02-02-two.html', content: '##URL##' },
       ];
 
+      const reporter = new Reporter();
+      const reportTracker = reporter.trackReports();
       const generator = new SiteGenerator({
+        reporter,
         fileService: mock<FileService>({
           readDirectory: vi.fn().mockResolvedValue(blogFiles),
           readFile: vi.fn((path) => Promise.resolve(basicFiles.get(path)!)),
@@ -39,36 +42,30 @@ describe('Site Generation', () => {
       expect(outputFilesLookup.get('blog.html')).toEqual(`Site blog/two.html\nblog/one.html`);
       expect(outputFilesLookup.get('blog/one.html')).toEqual(`Site blog/one.html`);
       expect(outputFilesLookup.get('blog/two.html')).toEqual(`Site blog/two.html`);
-    });
-  });
-
-  describe('generateSection', () => {
-    it('should generate section, including possible warnings', async () => {
-      const reporter = new Reporter();
-      const reportTracker = reporter.trackReports();
-
-      const generator = new SiteGenerator({
-        reporter,
-        fileService: mock<FileService>({
-          readDirectory: vi.fn().mockResolvedValue([{ path: 'foo.html', content: 'FOO' }]),
-        }),
-      });
-
-      const results = await generator.generateSection('blog', '##CHILD##');
-
-      expect(results.summary).toEqual('FOO');
       expect(reportTracker.data).toEqual([
         {
           level: 'warning',
-          message: `foo.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
+          message: `2023-01-01-one.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
         },
         {
           level: 'warning',
-          message: `foo.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
+          message: `2023-01-01-one.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
         },
         {
           level: 'warning',
-          message: `foo.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
+          message: `2023-01-01-one.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `2023-02-02-two.html does not have a title. Add "##${ArticlePropertyKey.title}: My Title##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `2023-02-02-two.html does not have a description. Add "##${ArticlePropertyKey.description}: My Description##" to fix`,
+        },
+        {
+          level: 'warning',
+          message: `2023-02-02-two.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
         },
       ]);
     });
