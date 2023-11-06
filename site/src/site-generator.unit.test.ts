@@ -3,6 +3,7 @@ import { ArticlePropertyKey, SiteContext, SiteGenerator } from './site-generator
 import { FileService, InputFile } from './file-service';
 import { mock } from './test/mocking';
 import { Reporter } from './reporter';
+import { SocialSlugger } from './social-slugger';
 
 export const givenContext: SiteContext = {
   siteTitle: 'My Website',
@@ -68,6 +69,48 @@ describe('Site Generation', () => {
           message: `2023-02-02-two.html does not have an image. Add "##${ArticlePropertyKey.image}: /img/blog/something.jpg##" to fix`,
         },
       ]);
+    });
+
+    it('should include OpenGraph slug', async () => {
+      const blogFiles = [{ path: 'one.html', content: 'ONE' }];
+
+      const generator = new SiteGenerator({
+        socialSlugger: mock<SocialSlugger>({
+          generateOpenGraphSlug: vi.fn().mockReturnValue('SLUG'),
+        }),
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue(blogFiles),
+          readFile: vi.fn((path) => Promise.resolve({ path, content: '##OG-SLUG##' })),
+        }),
+      });
+      const outputFiles = await generator.generateSite(givenContext);
+
+      const blogArticleFile = outputFiles.find((file) => file.path === 'blog/one.html');
+      expect(blogArticleFile).toBeDefined();
+      expect(blogArticleFile?.content).toBe('SLUG');
+    });
+
+    it('should include only top five articles in summary', async () => {
+      const blogFiles = [
+        { path: '2023-01-01-one.html', content: 'FIZZBUZZ!' },
+        { path: '2023-02-02-two.html', content: 'TWO' },
+        { path: '2023-03-03-three.html', content: 'THREE' },
+        { path: '2023-04-04-four.html', content: 'FOUR' },
+        { path: '2023-05-05-five.html', content: 'FIVE' },
+        { path: '2023-06-06-six.html', content: 'SIX' },
+      ];
+
+      const generator = new SiteGenerator({
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue(blogFiles),
+          readFile: vi.fn((path) => Promise.resolve({ path, content: '##CHILD##' })),
+        }),
+      });
+      const outputFiles = await generator.generateSite(givenContext);
+
+      const blogSummaryFile = outputFiles.find((file) => file.path === 'blog.html');
+      expect(blogSummaryFile).toBeDefined();
+      expect(blogSummaryFile?.content).toBe('SIX\nFIVE\nFOUR\nTHREE\nTWO');
     });
   });
 });

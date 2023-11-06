@@ -86,7 +86,7 @@ export class SiteGenerator {
     return siteFiles;
   }
 
-  public async generateSection(
+  private async generateSection(
     section: string,
     siteTemplate: string,
     context: SiteContext
