@@ -11,7 +11,7 @@ export function parseInfoFromFileName(fileName: string): {
   fileName: string;
 } {
   const defaultInfo = {
-    date: new Date(1970, 1, 1),
+    date: new Date(2200, 1, 1),
     fileName,
   };
 

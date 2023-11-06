@@ -43,7 +43,7 @@ async function main(args: Array<string>): Promise<void> {
   const publicDir = path.join(process.cwd(), 'public');
   await fs.cp(publicDir, outputDir, { recursive: true, force: true });
 
-  await outputSite(inputDir, outputDir);
+  await outputSite(inputDir, outputDir, isWatching);
   if (!isWatching) {
     return;
   }
@@ -57,20 +57,20 @@ async function main(args: Array<string>): Promise<void> {
   const watcher = fs.watch(inputDir, { recursive: true });
   for await (const _ of watcher) {
     console.log(`[${new Date()}] Changes detected in input files. Regenerating site.`);
-    await outputSite(inputDir, outputDir);
+    await outputSite(inputDir, outputDir, isWatching);
   }
 
   console.log('Shutting down live server');
   liveServer.shutdown();
 }
 
-async function outputSite(inputDir: string, outputDir: string): Promise<void> {
+async function outputSite(inputDir: string, outputDir: string, isWatching: boolean): Promise<void> {
   console.log('Generating site...\n');
   const reporter = new Reporter();
   const reportTracker = reporter.trackReports();
   const fileService = new FileService();
   const generator = new SiteGenerator({ inputDir, fileService, reporter });
-  const siteFiles = await generator.generateSite(siteContext);
+  const siteFiles = await generator.generateSite(siteContext, { includeDrafts: isWatching });
 
   const reportCount = reportTracker.data.length;
   if (reportCount > 0) {

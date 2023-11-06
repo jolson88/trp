@@ -101,7 +101,7 @@ describe('Site Generation', () => {
     });
 
     it('should include social slugs in individual articles but not summaries', async () => {
-      const blogFiles = [{ path: 'one.html', content: 'One' }];
+      const blogFiles = [{ path: '2023-01-01-one.html', content: 'One' }];
 
       const generator = new SiteGenerator({
         socialSlugger: mock<SocialSlugger>({
@@ -121,6 +121,54 @@ describe('Site Generation', () => {
       expect(blogSummaryFile).toBeDefined();
       expect(blogArticleFile?.content).toBe('OPENGRAPH BAY BAY! OneDISQUS');
       expect(blogSummaryFile?.content).toBe('One');
+    });
+
+    it('should filter out draft articles by default', async () => {
+      const blogFiles = [
+        { path: '2023-01-01-one.html', content: 'One' },
+        { path: '2023-02-02-two.html', content: 'Two' },
+        { path: '2023-03-03-three.html', content: 'Three' },
+        { path: 'draft-one.html', content: 'Draft' },
+        { path: 'draft-two.html', content: 'Draft' },
+      ];
+
+      const generator = new SiteGenerator({
+        socialSlugger: mock<SocialSlugger>({
+          generateDisqusSlug: vi.fn().mockReturnValue(''),
+        }),
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue(blogFiles),
+          readFile: vi.fn((path) => Promise.resolve({ path, content: '##CHILD##' })),
+        }),
+      });
+      const outputFiles = await generator.generateSite(givenContext);
+
+      const blogArticleFiles = outputFiles.filter((file) => file.path.startsWith('blog/'));
+      expect(blogArticleFiles).toHaveLength(3);
+    });
+
+    it('should include draft articles if requested', async () => {
+      const blogFiles = [
+        { path: '2023-01-01-one.html', content: 'One' },
+        { path: '2023-02-02-two.html', content: 'Two' },
+        { path: '2023-03-03-three.html', content: 'Three' },
+        { path: 'draft-one.html', content: 'Draft' },
+        { path: 'draft-two.html', content: 'Draft' },
+      ];
+
+      const generator = new SiteGenerator({
+        socialSlugger: mock<SocialSlugger>({
+          generateDisqusSlug: vi.fn().mockReturnValue(''),
+        }),
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue(blogFiles),
+          readFile: vi.fn((path) => Promise.resolve({ path, content: '##CHILD##' })),
+        }),
+      });
+      const outputFiles = await generator.generateSite(givenContext, { includeDrafts: true });
+
+      const blogArticleFiles = outputFiles.filter((file) => file.path.startsWith('blog/'));
+      expect(blogArticleFiles).toHaveLength(5);
     });
   });
 });

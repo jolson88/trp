@@ -7,12 +7,12 @@ import { FileService, parseInfoFromFileName } from './file-service';
 describe('parseInfoFromFileName', () => {
   it('should use default if no date in file name', () => {
     const fileInfo = parseInfoFromFileName('foo.html');
-    expect(fileInfo.date).toEqual(new Date(1970, 1, 1));
+    expect(fileInfo.date).toEqual(new Date(2200, 1, 1));
   });
 
   it('should use default if first three parts are not numbers', () => {
     const fileInfo = parseInfoFromFileName('foo-bar-baz-quux-quuz.html');
-    expect(fileInfo.date).toEqual(new Date(1970, 1, 1));
+    expect(fileInfo.date).toEqual(new Date(2200, 1, 1));
   });
 });
 

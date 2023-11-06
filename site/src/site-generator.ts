@@ -39,6 +39,10 @@ export interface SiteGeneratorParams {
   socialSlugger?: SocialSlugger;
 }
 
+interface GenerateSiteOptions {
+  includeDrafts?: boolean;
+}
+
 export class SiteGenerator {
   private inputDir: string;
   private fileService: FileService;
@@ -57,7 +61,10 @@ export class SiteGenerator {
     this.socialSlugger = socialSlugger;
   }
 
-  public async generateSite(context: SiteContext): Promise<Array<OutputFile>> {
+  public async generateSite(
+    context: SiteContext,
+    { includeDrafts = false }: GenerateSiteOptions = {}
+  ): Promise<Array<OutputFile>> {
     const siteTemplateFile = await this.fileService.readFile(
       path.join(this.inputDir, '_site.html')
     );
@@ -73,7 +80,8 @@ export class SiteGenerator {
     const { summary: blog, articles: blogPosts } = await this.generateSection(
       'blog',
       siteTemplateFile.content,
-      context
+      context,
+      includeDrafts
     );
 
     const siteFiles = [
@@ -89,7 +97,8 @@ export class SiteGenerator {
   private async generateSection(
     section: string,
     siteTemplate: string,
-    context: SiteContext
+    context: SiteContext,
+    includeDrafts: boolean
   ): Promise<{ summary: string; articles: Array<Article> }> {
     const inputArticleFiles = await this.fileService.readDirectory(
       path.join(this.inputDir, section)
@@ -124,13 +133,15 @@ export class SiteGenerator {
         );
       }
 
-      articles.push({
-        fileName: fileInfo.fileName,
-        content: processedPage.text,
-        properties: processedPage.properties,
-        originalDate: fileInfo.date,
-        url,
-      });
+      if (!this.isDraftArticle(fileInfo.date) || includeDrafts) {
+        articles.push({
+          fileName: fileInfo.fileName,
+          content: processedPage.text,
+          properties: processedPage.properties,
+          originalDate: fileInfo.date,
+          url,
+        });
+      }
     }
 
     const summarizedArticles = articles
@@ -150,5 +161,9 @@ export class SiteGenerator {
         }).text.concat(this.socialSlugger.generateDisqusSlug(context, article.url)),
       })),
     };
+  }
+
+  private isDraftArticle(date: Date): boolean {
+    return date >= new Date(2200, 1, 1);
   }
 }
