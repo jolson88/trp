@@ -19,8 +19,8 @@ describe('Site Generation', () => {
         ['contact.html', { path: 'contact.html', content: '##SITE-URL##' }],
       ]);
       const blogFiles = [
-        { path: 'one.html', content: '##URL##' },
-        { path: 'two.html', content: '##URL##' },
+        { path: '2023-01-01-one.html', content: '##URL##' },
+        { path: '2023-02-02-two.html', content: '##URL##' },
       ];
 
       const generator = new SiteGenerator({
@@ -36,7 +36,7 @@ describe('Site Generation', () => {
 
       expect(outputFilesLookup.get('contact.html')).toEqual(`Site ${givenContext.siteUrl}`);
       expect(outputFilesLookup.get('index.html')).toEqual(`Site ${givenContext.siteTitle}`);
-      expect(outputFilesLookup.get('blog.html')).toEqual(`Site blog/one.html\nblog/two.html`);
+      expect(outputFilesLookup.get('blog.html')).toEqual(`Site blog/two.html\nblog/one.html`);
       expect(outputFilesLookup.get('blog/one.html')).toEqual(`Site blog/one.html`);
       expect(outputFilesLookup.get('blog/two.html')).toEqual(`Site blog/two.html`);
     });
