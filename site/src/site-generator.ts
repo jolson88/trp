@@ -2,7 +2,7 @@ import * as path from 'path';
 import { processPage } from './template-processor';
 import { FileService, parseInfoFromFileName } from './file-service';
 import { Reporter } from './reporter';
-import { generateOpenGraphSlug } from './social-slugger';
+import { SocialSlugger } from './social-slugger';
 
 export interface OutputFile {
   path: string;
@@ -36,21 +36,25 @@ export interface SiteGeneratorParams {
   inputDir?: string;
   fileService?: FileService;
   reporter?: Reporter;
+  socialSlugger?: SocialSlugger;
 }
 
 export class SiteGenerator {
   private inputDir: string;
   private fileService: FileService;
   private reporter: Reporter;
+  private socialSlugger: SocialSlugger;
 
   public constructor({
     inputDir = '',
     fileService = new FileService(),
     reporter = new Reporter(),
+    socialSlugger = new SocialSlugger(),
   }: SiteGeneratorParams = {}) {
     this.inputDir = inputDir;
     this.fileService = fileService;
     this.reporter = reporter;
+    this.socialSlugger = socialSlugger;
   }
 
   public async generateSite(context: SiteContext): Promise<Array<OutputFile>> {
@@ -139,7 +143,7 @@ export class SiteGenerator {
         ...article,
         content: processPage(siteTemplate, article.content, {
           ...context,
-          ogSlug: generateOpenGraphSlug(context, article),
+          ogSlug: this.socialSlugger.generateOpenGraphSlug(context, article),
         }).text,
       })),
     };

@@ -1,13 +1,14 @@
 import { ArticlePropertyKey, Article, SiteContext } from './site-generator';
 
-export function generateOpenGraphSlug(context: SiteContext, post: Article): string {
-  const { properties } = post;
-  const imageUrl = new URL(properties.get(ArticlePropertyKey.image) ?? '', context.siteUrl);
-  const pageUrl = new URL(post.url, context.siteUrl);
-  const title = properties.get(ArticlePropertyKey.title) ?? '';
-  const description = properties.get(ArticlePropertyKey.description) ?? '';
+export class SocialSlugger {
+  public generateOpenGraphSlug(context: SiteContext, post: Article): string {
+    const { properties } = post;
+    const imageUrl = new URL(properties.get(ArticlePropertyKey.image) ?? '', context.siteUrl);
+    const pageUrl = new URL(post.url, context.siteUrl);
+    const title = properties.get(ArticlePropertyKey.title) ?? '';
+    const description = properties.get(ArticlePropertyKey.description) ?? '';
 
-  let slug = `
+    let slug = `
 <meta property="og:image" content="${imageUrl}" />
 <meta property="og:title" content="${title}" />
 <meta property="og:description" content="${description}" />
@@ -19,20 +20,21 @@ export function generateOpenGraphSlug(context: SiteContext, post: Article): stri
 <meta property="twitter:image" content="${imageUrl}" />
   `.trim();
 
-  const imageType = properties.get(ArticlePropertyKey.imageType);
-  if (imageType) {
-    slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`;
-  }
+    const imageType = properties.get(ArticlePropertyKey.imageType);
+    if (imageType) {
+      slug = `${slug}\n<meta property="og:image:type" content="${imageType}" />`;
+    }
 
-  const imageWidth = properties.get(ArticlePropertyKey.imageWidth);
-  if (imageWidth) {
-    slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`;
-  }
+    const imageWidth = properties.get(ArticlePropertyKey.imageWidth);
+    if (imageWidth) {
+      slug = `${slug}\n<meta property="og:image:width" content="${imageWidth}" />`;
+    }
 
-  const imageHeight = properties.get(ArticlePropertyKey.imageHeight);
-  if (imageHeight) {
-    slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`;
-  }
+    const imageHeight = properties.get(ArticlePropertyKey.imageHeight);
+    if (imageHeight) {
+      slug = `${slug}\n<meta property="og:image:height" content="${imageHeight}" />`;
+    }
 
-  return slug;
+    return slug;
+  }
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Article, ArticlePropertyKey, SiteContext } from './site-generator';
-import { generateOpenGraphSlug } from './social-slugger';
+import { SocialSlugger } from './social-slugger';
 
 export const givenContext: SiteContext = {
   siteTitle: 'The Reasonable Programmer',
@@ -23,7 +23,8 @@ describe('Social Slugger', () => {
         url: 'blog/foo.html',
       };
 
-      const slug = generateOpenGraphSlug(givenContext, article);
+      const slugger = new SocialSlugger();
+      const slug = slugger.generateOpenGraphSlug(givenContext, article);
 
       expect(slug).toEqual(
         `
@@ -55,7 +56,8 @@ describe('Social Slugger', () => {
         url: 'blog/foo.html',
       };
 
-      const slug = generateOpenGraphSlug(givenContext, article);
+      const slugger = new SocialSlugger();
+      const slug = slugger.generateOpenGraphSlug(givenContext, article);
 
       expect(slug).toEqual(
         `
