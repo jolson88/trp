@@ -1,13 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
-export interface InputFiles {
-  siteTemplateFile: InputFile;
-  aboutFile: InputFile;
-  blogFiles: Array<InputFile>;
-  contactFile: InputFile;
-}
-
 export interface InputFile {
   path: string;
   content: string;
