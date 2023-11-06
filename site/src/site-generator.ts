@@ -100,7 +100,10 @@ export class SiteGenerator {
       const fileName = path.parse(articleFile.path).name;
       const fileInfo = parseInfoFromFileName(fileName);
       const url = `${section}/${fileInfo.fileName}.html`;
-      const processedPage = processPage(articleFile.content, '', { ...context, url });
+      const processedPage = processPage(articleFile.content, '', {
+        ...context,
+        url,
+      });
 
       if (!processedPage.properties.has(ArticlePropertyKey.title)) {
         this.reporter.report(
@@ -144,7 +147,7 @@ export class SiteGenerator {
         content: processPage(siteTemplate, article.content, {
           ...context,
           ogSlug: this.socialSlugger.generateOpenGraphSlug(context, article),
-        }).text,
+        }).text.concat(this.socialSlugger.generateDisqusSlug(context, article.url)),
       })),
     };
   }

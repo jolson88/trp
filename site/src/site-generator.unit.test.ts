@@ -28,6 +28,9 @@ describe('Site Generation', () => {
       const reportTracker = reporter.trackReports();
       const generator = new SiteGenerator({
         reporter,
+        socialSlugger: mock<SocialSlugger>({
+          generateDisqusSlug: vi.fn().mockReturnValue(''),
+        }),
         fileService: mock<FileService>({
           readDirectory: vi.fn().mockResolvedValue(blogFiles),
           readFile: vi.fn((path) => Promise.resolve(basicFiles.get(path)!)),
@@ -71,25 +74,6 @@ describe('Site Generation', () => {
       ]);
     });
 
-    it('should include OpenGraph slug', async () => {
-      const blogFiles = [{ path: 'one.html', content: 'ONE' }];
-
-      const generator = new SiteGenerator({
-        socialSlugger: mock<SocialSlugger>({
-          generateOpenGraphSlug: vi.fn().mockReturnValue('SLUG'),
-        }),
-        fileService: mock<FileService>({
-          readDirectory: vi.fn().mockResolvedValue(blogFiles),
-          readFile: vi.fn((path) => Promise.resolve({ path, content: '##OG-SLUG##' })),
-        }),
-      });
-      const outputFiles = await generator.generateSite(givenContext);
-
-      const blogArticleFile = outputFiles.find((file) => file.path === 'blog/one.html');
-      expect(blogArticleFile).toBeDefined();
-      expect(blogArticleFile?.content).toBe('SLUG');
-    });
-
     it('should include only top five articles in summary', async () => {
       const blogFiles = [
         { path: '2023-01-01-one.html', content: 'FIZZBUZZ!' },
@@ -101,6 +85,9 @@ describe('Site Generation', () => {
       ];
 
       const generator = new SiteGenerator({
+        socialSlugger: mock<SocialSlugger>({
+          generateDisqusSlug: vi.fn().mockReturnValue(''),
+        }),
         fileService: mock<FileService>({
           readDirectory: vi.fn().mockResolvedValue(blogFiles),
           readFile: vi.fn((path) => Promise.resolve({ path, content: '##CHILD##' })),
@@ -111,6 +98,29 @@ describe('Site Generation', () => {
       const blogSummaryFile = outputFiles.find((file) => file.path === 'blog.html');
       expect(blogSummaryFile).toBeDefined();
       expect(blogSummaryFile?.content).toBe('SIX\nFIVE\nFOUR\nTHREE\nTWO');
+    });
+
+    it('should include social slugs in individual articles but not summaries', async () => {
+      const blogFiles = [{ path: 'one.html', content: 'One' }];
+
+      const generator = new SiteGenerator({
+        socialSlugger: mock<SocialSlugger>({
+          generateDisqusSlug: vi.fn().mockReturnValue('DISQUS'),
+          generateOpenGraphSlug: vi.fn().mockReturnValue('OPENGRAPH BAY BAY!'),
+        }),
+        fileService: mock<FileService>({
+          readDirectory: vi.fn().mockResolvedValue(blogFiles),
+          readFile: vi.fn((path) => Promise.resolve({ path, content: '##OG-SLUG## ##CHILD##' })),
+        }),
+      });
+      const outputFiles = await generator.generateSite(givenContext);
+
+      const blogArticleFile = outputFiles.find((file) => file.path === 'blog/one.html');
+      const blogSummaryFile = outputFiles.find((file) => file.path === 'blog.html');
+      expect(blogArticleFile).toBeDefined();
+      expect(blogSummaryFile).toBeDefined();
+      expect(blogArticleFile?.content).toBe('OPENGRAPH BAY BAY! OneDISQUS');
+      expect(blogSummaryFile?.content).toBe('One');
     });
   });
 });
