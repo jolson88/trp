@@ -111,4 +111,19 @@ describe('processPage', () => {
 
     expect([...result.properties.entries()]).toEqual([['LAST-UPDATED', 'October 23rd, 2023']]);
   });
+
+  it('should parse longer descriptions', () => {
+    const result = processPage(
+      `##DESCRIPTION: Make and makefiles are lost in the past for many developers, its advantages lost in the stream of tools that are constantly reinventing the wheel of building software. It's time we get off that crazy carousel.##`,
+      '',
+      {}
+    );
+
+    expect([...result.properties.entries()]).toEqual([
+      [
+        'DESCRIPTION',
+        `Make and makefiles are lost in the past for many developers, its advantages lost in the stream of tools that are constantly reinventing the wheel of building software. It's time we get off that crazy carousel.`,
+      ],
+    ]);
+  });
 });

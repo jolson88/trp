@@ -1,5 +1,5 @@
 const escapedValidKeyCharacters = '\\w\\-\\_';
-const escapedValidValueCharacters = '\\s\\w\\.\\-\\_\\,\\/\\\\';
+const escapedValidValueCharacters = '\\s\\w\\\'\\"\\.\\-\\_\\,\\/\\\\';
 const escapedSeparator = '\\s*:\\s*';
 const inputRegEx = new RegExp(`##([${escapedValidKeyCharacters}]+)##`, 'g');
 const propertyRegEx = new RegExp(
