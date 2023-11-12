@@ -1,5 +1,5 @@
 ##TITLE: Isolating For Lack of Change Versus Complexity##
-##DESCRIPTION: I find that it feels natural to isolate a source of complexity away from other code. Counter-intuitively, I believe that approach can result in your code being harder to change, not easier.##
+##DESCRIPTION: It feels natural to isolate a source of complexity away from other code. Counter-intuitively, I believe that approach can result in your code being harder to change, not easier.##
 ##IMAGE: /img/blog/working-with-vintage.jpg##
 ##LAST-UPDATED: November 12th, 2023##
 
@@ -10,12 +10,19 @@
   <figure>
     <img
       src="##IMAGE##"
-      alt="An LED-lit computer keyboard sitting ready to be used in front of a monitor displaying code."
+      alt="A geek that loves classic and vintage computers is working at their workbench dissecting the existing personal computer they are restoring. They are surrounded by shelves of running computers that they've previously restored."
     />
   </figure>
   <p>
     <span class="marginnote">Last Updated: ##LAST-UPDATED##</span>
-    <em>(NOTE: This is only one of many different lenses in which to look at software design through).</em>
+    <em>
+      NOTE: This is one of many different lenses through which to look at software design.
+      This article outlines some thoughts I've been throwing around in my noggin' as I experiment with different
+      approaches and reasons to split software elements out from each other as a piece of software
+      grows. These thoughts were formulated working on above-average-to-small code bases. The applicability
+      of the discussion will vary on the size of the problem space and granularity level you are working
+      at. It is not meant to apply to the extremely large areas, the Googles, the Microsofts, the Amazons.
+    </em>
   </p>
   <p>
     I think we may get something wrong as engineers. How many times do we isolate sources of
