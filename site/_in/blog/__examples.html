@@ -1,0 +1,59 @@
+##TITLE: Examples on Usage##
+##DESCRIPTION: Shows different examples of different features of the blog##
+##IMAGE: /img/blog/article.jpg##
+##LAST-UPDATED: Month Dayth, 2023##
+
+<h1>
+  <a href="##URL##">##TITLE##</a>
+</h1>
+<section>
+  <figure>
+    <img
+      src="##IMAGE##"
+      alt="An LED-lit computer keyboard sitting ready to be used in front of a monitor displaying code."
+    />
+  </figure>
+  <p>
+    <span class="marginnote">Last Updated: ##LAST-UPDATED##</span>
+    <span class="newthought">When spinning off a new thought</span>, a simple span is one way to do that.
+  </p>
+  <p>
+    <span class="marginnote">
+      <img
+        src="/img/blog/forgotten-memories.jpg"
+        alt="A row of glass jars all collecting dust as if they haven't been used in years"
+      />
+      Sometimes it feels like the memories are long gone. Sometimes not. But I always wish I had the
+      solid memories that many of my colleagues over the years have had.
+    </span>
+    You see, I have a horrible memory. I know I'll forget this code. I know I'll need to be able to
+    get back up to speed with it quickly. As I'm making my own improvements, I need to know that I
+    haven't broken anything. My only guarantee is that I <em>will</em> forgot the details and
+    nuances of the code by the next time I work on it.
+  </p>
+  <blockquote>
+    <p>
+      Those who do not understand Unix are condemned to reinvent it, poorly.
+    </p>
+    <footer>Henry Spencer, Usenet signature, 1987</footer>
+  </blockquote>
+  <pre><code class="language-cmake">
+PATH := node_modules/.bin:$(PATH)
+
+source_files    := $(wildcard lib/*.ts)
+build_files     := $(source_files:lib/%.ts=dist/%.js)
+PACKAGE         := build/my-package-1.0.0.tgz
+
+.PHONY: all
+
+all: $(PACKAGE)
+
+$(build_files): $(source_files) package.json
+    npm i
+    tsc
+
+$(PACKAGE): $(build_files) .npmignore
+    @mkdir -p $(dir $@)
+    @cd $(dir $@) && npm pack $(CURDIR)
+  </code></pre>
+</section>
