@@ -2,55 +2,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "cu.h"
 
-typedef struct TestSuite TestSuite;
-
-struct TestSuite {
-    char *name;
-    bool current_test_passed;
-};
-
-static TestSuite *cu_current_suite;
-
-TestSuite cu_suite_create(char *name) {
-    printf("Starting %s tests\n", name);
-
-    TestSuite suite;
-    suite.name = name;
-    return suite;
+/// @brief Clears the console
+void con_clear() {
+    printf("\033[2J");
 }
 
-void cu_suite_test(TestSuite *suite, char *name, void (*test_function)(void)) {
-    printf("%s - %s... ", suite->name, name);
-    
-    suite->current_test_passed = true;
-    cu_current_suite = suite;
-    test_function();
-    if (suite->current_test_passed) {
-        printf("\033[32m[OK]\033[0m\n");
-    } else {
-        printf("\033[31m[FAIL]\033[0m\n");
-    }
-}
-
-void cu_assert(bool value, char *name) {
-    if (!value && cu_current_suite) {
-        cu_current_suite->current_test_passed = false;
-    }
+/// @brief Sets the cursor position in the console
+/// @param x the x position
+/// @param y the y position
+void con_set_cursor(int x, int y) {
+    printf("\033[%d;%dH", y, x);
 }
 
 void my_passing_test() {
-    cu_assert(true, "Should always be true");
+    CU_ASSERT(true, "Should always be true");
 }
 
 void my_failing_test() {
-    cu_assert(false, "Should always be false");
+    CU_ASSERT_STRINGS_EQUAL("Hello", "World");
 }
 
 void run_tests() {
     printf("Running tests...\n\n");
 
-    TestSuite suite = cu_suite_create("cu");
+    cu_TestSuite suite = cu_suite_create("cu");
     cu_suite_test(&suite, "my_first_test", my_passing_test);
     cu_suite_test(&suite, "my_second_test", my_failing_test);
 }
@@ -58,6 +35,8 @@ void run_tests() {
 int main(int argc, char *argv[]) {
     for (int i = 0; i < argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
+            con_clear();
+            con_set_cursor(0, 0);
             run_tests();
             return 0;
         }
