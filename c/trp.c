@@ -10,8 +10,8 @@ void con_clear() {
 }
 
 /// @brief Sets the cursor position in the console
-/// @param x the x position
-/// @param y the y position
+/// @param x the x position, starting from 1
+/// @param y the y position, starting from 1
 void con_set_cursor(int x, int y) {
     printf("\033[%d;%dH", y, x);
 }
