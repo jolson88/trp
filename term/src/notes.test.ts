@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
-  BuiltInConnections,
+  BuiltInConnectionTypes,
   clearAllNotes,
   connectNotes,
   deleteConnection,
@@ -25,26 +25,34 @@ describe("Notes", () => {
     expect(noteCount()).toBe(1);
   });
 
-  it("should add a connection between two notes", () => {
+  it("should add a bidirectional connection between two notes", () => {
     const firstNote = saveNote("Foo", "Foo", "Foo");
     const secondNote = saveNote("Bar", "Bar", "Bar");
-    connectNotes(firstNote.id, secondNote.id, BuiltInConnections.Child);
+    connectNotes(firstNote.id, secondNote.id, BuiltInConnectionTypes.Child);
 
-    const connections = getConnections(firstNote.id);
-    expect(connections).toEqual([
+    const firstConnections = getConnections(firstNote.id);
+    const secondConnections = getConnections(secondNote.id);
+    expect(firstConnections).toEqual([
       {
         sourceNoteId: firstNote.id,
-        connectionType: BuiltInConnections.Child,
+        connectionTypeId: BuiltInConnectionTypes.Child,
         targetNoteId: secondNote.id,
+      },
+    ]);
+    expect(secondConnections).toEqual([
+      {
+        sourceNoteId: secondNote.id,
+        connectionTypeId: BuiltInConnectionTypes.Parent,
+        targetNoteId: firstNote.id,
       },
     ]);
   });
 
-  it("should delete a note and all its references", () => {
+  it("should delete a note and all its connections", () => {
     const firstNote = saveNote("Foo", "Foo", "Foo");
     const secondNote = saveNote("Bar", "Bar", "Bar");
-    connectNotes(firstNote.id, secondNote.id, BuiltInConnections.Child);
-    connectNotes(secondNote.id, firstNote.id, BuiltInConnections.Source);
+    connectNotes(firstNote.id, secondNote.id, BuiltInConnectionTypes.Child);
+    connectNotes(secondNote.id, firstNote.id, BuiltInConnectionTypes.Reference);
 
     deleteNote(firstNote.id);
 
@@ -53,16 +61,18 @@ describe("Notes", () => {
     expect(noteCount()).toBe(1);
   });
 
-  it("should remove a reference from a note", () => {
+  it("should remove a connection from a note", () => {
     const firstNote = saveNote("Foo", "Foo", "Foo");
     const secondNote = saveNote("Bar", "Bar", "Bar");
-    connectNotes(firstNote.id, secondNote.id, BuiltInConnections.Child);
-    connectNotes(firstNote.id, secondNote.id, BuiltInConnections.Source);
+    connectNotes(firstNote.id, secondNote.id, BuiltInConnectionTypes.Child);
+    connectNotes(firstNote.id, secondNote.id, BuiltInConnectionTypes.Reference);
 
-    deleteConnection(firstNote.id, secondNote.id, BuiltInConnections.Child);
+    deleteConnection(firstNote.id, secondNote.id, BuiltInConnectionTypes.Child);
 
-    const connections = getConnections(firstNote.id);
-    expect(connections).toHaveLength(1);
+    const firstConnections = getConnections(firstNote.id);
+    const secondConnections = getConnections(secondNote.id);
+    expect(firstConnections).toHaveLength(1);
+    expect(secondConnections).toHaveLength(1);
     expect(noteCount()).toBe(2);
   });
 });

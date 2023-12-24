@@ -1,14 +1,21 @@
-export enum BuiltInConnections {
-  BackReference = 0,
+export enum BuiltInConnectionTypes {
   Child,
   Parent,
-  Source,
-  Citation,
+  Reference,
+  CitedBy,
+}
+
+export interface ConnectionType {
+  id: number;
+  name: string;
+  description: string;
+  bidirectional: boolean;
+  bidirectionalConnectionTypeId?: number;
 }
 
 export interface NoteConnection {
   sourceNoteId: string;
-  connectionType: number;
+  connectionTypeId: number;
   targetNoteId: string;
 }
 
@@ -20,6 +27,35 @@ export interface Note {
 
 const notes = new Map<string, Note>();
 const connections = new Set<NoteConnection>();
+const connectionTypes = new Map<number, ConnectionType>([
+  [BuiltInConnectionTypes.Child, {
+    id: BuiltInConnectionTypes.Child,
+    name: "Child",
+    description: "A connection from a parent note to a child note",
+    bidirectional: true,
+    bidirectionalConnectionTypeId: BuiltInConnectionTypes.Parent,
+  }],
+  [BuiltInConnectionTypes.Parent, {
+    id: BuiltInConnectionTypes.Parent,
+    name: "Parent",
+    description: "A connection from a child note to a parent note",
+    bidirectional: true,
+    bidirectionalConnectionTypeId: BuiltInConnectionTypes.Child,
+  }],
+  [BuiltInConnectionTypes.Reference, {
+    id: BuiltInConnectionTypes.Reference,
+    name: "Reference",
+    description: "A connection from a note to a referenced note",
+    bidirectional: true,
+    bidirectionalConnectionTypeId: BuiltInConnectionTypes.CitedBy,
+  }],
+  [BuiltInConnectionTypes.CitedBy, {
+    id: BuiltInConnectionTypes.CitedBy,
+    name: "Cited By",
+    description: "A connection where a note is referenced by another note",
+    bidirectional: false,
+  }],
+]);
 
 export function clearAllNotes() {
   notes.clear();
@@ -70,13 +106,31 @@ export function connectionCount() {
 export function connectNotes(
   sourceNoteId: string,
   targetNoteId: string,
-  connectionType: number
+  connectionTypeId: number
 ) {
+  const connectionType = connectionTypes.get(connectionTypeId);
+  if (!connectionType) {
+    throw new Error(`Unknown connection type ${connectionTypeId}`);
+  }
+
   connections.add({
     sourceNoteId,
     targetNoteId,
-    connectionType,
+    connectionTypeId,
   });
+  if (connectionType.bidirectional && connectionType.bidirectionalConnectionTypeId) {
+    connections.add({
+      sourceNoteId: targetNoteId,
+      targetNoteId: sourceNoteId,
+      connectionTypeId: connectionType.bidirectionalConnectionTypeId,
+    });
+  } else {
+    connections.add({
+      sourceNoteId: targetNoteId,
+      targetNoteId: sourceNoteId,
+      connectionTypeId: BuiltInConnectionTypes.CitedBy,
+    })
+  }
 }
 
 export function getConnections(sourceNoteId: string): NoteConnection[] {
@@ -86,15 +140,32 @@ export function getConnections(sourceNoteId: string): NoteConnection[] {
 export function deleteConnection(
   sourceNoteId: string,
   targetNoteId: string,
-  connectionType: number
+  connectionTypeId: number
 ) {
+  const connectionType = connectionTypes.get(connectionTypeId);
+  if (!connectionType) {
+    throw new Error(`Unknown connection type ${connectionTypeId}`);
+  }
+
   connections.forEach((c) => {
     if (
       c.sourceNoteId === sourceNoteId &&
       c.targetNoteId === targetNoteId &&
-      c.connectionType === connectionType
+      c.connectionTypeId === connectionTypeId
     ) {
       connections.delete(c);
     }
   });
+
+  if (connectionType.bidirectional && connectionType.bidirectionalConnectionTypeId) {
+    connections.forEach((c) => {
+      if (
+        c.sourceNoteId === targetNoteId &&
+        c.targetNoteId === sourceNoteId &&
+        c.connectionTypeId === connectionType.bidirectionalConnectionTypeId
+      ) {
+        connections.delete(c);
+      }
+    });
+  }
 }
