@@ -1,28 +1,76 @@
 import { textEditClear, textEditCreate, textEditInput } from "./text";
-import { tuiBegin, tuiCursorTo, tuiEnd, tuiPrompt, tuiSendKey, tuiText } from "./tui";
+import {
+  TuiColor,
+  tuiBegin,
+  tuiClearColor,
+  tuiCursorTo,
+  tuiEnd,
+  tuiPrompt,
+  tuiRuleHorizontal,
+  tuiSendKey,
+  tuiSetBackgroundColor,
+  tuiSetForegroundColor,
+  tuiText,
+} from "./tui";
 
-const assert = require("assert");
+const headerDebug = `     ┴─└┴|                 TTTTT  EEEEE  XX  XX               ┬┬─┘┬┬─┘
+       ─│├┬┼┌                TT   EEE      XX                   ├┬┼┌
+   ┬┬─┘└┐│┘├─┴┘ │            TT   EEEEE  XX  XX               ┤─┐└│┬┘┴└ │┐┴─└
+    │─┬┤┌└┤┬                                                 ┬┌┬─┘┤ ┬┌┬─┘┤ ┬
+  └┐│┘├─┴┘                     <DEBUGGER>                      ┴─└│┬┘┴└ │┐┴─└┴|
+`;
+const headerNeural = `     ┴─└┴|                 TTTTT  EEEEE  XX  XX               ┬┬─┘┬┬─┘
+       ─│├┬┼┌                TT   EEE      XX                   ├┬┼┌
+   ┬┬─┘└┐│┘├─┴┘ │            TT   EEEEE  XX  XX               ┤─┐└│┬┘┴└ │┐┴─└
+    │─┬┤┌└┤┬                                                 ┬┌┬─┘┤ ┬┌┬─┘┤ ┬
+    ┴─┴                                                           ┴┴┴┴┘┴ ┴
+  └┐│┘├─┴┘                  <Neural Interface>                 ┴─└│┬┘┴└ │┐┴─└┴|
+    ─│├┬┼┌                                                           ├┬┼┌
+`;
 
 export class App {
   private textEdit = textEditCreate();
-  private history = new Array<string>();
+  private showDebug = false;
 
   constructor(private width: number, private height: number) {
     this.render();
   }
 
   render() {
-    tuiBegin();
+    tuiBegin(this.width, this.height);
+    if (!this.showDebug) {
+      tuiSetBackgroundColor(TuiColor.Red);
+      tuiSetForegroundColor(TuiColor.White);
+      const headerLines = headerDebug.split("\n");
+      for(const headerLine of headerLines) {
+        tuiText(headerLine, { fullWidth: true });
+      }
+      tuiText(" [TEX]: I certainly hope you know what you are doing!", { fullWidth: true });
+      tuiRuleHorizontal();
+
+      tuiText("\n\n\n");
+      for (let bgColor = 0; bgColor < 8; bgColor++) {
+        tuiSetBackgroundColor(bgColor);
+        for (let fgColor = 0; fgColor < 8; fgColor++) {
+          tuiSetForegroundColor(fgColor);
+          tuiText(" Hellorld ");
+        }
+        tuiText("\n");
+      }
+    } else {
+      tuiSetForegroundColor(TuiColor.Green);
+      tuiText(headerNeural);
+      tuiRuleHorizontal();
+    }
+
+    tuiClearColor();
+    tuiCursorTo(1, this.height - 1);
     if (tuiPrompt(this.textEdit.text)) {
-      this.history.push(this.textEdit.text);
+      // TODO: Handle command
       textEditClear(this.textEdit);
     }
 
-    for (let i = 0; i < Math.min(this.history.length, this.height - 3); i++) {
-      tuiText(this.history[this.history.length - i - 1]);
-    }
-
-    tuiCursorTo(3 + this.textEdit.cursorLocation, 1);
+    tuiCursorTo(3 + this.textEdit.cursorLocation, this.height - 1);
     tuiEnd();
   }
 
@@ -30,6 +78,10 @@ export class App {
     switch (key) {
       case "\u0003":
         process.exit();
+      case "\u001b[24~": // F12
+        this.showDebug = !this.showDebug;
+        tuiClearColor();
+        break;
       default:
         textEditInput(this.textEdit, key);
         tuiSendKey(key);

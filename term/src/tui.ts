@@ -1,57 +1,29 @@
-enum TerminalColor {
-  ForegroundBegin = 30,
-  ForegroundBlack = 30,
-  ForegroundRed = 31,
-  ForegroundGreen = 32,
-  ForegroundYellow = 33,
-  ForegroundBlue = 34,
-  ForegroundMagenta = 35,
-  ForegroundCyan = 36,
-  ForegroundWhite = 37,
-  ForegroundEnd = 37,
-
-  BackgroundBegin = 40,
-  BackgroundBlack = 40,
-  BackgroundRed = 41,
-  BackgroundGreen = 42,
-  BackgroundYellow = 43,
-  BackgroundBlue = 44,
-  BackgroundMagenta = 45,
-  BackgroundCyan = 46,
-  BackgroundWhite = 47,
-  BackgroundEnd = 47,
-}
-
-function termClearColor(): string {
-  return "\x1b[0m";
-}
-
-function termClearLine(): string {
-  return "\x1b[2K";
-}
-
-function termClearScreen(): string {
-  return "\x1b[2J";
-}
-
-function termCursorTo(x: number, y: number) {
-  return `\x1b[${y};${x}H`;
-}
-
-function termSetColor(color: TerminalColor) {
-  return `\x1b[${color}m`;
+export enum TuiColor {
+  Black = 0,
+  Red = 1,
+  Green = 2,
+  Yellow = 3,
+  Blue = 4,
+  Magenta = 5,
+  Cyan = 6,
+  White = 7,
 }
 
 const tuiState = {
   lastKey: "",
+  width: 0,
+  height: 0,
 };
 
-export function tuiBegin() {
-  process.stdout.write(`${termClearScreen()}${termCursorTo(1, 1)}`);
+export function tuiBegin(width: number, height: number) {
+  tuiState.width = width;
+  tuiState.height = height;
+
+  process.stdout.write(`\x1b[2J${`\x1b[1;1H`}`);
 }
 
 export function tuiCursorTo(x: number, y: number) {
-  process.stdout.write(termCursorTo(x, y));
+  process.stdout.write(`\x1b[${y};${x}H`);
 }
 
 export function tuiEnd() {}
@@ -70,6 +42,35 @@ export function tuiPrompt(text: string): boolean {
   return false;
 }
 
-export function tuiText(text: string) {
-  process.stdout.write(`${text}\n`);
+export function tuiClearColor() {
+  process.stdout.write("\x1b[0m");
+}
+
+export function tuiSetBackgroundColor(color: TuiColor) {
+  process.stdout.write(`\x1b[${40 + color}m`);
+}
+
+export function tuiSetForegroundColor(color: TuiColor) {
+  process.stdout.write(`\x1b[${30 + color}m`);
+}
+
+export function tuiText(
+  text: string,
+  { fullWidth = false }: { fullWidth?: boolean } = {}
+) {
+  process.stdout.write(
+    `${fullWidth ? text.padEnd(tuiState.width) : text}`
+  );
+}
+
+export enum TuiHorizontalRuleStyle {
+  Normal = "\u2500",
+  Bold = "\u2501",
+  Double = "\u2550",
+}
+
+export function tuiRuleHorizontal(
+  style: TuiHorizontalRuleStyle = TuiHorizontalRuleStyle.Normal
+) {
+  process.stdout.write(`${style.repeat(tuiState.width)}\n`);
 }
