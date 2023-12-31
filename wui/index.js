@@ -17,23 +17,17 @@ document.addEventListener("DOMContentLoaded", function () {
   canvas.addEventListener('mousemove', function(evt) {
     needsRedraw = true;
     var mousePos = getMousePosition(canvas, evt);
-    wui.setMouseState({ x: mousePos.x, y: mousePos.y });
-
-    /*
-    if (mouseIsDown) {
-        // Handle mouse drag
-    }
-    */
+    wui.setMousePosition(mousePos.x, mousePos.y);
   });
 
   canvas.addEventListener('mousedown', () => {
     needsRedraw = true;
-    wui.setMouseState({ isMouseDown: true });
+    wui.setMouseDown();
   });
 
   canvas.addEventListener('mouseup', () => {
     needsRedraw = true;
-    wui.setMouseState({ isMouseDown: false });
+    wui.setMouseUp();
   });
 
   const wui = window.wui;
@@ -89,11 +83,16 @@ document.addEventListener("DOMContentLoaded", function () {
       wui.drawLine(50, 114, 450, 114, 2, "#C7BEBC");
       wui.drawLine(50, 116, 450, 116, 1, "#FFFFFE");
 
-      wui.drawText(`You have ${fleetingNoteCount} fleeting notes`, 70, 150, {
-        font: "16px sans-serif",
+      wui.drawText(`You have ${fleetingNoteCount} fleeting notes`, 70, 160, {
+        font: "italic 16px sans-serif",
       });
-      wui.drawLine(50, 172, 450, 172, 2, "#C7BEBC");
-      wui.drawLine(50, 174, 450, 174, 1, "#FFFFFE");
+      if (wui.doButton("newNote", "\u2295", 395, 134, { width: 36, height: 36, font: "34px sans-serif" })) {
+        fleetingNoteCount++;
+        needsRedraw = true;
+      }
+
+      wui.drawLine(50, 192, 450, 192, 2, "#C7BEBC");
+      wui.drawLine(50, 194, 450, 194, 1, "#FFFFFE");
 
       wui.drawRoundedRect(50, 50, 400, 600, 40, {
         colorStyle: noteBorderGradient,
@@ -102,6 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+    wui.disableShadows();
     wui.drawText("Secain", 20, canvas.height - 10, {
       colorStyle: "#C1B8B7",
       font: "82px sans-serif",

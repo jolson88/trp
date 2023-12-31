@@ -18,6 +18,8 @@ function init(canvas) {
 }
 
 function begin() {
+  state.hotId = "";
+
   ctx.clearRect(0, 0, width, height);
   ctx.textAlign = "start";
   ctx.textBaseline = "alphabetic";
@@ -25,21 +27,71 @@ function begin() {
   disableShadows();
 }
 
-function end() {}
+function end() {
+  if (!state.mouseDown) {
+    state.activeId = "";
+  }
+}
 
 function setMousePosition(x, y) {
   state.mouseX = x;
   state.mouseY = y;
 }
 
-function setMouseState({
-  isDown = state.mouseDown,
-  x = state.mouseX,
-  y = state.mouseY,
-} = {}) {
-  state.mouseX = x;
-  state.mouseY = y;
-  state.mouseDown = isDown;
+function setMouseDown() {
+  state.mouseDown = true;
+}
+
+function setMouseUp() {
+  state.mouseDown = false;
+}
+
+function inRegion(x, y, width, height) {
+  return !(
+    state.mouseX < x ||
+    state.mouseY < y ||
+    state.mouseX > x + width ||
+    state.mouseY > y + height
+  );
+}
+
+function doButton(id, text, x, y, { width = 150, height = 30, font = "14px sans-serif" } = {}) {
+  if (inRegion(x, y, width, height)) {
+    state.hotId = id;
+    if (state.activeId === "" && state.mouseDown) {
+      state.activeId = id;
+    }
+  }
+  const hotAndActive = state.hotId === id && state.activeId === id;
+
+  enableShadows({
+    offsetX: hotAndActive ? 0 : 2,
+    offsetY: hotAndActive ? 0 : 2,
+    blur: 1,
+  });
+  drawRoundedRect(
+    x + (hotAndActive ? 1 : 0),
+    y + (hotAndActive ? 1 : 0),
+    width,
+    height,
+    height / 2,
+    { colorStyle: "#6B7C9B" }
+  );
+
+  disableShadows();
+  drawText(
+    text,
+    x + (hotAndActive ? 1 : 0) + width / 2,
+    y + (hotAndActive ? 1 : 0) + height / 2,
+    {
+      colorStyle: "#FFFFFF",
+      font,
+      textAlign: "center",
+      textBaseline: "middle",
+    }
+  );
+
+  return !state.mouseDown && hotAndActive;
 }
 
 function createLinear(x1, y1, x2, y2, stops) {
@@ -133,6 +185,7 @@ function drawText(
 window.wui = {
   begin,
   disableShadows,
+  doButton,
   drawLine,
   drawRect,
   drawRoundedRect,
@@ -143,5 +196,7 @@ window.wui = {
     createLinear,
   },
   init,
-  setMouseState,
+  setMousePosition,
+  setMouseDown,
+  setMouseUp,
 };
