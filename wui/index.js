@@ -1,49 +1,25 @@
-function getMousePosition(canvas, evt) {
-  var rect = canvas.getBoundingClientRect();
-  return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-  };
-}
+let wui = undefined;
+let canvas = undefined;
 
-document.addEventListener("DOMContentLoaded", function () {
-  let fleetingNoteCount = 3;
-  let needsRedraw = true;
+let fleetingNoteCount = 5;
+let bgGradient = undefined;
 
-  const canvas = document.getElementById("myCanvas");
+function initialize() {
+  canvas = document.getElementById("myCanvas");
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
-  canvas.addEventListener('mousemove', function(evt) {
-    needsRedraw = true;
+  wui = window.wui;
+  wui.init(canvas);
+
+  canvas.addEventListener("mousemove", function (evt) {
     var mousePos = getMousePosition(canvas, evt);
     wui.setMousePosition(mousePos.x, mousePos.y);
   });
+  canvas.addEventListener("mousedown", wui.setMouseDown);
+  canvas.addEventListener("mouseup", wui.setMouseUp);
 
-  canvas.addEventListener('mousedown', () => {
-    needsRedraw = true;
-    wui.setMouseDown();
-  });
-
-  canvas.addEventListener('mouseup', () => {
-    needsRedraw = true;
-    wui.setMouseUp();
-  });
-
-  const wui = window.wui;
-  wui.init(canvas);
-
-  const noteGradient = wui.gradients.createLinear(0, 0, 0, 550, [
-    [0, "#F7FAFE"],
-    [0.5, "#EBECF4"],
-    [1, "#D3CDCB"],
-  ]);
-  const noteBorderGradient = wui.gradients.createLinear(30, 30, 650, 450, [
-    [0, "#FFFFFF"],
-    [0.5, "#FFFFFF"],
-    [0.51, "#BB9987"],
-  ]);
-  const bgGradient = wui.gradients.createLinear(
+  bgGradient = wui.gradients.createLinear(
     canvas.width / 2,
     0,
     canvas.width / 2,
@@ -53,79 +29,87 @@ document.addEventListener("DOMContentLoaded", function () {
       [1, "#867373"],
     ]
   );
+}
 
-  function draw() {
-    if (!needsRedraw) {
-      requestAnimationFrame(draw);
-      return;
-    }
+function getMousePosition(canvas, evt) {
+  var rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,
+    y: evt.clientY - rect.top,
+  };
+}
 
-    needsRedraw = false;
-    wui.begin();
-    wui.drawRect(0, 0, canvas.width, canvas.height, bgGradient);
+function update() {
+  draw();
+  requestAnimationFrame(update);
+}
 
-    {
-      wui.enableShadows({
-        color: "#352227",
-        blur: 50,
-        offsetX: 30,
-        offsetY: 30,
-      });
-      wui.drawRoundedRect(50, 50, 400, 600, 40, { colorStyle: noteGradient });
+function draw() {
+  wui.begin({ clearStyle: bgGradient });
 
-      wui.disableShadows();
-      wui.drawText("Fleeting Notes", 250, 70, {
-        font: "28px serif",
-        textAlign: "center",
-        textBaseline: "top",
-      });
-
-      wui.drawLine(50, 114, 450, 114, 2, "#C7BEBC");
-      wui.drawLine(50, 116, 450, 116, 1, "#FFFFFE");
-
-      wui.drawText(`You have ${fleetingNoteCount} fleeting notes`, 70, 160, {
-        font: "italic 16px sans-serif",
-      });
-      if (wui.doButton("newNote", "\u2295", 395, 134, { width: 36, height: 36, font: "34px sans-serif" })) {
-        fleetingNoteCount++;
-        needsRedraw = true;
-      }
-
-      wui.drawLine(50, 192, 450, 192, 2, "#C7BEBC");
-      wui.drawLine(50, 194, 450, 194, 1, "#FFFFFE");
-
-      wui.drawRoundedRect(50, 50, 400, 600, 40, {
-        colorStyle: noteBorderGradient,
-        isFilled: false,
-        lineWidth: 2,
-      });
-    }
-
-    wui.disableShadows();
-    wui.drawText("Secain", 20, canvas.height - 10, {
-      colorStyle: "#C1B8B7",
-      font: "82px sans-serif",
-      textAlign: "start",
-      textBaseline: "bottom",
-      isFilled: false,
+  let x = 50;
+  let y = 50;
+  const width = 400;
+  const height = 600;
+  if (wui.doWindow("fleetingNotes", x, y, { width,height, title: "Fleeting Notes" })) {
+    y += 65;
+    wui.drawText(`You have ${fleetingNoteCount} fleeting notes`, x + 20, y + 35, {
+      font: "16px sans-serif",
     });
-    wui.drawText(
-      "THE REASONABLE PROGRAMMER",
-      canvas.width - 20,
-      canvas.height - 20,
+    if (wui.doButton("newNote", "\u2295", x + width - 60, y + 10, { width: 36, height: 36, font: "34px sans-serif" })) {
+      fleetingNoteCount++;
+    }
+    wui.drawLine(x, y + 65, x + width, y + 65, 2, "#C7BEBC");
+    wui.drawLine(x, y + 65 + 2, x + width, y + 65 + 2, 1, "#FFFFFE");
+
+    y += 100;
+    wui.drawText("🗓", x + width - 24, y + 10, {
+      font: "36px sans-serif",
+      textAlign: "end",
+      textBaseline: "middle",
+    });
+    wui.drawText("2 days old", x + width - 75, y + 10, {
+      colorStyle: "#978E8C",
+      font: "italic 16px sans-serif",
+      textAlign: "end",
+      textBaseline: "middle",
+    });
+    wui.drawText("A vital element of thinking critically is being able to identify framing, assertions, and assumptions being made behind an argument. This is even more important than knowledge because without it, we can't apply the knowledge we've gained in the first place.",
+      x + 30,
+      y + 60,
       {
-        colorStyle: "#C1B8B7",
-        font: "24px sans-serif",
-        textAlign: "end",
-        textBaseline: "bottom",
-        isFilled: false,
+        colorStyle: "#3D1610",
+        font: "16px sans-serif",
+        maxWidth: width - 60,
       }
     );
-
-    wui.end();
-    requestAnimationFrame(draw);
   }
 
-  // Start the drawing loop
-  draw();
+  wui.disableShadows();
+  wui.drawText("Secain", 20, canvas.height - 10, {
+    colorStyle: "#C1B8B7",
+    font: "82px sans-serif",
+    textAlign: "start",
+    textBaseline: "bottom",
+    isFilled: false,
+  });
+  wui.drawText(
+    "THE REASONABLE PROGRAMMER",
+    canvas.width - 20,
+    canvas.height - 20,
+    {
+      colorStyle: "#C1B8B7",
+      font: "24px sans-serif",
+      textAlign: "end",
+      textBaseline: "bottom",
+      isFilled: false,
+    }
+  );
+
+  wui.end();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  initialize();
+  update();
 });
