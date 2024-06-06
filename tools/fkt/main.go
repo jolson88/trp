@@ -1,80 +1,36 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 
-	"github.com/jolson88/knowl/ideas"
+	"github.com/jolson88/trp/tools/fkt/ideas"
+
+	gui "github.com/gen2brain/raylib-go/raygui"
+	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 func main() {
-	activeId := ideas.IdeaId(0)
 	ideaBank := ideas.NewIdeaBank()
-	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Printf("Default ideaBank with %d ideas\n", ideaBank.Count())
 
-	for {
-		fmt.Print("knowl> ")
-		if scanner.Scan() {
-			input := scanner.Text()
-			if input == "exit" {
-				break
-			}
+	rl.InitWindow(1280, 720, "FKT")
 
-			words := strings.SplitN(input, " ", 2)
-			command := words[0]
-			commandInput := ""
-			if len(words) > 1 {
-				commandInput = words[1]
-			}
+	rl.SetTargetFPS(60)
 
-			switch command {
+	var button bool
 
-			case "+":
-				if commandInput == "" {
-					fmt.Println("Usage: + <text>")
-					continue
-				}
-				activeId = ideaBank.CreateIdea(commandInput).Id
+	for !rl.WindowShouldClose() {
+		rl.BeginDrawing()
 
-			case "log":
-				for _, command := range ideaBank.CommandLog() {
-					fmt.Println(string(command))
-				}
+		rl.ClearBackground(rl.Black)
 
-			case "ls":
-				visited := make(map[ideas.IdeaId]bool)
-				for _, idea := range ideaBank.AllIdeas() {
-					if idea.Id == ideaBank.NilIdea.Id {
-						continue
-					}
-					if visited[idea.Id] {
-						continue
-					}
-
-					if idea.Id == activeId {
-						fmt.Printf("*[%d] %s\n", idea.Id, idea.Text)
-					} else {
-						fmt.Printf("[%d] %s\n", idea.Id, idea.Text)
-					}
-					visited[idea.Id] = true
-
-					for _, childId := range idea.Children {
-						fmt.Printf("    - [%d] %s\n", childId, ideaBank.GetIdea(childId).Text)
-						visited[childId] = true
-					}
-				}
-
-			default:
-				fmt.Println("Unknown command:", command)
-			}
-		} else {
-			break
+		button = gui.Button(rl.NewRectangle(50, 150, 100, 40), "Click")
+		if button {
+			fmt.Println("Clicked on button")
 		}
+
+		rl.EndDrawing()
 	}
 
-	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading input:", err)
-	}
+	rl.CloseWindow()
 }
