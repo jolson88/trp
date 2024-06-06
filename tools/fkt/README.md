@@ -1,3 +1,2 @@
-# WIP - fkt
-
-A personal Fact and Knowledge Tool. Heavily inspired by Zettelkasten and Atomic Ideas.
+# knowl
+Tool for capturing and exploring a graph of ideas
