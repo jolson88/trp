@@ -14,11 +14,11 @@ func main() {
 	fmt.Printf("Default ideaBank with %d ideas\n", ideaBank.Count())
 
 	rl.InitWindow(1280, 720, "FKT")
+	defer rl.CloseWindow()
 
 	rl.SetTargetFPS(60)
 
 	var button bool
-
 	for !rl.WindowShouldClose() {
 		rl.BeginDrawing()
 
@@ -31,6 +31,4 @@ func main() {
 
 		rl.EndDrawing()
 	}
-
-	rl.CloseWindow()
 }
