@@ -32,10 +32,10 @@ func osc(frequency, elapsedInSeconds float64) float64 {
 
 func main() {
 	circles := []*Circle{
-		{Frequency: secToHz(4), Radius: 20, PhaseOffset: 0, Color: rl.Red},
-		{Frequency: secToHz(4), Radius: 20, PhaseOffset: 0.25, Color: rl.Blue},
-		{Frequency: secToHz(4), Radius: 20, PhaseOffset: 0.5, Color: rl.Green},
-		{Frequency: secToHz(4), Radius: 20, PhaseOffset: 0.75, Color: rl.Magenta},
+		{Frequency: secToHz(2), Radius: 20, PhaseOffset: 0, Color: rl.Red},
+		{Frequency: secToHz(2), Radius: 20, PhaseOffset: 0.25, Color: rl.Blue},
+		{Frequency: secToHz(2), Radius: 20, PhaseOffset: 0.5, Color: rl.Green},
+		{Frequency: secToHz(2), Radius: 20, PhaseOffset: 0.75, Color: rl.Magenta},
 	}
 
 	rl.InitWindow(1280, 720, "Circles")
@@ -46,13 +46,19 @@ func main() {
 		rl.BeginDrawing()
 		rl.ClearBackground(rl.Black)
 
-		radius := 200.0
+		rl.BeginBlendMode(rl.BlendAdditive)
+		freqCounter := 2 * math.Pi * rl.GetTime()
 		for _, circle := range circles {
-			radius = 200 * osc(0.5, rl.GetTime())
-			phase := osc(circle.Frequency, rl.GetTime()) + circle.PhaseOffset
-			screenX, screenY := translate(math.Sin(phase*2*math.Pi)*radius, math.Cos(phase*2*math.Pi)*radius)
+			radius := 200 * osc(0.2, rl.GetTime())
+			phaseOffset := circle.PhaseOffset * 2 * math.Pi
+			screenX, screenY := translate(
+				math.Sin(freqCounter*circle.Frequency+phaseOffset)*radius,
+				math.Cos(freqCounter*circle.Frequency+phaseOffset)*radius,
+			)
+
 			rl.DrawCircle(int32(screenX), int32(screenY), circle.Radius, circle.Color)
 		}
+		rl.EndBlendMode()
 
 		rl.EndDrawing()
 	}
