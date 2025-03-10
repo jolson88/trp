@@ -1,4 +1,4 @@
-package vommavol
+package kakuro
 
 import "core:fmt"
 
