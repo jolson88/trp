@@ -1,27 +1,19 @@
 import net from "node:net";
+import { GopherServer } from "./gopher.ts";
 
 const PORT = 7070;
 
 const server = net.createServer((socket: net.Socket) => {
+    const port = PORT;
+    const host = 'localhost';
+
     socket.setEncoding("utf-8");
 
     socket.once("data", (data: string) => {
         const selector = data.trim().replace(/\r?\n/, "");
-        console.log("Selector received: ", selector);
 
-        if (selector === "") {
-            socket.write(`1About\t/about\tlocalhost\t${PORT}\r\n`);
-            socket.write(`1Contact\t/contact\tlocalhost\t${PORT}\r\n`);
-        } else if (selector === "/about") {
-            socket.write(`iWelcome to the TypeScript Gopher Server!\tfake\t(NULL)\t0\r\n`);
-            socket.write(`1Back\t/\tlocalhost\t${PORT}\r\n`);
-        } else {
-            socket.write(`3Unknown selector: ${selector}\tfake\t(NULL)\t0\r\n`);
-            socket.write(`1Back\t/\tlocalhost\t${PORT}\r\n`);
-        }
-
-        socket.write(".\r\n");
-        socket.end();
+        const gopher = GopherServer.create(host, port, socket);
+        gopher.handleSelector(selector);
     });
 
     socket.on("error", (err) => {
