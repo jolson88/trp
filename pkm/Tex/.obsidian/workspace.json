@@ -14,14 +14,29 @@
               "type": "markdown",
               "state": {
                 "file": "Explore it.md",
-                "mode": "preview",
+                "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
               "title": "Explore it"
             }
+          },
+          {
+            "id": "92eaef9560abe4d3",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "How to take smart notes.md",
+                "mode": "preview",
+                "source": true
+              },
+              "icon": "lucide-file",
+              "title": "How to take smart notes"
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -78,7 +93,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 249.5
+    "width": 291.5
   },
   "right": {
     "id": "0d57392e6bb20a0c",
@@ -94,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Explore it.md",
+                "file": "How to take smart notes.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Explore it"
+              "title": "Backlinks for How to take smart notes"
             }
           },
           {
@@ -167,10 +182,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "95ad8ac10d14d2df",
+  "active": "92eaef9560abe4d3",
   "lastOpenFiles": [
-    "Dare to lead.md",
     "Explore it.md",
+    "How to take smart notes.md",
+    "Dare to lead.md",
     "Welcome.md"
   ]
 }
