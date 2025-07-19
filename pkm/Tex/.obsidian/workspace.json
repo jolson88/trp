@@ -8,49 +8,20 @@
         "type": "tabs",
         "children": [
           {
-            "id": "aec3480736d5375a",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Welcome.md",
-                "mode": "preview",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Welcome"
-            }
-          },
-          {
-            "id": "e98464d1600ad69f",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Dare to lead.md",
-                "mode": "source",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Dare to lead"
-            }
-          },
-          {
             "id": "95ad8ac10d14d2df",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
                 "file": "Explore it.md",
-                "mode": "source",
+                "mode": "preview",
                 "source": true
               },
               "icon": "lucide-file",
               "title": "Explore it"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -123,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Dare to lead.md",
+                "file": "Explore it.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Dare to lead"
+              "title": "Backlinks for Explore it"
             }
           },
           {
@@ -196,10 +167,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "e98464d1600ad69f",
+  "active": "95ad8ac10d14d2df",
   "lastOpenFiles": [
-    "Explore it.md",
     "Dare to lead.md",
+    "Explore it.md",
     "Welcome.md"
   ]
 }
