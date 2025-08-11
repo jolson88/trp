@@ -27,12 +27,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "How to take smart notes.md",
-                "mode": "preview",
+                "file": "Explore it.md",
+                "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "How to take smart notes"
+              "title": "Explore it"
             }
           }
         ],
@@ -109,7 +109,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "How to take smart notes.md",
+                "file": "Explore it.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +119,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for How to take smart notes"
+              "title": "Backlinks for Explore it"
             }
           },
           {
@@ -184,9 +184,20 @@
   },
   "active": "92eaef9560abe4d3",
   "lastOpenFiles": [
-    "Explore it.md",
+    "2025-08-11.md",
+    "2025-08-08.md",
+    "2025-08-07.md",
+    "2025-08-06.md",
+    "2025-08-04.md",
     "How to take smart notes.md",
     "Dare to lead.md",
+    "Explore it.md",
+    "2025-07-31.md",
+    "2025-07-29.md",
+    "2025-07-28.md",
+    "2025-07-25.md",
+    "2025-07-24.md",
+    "2025-07-23.md",
     "Welcome.md"
   ]
 }
