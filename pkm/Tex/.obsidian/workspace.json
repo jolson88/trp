@@ -13,30 +13,15 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Explore it.md",
+                "file": "Emulator development.md",
                 "mode": "source",
                 "source": true
               },
               "icon": "lucide-file",
-              "title": "Explore it"
-            }
-          },
-          {
-            "id": "92eaef9560abe4d3",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Explore it.md",
-                "mode": "source",
-                "source": true
-              },
-              "icon": "lucide-file",
-              "title": "Explore it"
+              "title": "Emulator development"
             }
           }
-        ],
-        "currentTab": 1
+        ]
       }
     ],
     "direction": "vertical"
@@ -109,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Explore it.md",
+                "file": "Emulator development.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -119,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Explore it"
+              "title": "Backlinks for Emulator development"
             }
           },
           {
@@ -182,16 +167,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "92eaef9560abe4d3",
+  "active": "95ad8ac10d14d2df",
   "lastOpenFiles": [
+    "Game Boy.md",
+    "Emulator development.md",
+    "2025-08-13.md",
+    "Turbo rascal syntax error.md",
+    "2025-08-12.md",
     "2025-08-11.md",
+    "Explore it.md",
     "2025-08-08.md",
     "2025-08-07.md",
     "2025-08-06.md",
     "2025-08-04.md",
     "How to take smart notes.md",
     "Dare to lead.md",
-    "Explore it.md",
     "2025-07-31.md",
     "2025-07-29.md",
     "2025-07-28.md",
